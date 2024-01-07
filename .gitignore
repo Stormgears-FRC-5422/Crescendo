@@ -200,7 +200,6 @@ replay_pid*
 # Icon must end with two \r
 Icon
 
-
 # Thumbnails
 ._*
 
@@ -290,7 +289,22 @@ gradle-app.setting
 .settings/
 bin/
 
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
+
+# Fleet
+.fleet
+
 # Simulation GUI and other tools window save file
 *-window.json
 
+# Simulation data log directory
+logs/
+
+# Folder that has CTRE Phoenix Sim device config storage
+ctre_sim/
 # End of https://www.toptal.com/developers/gitignore/api/c++,java,linux,macos,gradle,windows,intellij,visualstudiocode
