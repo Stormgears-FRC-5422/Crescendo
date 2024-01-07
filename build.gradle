@@ -99,3 +99,51 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
+
+// Additions to handle code generation for properties
+
+// A different source set is required to decouple compilation of the generator from the rest of the code.
+// The generator needs to be compiled and run before the rest of the code is compiled (since generated code is
+// compiled with the rest of the robot
+sourceSets {
+    generator {
+        java {
+            srcDir 'src/main/java/frc/utils/configfile'
+        }
+    }
+}
+
+// Task to compile Java code
+task compileGeneratorCode(type: JavaCompile) {
+    source = sourceSets.generator.java
+    classpath = configurations.runtimeClasspath
+    destinationDir = file("$buildDir/myGeneratorCode")
+}
+
+// Task to run the generator
+task generateCode(dependsOn: compileGeneratorCode) {
+    def propertyFileDir = 'src/main/deploy'
+    def outputFileName = 'src/main/java/frc/robot/Constants.java'
+
+    // Dependency on the generated java code being up-to-date
+    inputs.dir file("$buildDir/myGeneratorCode") as Object
+
+    // Dependency on the *.properties files we care about
+    inputs.files fileTree(dir: propertyFileDir, include: '**/*.properties')
+
+    // Has the output file been modified? Regenerate it!
+    outputs.file outputFileName
+
+    doLast {
+        javaexec {
+            classpath = files(compileGeneratorCode.destinationDirectory)
+            main = 'frc.utils.configfile.ConstantGenerator'
+            args propertyFileDir, outputFileName
+        }
+    }
+}
+
+// build task depends on both compileJava and generateCode
+tasks.named('compileJava').configure {
+    dependsOn generateCode
+}
