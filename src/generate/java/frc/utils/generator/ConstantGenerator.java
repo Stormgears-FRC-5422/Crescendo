@@ -75,6 +75,7 @@ public class ConstantGenerator {
 
         for (String prop : propFiles) {
             reader = new FileReader(path + "/" + prop);
+            System.out.println(prop);
             p = new Properties();
             p.load(reader);
             keys = p.keys();
