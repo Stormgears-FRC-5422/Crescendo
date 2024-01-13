@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.drive;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
@@ -6,10 +6,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.ModuleConfiguration;
+
+import com.swervedrivespecialties.swervelib.MechanicalConfiguration;
+import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
+import com.swervedrivespecialties.swervelib.MotorType;
+
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.XboxController;
@@ -19,15 +22,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import frc.robot.Constants;
+import frc.robot.Constants.Drive;
+import frc.robot.subsystems.drive.DrivetrainBase;
 
-import static frc.robot.Constants.BACK_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.BACK_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.Drive.*;
-import static frc.robot.Constants.Drive.BACK_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.FRONT_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.FRONT_RIGHT_MODULE_STEER_OFFSET;
-
-public class SwerveDriveTrain extends SubsystemBase {
+public class SwerveDriveTrain extends DrivetrainBase {
 
     public double m_maxVelocityMetersPerSecond;
 
@@ -46,29 +45,28 @@ public class SwerveDriveTrain extends SubsystemBase {
     public static final double MAX_VOLTAGE = 12.0;
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
-            new Translation2d(DRIVETRAIN_WHEELBASE_METERS / 2.0, DRIVETRAIN_TRACKWIDTH_METERS / 2.0),
+            new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
             // Front right
-            new Translation2d(DRIVETRAIN_WHEELBASE_METERS / 2.0, -DRIVETRAIN_TRACKWIDTH_METERS / 2.0),
+            new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, -Drive.drivetrainTrackwidthMeters / 2.0),
             // Back left
-            new Translation2d(-DRIVETRAIN_WHEELBASE_METERS / 2.0, DRIVETRAIN_TRACKWIDTH_METERS / 2.0),
+            new Translation2d(-Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
             // Back right
-            new Translation2d(-DRIVETRAIN_WHEELBASE_METERS / 2.0, -DRIVETRAIN_TRACKWIDTH_METERS / 2.0)
+            new Translation2d(-Drive.drivetrainWheelbaseMeters / 2.0, -Drive.drivetrainTrackwidthMeters / 2.0)
     );
 
     private final SwerveModule
             m_frontLeftModule, m_frontRightModule,
             m_backLeftModule, m_backRightModule;
 
-    public SwerveDrivetrain() {
-        Mk4iSwerveModuleHelper.GearRatio gearRatio = Mk4iSwerveModuleHelper.GearRatio.L2;
-        ModuleConfiguration moduleConfiguration = SdsModuleConfigurations.MK4_L2;
+    public SwerveDriveTrain() {
+        MechanicalConfiguration moduleConfiguration = SdsModuleConfigurations.MK4_L2;
 
 //        divide by 60 for rps instead of rpm
-        double maxVelocityMetersPerSecond = kNeoFreeSpeedRPM / 60.0 *
+        double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
                 moduleConfiguration.getDriveReduction() *
                 moduleConfiguration.getWheelDiameter() * Math.PI;
         double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
-                Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+                Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
         ShuffleboardLayout frontLeftModuleLayout = tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                 .withSize(2, 4)
                 .withPosition(0, 0);
@@ -82,57 +80,54 @@ public class SwerveDriveTrain extends SubsystemBase {
                 .withSize(2, 4)
                 .withPosition(6, 0);
 
-        m_frontLeftModule = Mk4iSwerveModuleHelper.createNeo(
-                frontLeftModuleLayout,
-                gearRatio,
-                FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                FRONT_LEFT_MODULE_STEER_MOTOR,
-                FRONT_LEFT_MODULE_STEER_ENCODER,
-                FRONT_LEFT_MODULE_STEER_OFFSET
-        );
+        m_frontLeftModule = new MkSwerveModuleBuilder()
+                .withLayout(frontLeftModuleLayout)
+                .withGearRatio(SdsModuleConfigurations.MK4_L2)
+                .withDriveMotor(MotorType.NEO, Drive.frontLeftDriveID)
+                .withSteerMotor(MotorType.NEO, Drive.frontLeftSteerID)
+                .withSteerEncoderPort(Drive.frontLeftEncoderID)
+                .withSteerOffset(Drive.frontLeftOffsetTicks)
+                .build();
 
-        m_frontRightModule = Mk4iSwerveModuleHelper.createNeo(
-                frontRightModuleLayout,
-                gearRatio,
-                FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                FRONT_RIGHT_MODULE_STEER_MOTOR,
-                FRONT_RIGHT_MODULE_STEER_ENCODER,
-                FRONT_RIGHT_MODULE_STEER_OFFSET
-        );
+        m_frontRightModule = new MkSwerveModuleBuilder()
+                .withLayout(frontRightModuleLayout)
+                .withGearRatio(SdsModuleConfigurations.MK4_L2)
+                .withDriveMotor(MotorType.NEO, Drive.frontRightDriveID)
+                .withSteerMotor(MotorType.NEO, Drive.frontRightSteerID)
+                .withSteerEncoderPort(Drive.frontRightEncoderID)
+                .withSteerOffset(Drive.frontRightOffsetTicks)
+                .build();
 
-        m_backLeftModule = Mk4iSwerveModuleHelper.createNeo(
-                backLeftModuleLayout,
-                gearRatio,
-                BACK_LEFT_MODULE_DRIVE_MOTOR,
-                BACK_LEFT_MODULE_STEER_MOTOR,
-                BACK_LEFT_MODULE_STEER_ENCODER,
-                BACK_LEFT_MODULE_STEER_OFFSET
-        );
+        m_backLeftModule = new MkSwerveModuleBuilder()
+                .withLayout(backLeftModuleLayout)
+                .withGearRatio(SdsModuleConfigurations.MK4_L2)
+                .withDriveMotor(MotorType.NEO, Drive.backLeftDriveID)
+                .withSteerMotor(MotorType.NEO, Drive.backLeftSteerID)
+                .withSteerEncoderPort(Drive.backLeftEncoderID)
+                .withSteerOffset(Drive.backLeftOffsetTicks)
+                .build();
 
-        m_backRightModule = Mk4iSwerveModuleHelper.createNeo(
-                backRightModuleLayout,
-                gearRatio,
-                BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                BACK_RIGHT_MODULE_STEER_MOTOR,
-                BACK_RIGHT_MODULE_STEER_ENCODER,
-                BACK_RIGHT_MODULE_STEER_OFFSET
-        );
+        m_backRightModule = new MkSwerveModuleBuilder()
+                .withLayout(backRightModuleLayout)
+                .withGearRatio(SdsModuleConfigurations.MK4_L2)
+                .withDriveMotor(MotorType.NEO, Drive.backRightDriveID)
+                .withSteerMotor(MotorType.NEO, Drive.backRightSteerID)
+                .withSteerEncoderPort(Drive.backRightEncoderID)
+                .withSteerOffset(Drive.backRightOffsetTicks)
+                .build();
 
         ((CANSparkMax) m_frontLeftModule.getDriveMotor()).setInverted(false);
         ((CANSparkMax) m_frontRightModule.getDriveMotor()).setInverted(false);
         ((CANSparkMax) m_backLeftModule.getDriveMotor()).setInverted(false);
         ((CANSparkMax) m_backRightModule.getDriveMotor()).setInverted(false);
-
-        ((CANSparkMax) m_frontLeftModule.getDriveMotor()).setInverted(false);
-
     }
+
     public void drive(ChassisSpeeds speeds) {
         ChassisSpeeds speed = new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
                 speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
                 speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond);
         Rotation2d rotation = m_gyro.getRotation2d();
         m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speed, rotation);
-
     }
 
 
