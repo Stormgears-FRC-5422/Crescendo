@@ -40,7 +40,6 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
     private final ShuffleboardTab tab = Shuffleboard.getTab("DriveTrain");
 
-    private XboxController xboxController = new XboxController(0);
 
     public static final double MAX_VOLTAGE = 12.0;
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
@@ -54,11 +53,15 @@ public class SwerveDriveTrain extends DrivetrainBase {
             new Translation2d(-Drive.drivetrainWheelbaseMeters / 2.0, -Drive.drivetrainTrackwidthMeters / 2.0)
     );
 
+    SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+
+
     private final SwerveModule
             m_frontLeftModule, m_frontRightModule,
             m_backLeftModule, m_backRightModule;
 
     public SwerveDriveTrain() {
+
         MechanicalConfiguration moduleConfiguration = SdsModuleConfigurations.MK4_L2;
 
 //        divide by 60 for rps instead of rpm
@@ -67,6 +70,10 @@ public class SwerveDriveTrain extends DrivetrainBase {
                 moduleConfiguration.getWheelDiameter() * Math.PI;
         double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
                 Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
+
+        super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
+
+
         ShuffleboardLayout frontLeftModuleLayout = tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                 .withSize(2, 4)
                 .withPosition(0, 0);
@@ -122,21 +129,18 @@ public class SwerveDriveTrain extends DrivetrainBase {
         ((CANSparkMax) m_backRightModule.getDriveMotor()).setInverted(false);
     }
 
-    public void drive(ChassisSpeeds speeds) {
-        ChassisSpeeds speed = new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
-                speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
-                speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond);
-        Rotation2d rotation = m_gyro.getRotation2d();
-        m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speed, rotation);
-    }
 
 
     @Override
     public void periodic() {
-        drive(new ChassisSpeeds(xboxController.getLeftX(),
-                xboxController.getLeftY(), xboxController.getRightX()));
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+
+        states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocityMetersPerSecond);
+
+        System.out.println("FL: " + states[0].angle.getRotations());
+        System.out.println("FR: " + states[1].angle.getRotations());
+        System.out.println("BL: " + states[2].angle.getRotations());
+        System.out.println("BR: " + states[3].angle.getRotations());
 
         m_frontLeftModule.set(MAX_VOLTAGE * states[0].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[0].angle.getRadians());
         m_frontRightModule.set(MAX_VOLTAGE * states[1].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[1].angle.getRadians());
