@@ -1,11 +1,11 @@
-package frc.utils.configfile;
+package frc.utils.generator;
 
-public class propItem {
+public class PropItem {
     String type;
     String key;
     String defaultVal;
 
-    public propItem(String type, String key, String defaultVal) {
+    public PropItem(String type, String key, String defaultVal) {
         this.type = type;
         this.key = key;
         this.defaultVal = defaultVal;
@@ -17,17 +17,16 @@ public class propItem {
 
     @Override
     public String toString() {
-        switch (type.toLowerCase()) {
-            case "string":
-                return "public static final String " + key + " = " + "StormProp.getString(" + quote(key) + "," + quote(defaultVal) + ");";
-            case "int":
-                return "public static final int " + key + " = " + "StormProp.getInt(" + quote(key) + "," + defaultVal + ");";
-            case "number":
-                return "public static final double " + key + " = " + "StormProp.getNumber(" + quote(key) + "," + defaultVal + ");";
-            case "boolean":
-                return "public static final boolean " + key + " = " + "StormProp.getBoolean(" + quote(key) + "," + defaultVal + ");";
-            default:
-                return "Error-valid method not given";
-        }
+        return switch (type.toLowerCase()) {
+            case "string" ->
+                    "public static final String " + key + " = " + "StormProp.getString(" + quote(key) + "," + quote(defaultVal) + ");";
+            case "int" ->
+                    "public static final int " + key + " = " + "StormProp.getInt(" + quote(key) + "," + defaultVal + ");";
+            case "number" ->
+                    "public static final double " + key + " = " + "StormProp.getNumber(" + quote(key) + "," + defaultVal + ");";
+            case "boolean" ->
+                    "public static final boolean " + key + " = " + "StormProp.getBoolean(" + quote(key) + "," + defaultVal + ");";
+            default -> "Error-valid method not given";
+        };
     }
 }

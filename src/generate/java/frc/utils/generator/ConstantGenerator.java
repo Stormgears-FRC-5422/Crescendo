@@ -1,13 +1,12 @@
-package frc.utils.configfile;
+package frc.utils.generator;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
 
 import static java.lang.System.exit;
-
 public class ConstantGenerator {
-    static Map<String, Map<String, propItem>> allConstants = new HashMap<>();
+    static Map<String, Map<String, PropItem>> allConstants = new HashMap<>();
     static Map<String, String> properties = new HashMap<>();
     public static StringBuilder program = new StringBuilder();
     public static String programHeader =
@@ -30,7 +29,7 @@ public class ConstantGenerator {
         program.append(programHeader);
         program.append("\npublic final class Constants {\n");
         tabs += 1;
-        for (Map.Entry<String, Map<String, propItem>> entry : allConstants.entrySet()) {
+        for (Map.Entry<String, Map<String, PropItem>> entry : allConstants.entrySet()) {
             if (!entry.getKey().equals("general")) {
                 program.append("\n");
                 program.append(indent("public static final class " +
@@ -38,13 +37,13 @@ public class ConstantGenerator {
                         entry.getKey().substring(1)
                         + " {", tabs));
                 tabs += 1;
-                for (Map.Entry<String, propItem> entry2 : entry.getValue().entrySet()) {
+                for (Map.Entry<String, PropItem> entry2 : entry.getValue().entrySet()) {
                     program.append(indent(entry2.getValue().toString(), tabs));
                 }
                 tabs -= 1;
                 program.append(indent("}", tabs));
             } else {
-                for (Map.Entry<String, propItem> entry2 : entry.getValue().entrySet()) {
+                for (Map.Entry<String, PropItem> entry2 : entry.getValue().entrySet()) {
                     program.append(indent(entry2.getValue().toString(), tabs));
                 }
             }
@@ -96,38 +95,30 @@ public class ConstantGenerator {
                 } else {
                     prefix = "general";
                 }
-                switch (type.toLowerCase()) {
-                    case "int":
-                        defaultVal = 0;
-                        break;
-                    case "number":
-                        defaultVal = 0.0;
-                        break;
-                    case "boolean":
-                        defaultVal = false;
-                        break;
-                    default:
-                        defaultVal = "";
-                        break;
-                }
+                defaultVal = switch (type.toLowerCase()) {
+                    case "int" -> 0;
+                    case "number" -> 0.0;
+                    case "boolean" -> false;
+                    default -> "";
+                };
 
                 if (allConstants.containsKey(prefix)) {
                     if (allConstants.get(prefix).containsKey(entry.getKey())) {
                         if (!allConstants.get(prefix).get(entry.getKey()
                                         .replace(prefix + ".", ""))
-                                .equals(new propItem(quote(type), entry.getKey().replace(prefix + ".", ""),
+                                .equals(new PropItem(quote(type), entry.getKey().replace(prefix + ".", ""),
                                         defaultVal.toString()))) {
                             throw new Exception("Build Failed: Error in Generating Constants - mismatched types!");
                         }
                     } else {
-                        allConstants.get(prefix).put(entry.getKey().replace(prefix + ".", ""), new propItem(type,
-                                entry.getKey().replace(prefix + ".", ""),
+                        allConstants.get(prefix).put(entry.getKey().replace(prefix + ".", ""),
+                                new PropItem(type, entry.getKey().replace(prefix + ".", ""),
                                 defaultVal.toString()));
                     }
                 } else {
-                    allConstants.put(prefix, new HashMap<String, propItem>());
-                    allConstants.get(prefix).put(entry.getKey().replace(prefix + ".", ""), new propItem(type,
-                            entry.getKey().replace(prefix + ".", ""),
+                    allConstants.put(prefix, new HashMap<String, PropItem>());
+                    allConstants.get(prefix).put(entry.getKey().replace(prefix + ".", ""),
+                            new PropItem(type, entry.getKey().replace(prefix + ".", ""),
                             defaultVal.toString()));
                 }
             } catch (Exception e) {
@@ -162,7 +153,7 @@ public class ConstantGenerator {
             e.getStackTrace();
         }
 
-        for (Map.Entry<String, Map<String, propItem>> entry : allConstants.entrySet()) {
+        for (Map.Entry<String, Map<String, PropItem>> entry : allConstants.entrySet()) {
             System.out.println(entry);
         }
     }

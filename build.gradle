@@ -106,16 +106,16 @@ tasks.withType(JavaCompile) {
 // The generator needs to be compiled and run before the rest of the code is compiled (since generated code is
 // compiled with the rest of the robot
 sourceSets {
-    generator {
+    generate {
         java {
-            srcDir 'src/main/java/frc/utils/configfile'
+            srcDir 'src/generate/java'
         }
     }
 }
 
 // Task to compile Java code
 task compileGeneratorCode(type: JavaCompile) {
-    source = sourceSets.generator.java
+    source = sourceSets.generate.java
     classpath = configurations.runtimeClasspath
     destinationDir = file("$buildDir/myGeneratorCode")
 }
@@ -136,9 +136,9 @@ task generateCode(dependsOn: compileGeneratorCode) {
 
     doLast {
         javaexec {
-            classpath = files(compileGeneratorCode.destinationDirectory)
-            main = 'frc.utils.configfile.ConstantGenerator'
-            args propertyFileDir, outputFileName
+            classpath = files(compileGeneratorCode.destinationDirectory, sourceSets.main.runtimeClasspath)
+            main = 'frc.utils.generator.ConstantGenerator'
+            args = [propertyFileDir, outputFileName]
         }
     }
 }
