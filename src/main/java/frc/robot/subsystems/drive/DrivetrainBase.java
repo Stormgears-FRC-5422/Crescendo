@@ -19,6 +19,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.Toggles;
 import frc.robot.RobotState;
+import frc.robot.ShuffleboardConstants;
 import frc.robot.subsystems.NavX;
 
 public abstract class DrivetrainBase extends SubsystemBase {
@@ -29,7 +30,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
 
-
+    protected final ShuffleboardTab tab;
 
 
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
@@ -37,7 +38,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     DrivetrainBase() {
         setDriveSpeedScale(Drive.driveSpeedScale);
         speedScaleLimiter.reset(m_driveSpeedScale);
-//        tab = ShuffleboardConstants.getInstance().drivetrainTab;
+        tab = ShuffleboardConstants.getInstance().drivetrainTab;
     }
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {

@@ -18,6 +18,9 @@ public class NavX extends SubsystemBase {
     private final AHRS m_gyro;
     private double offset = 0.0;
 
+    public Rotation2d getAbsoluteRotation;
+
+
     public NavX() {
         switch (navXConnection) {
             case "SPI":
@@ -31,6 +34,8 @@ public class NavX extends SubsystemBase {
                 System.out.println("NO NavX Connection Given. Default NavX connection used: SPI");
                 break;
         }
+        getAbsoluteRotation = Rotation2d.fromDegrees(MathUtil.inputModulus(getYaw(), 180, -180));
+
     }
 
 
@@ -42,6 +47,7 @@ public class NavX extends SubsystemBase {
 ////                .withWidget(BuiltInWidgets.kGyro)
 //                .withPosition(3, 2).withSize(1, 1);
 //    }
+
 
 
 
@@ -69,7 +75,6 @@ public class NavX extends SubsystemBase {
 
 
     /** get absolute rotation (-180, 180) inverted so counter-clockwise is positive with offset */
-    public Rotation2d getAbsoluteRotation = Rotation2d.fromDegrees(MathUtil.inputModulus(getYaw(), 180, -180));
 
 
 

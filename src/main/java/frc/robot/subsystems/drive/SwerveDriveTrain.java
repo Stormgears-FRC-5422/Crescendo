@@ -35,7 +35,6 @@ public class SwerveDriveTrain extends DrivetrainBase {
     private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
 
-    private final ShuffleboardTab tab = Shuffleboard.getTab("DriveTrain");
 
 
     public static final double MAX_VOLTAGE = 12.0;
@@ -134,14 +133,13 @@ public class SwerveDriveTrain extends DrivetrainBase {
         states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocityMetersPerSecond);
 
-        System.out.println("FL: " + states[0].angle.getRotations());
-        System.out.println("FR: " + states[1].angle.getRotations());
-        System.out.println("BL: " + states[2].angle.getRotations());
-        System.out.println("BR: " + states[3].angle.getRotations());
 
         m_frontLeftModule.set(MAX_VOLTAGE * states[0].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[0].angle.getRadians());
         m_frontRightModule.set(MAX_VOLTAGE * states[1].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[1].angle.getRadians());
         m_backLeftModule.set(MAX_VOLTAGE * states[2].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[2].angle.getRadians());
         m_backRightModule.set(MAX_VOLTAGE * states[3].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[3].angle.getRadians());
     }
+
+
+
 }

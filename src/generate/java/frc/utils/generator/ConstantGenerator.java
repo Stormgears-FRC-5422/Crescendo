@@ -107,19 +107,19 @@ public class ConstantGenerator {
                         if (!allConstants.get(prefix).get(entry.getKey()
                                         .replace(prefix + ".", ""))
                                 .equals(new PropItem(quote(type), entry.getKey().replace(prefix + ".", ""),
-                                        defaultVal.toString()))) {
+                                        defaultVal.toString(), prefix))) {
                             throw new Exception("Build Failed: Error in Generating Constants - mismatched types!");
                         }
                     } else {
                         allConstants.get(prefix).put(entry.getKey().replace(prefix + ".", ""),
                                 new PropItem(type, entry.getKey().replace(prefix + ".", ""),
-                                defaultVal.toString()));
+                                defaultVal.toString(), prefix));
                     }
                 } else {
                     allConstants.put(prefix, new HashMap<String, PropItem>());
                     allConstants.get(prefix).put(entry.getKey().replace(prefix + ".", ""),
                             new PropItem(type, entry.getKey().replace(prefix + ".", ""),
-                            defaultVal.toString()));
+                            defaultVal.toString(), prefix));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
