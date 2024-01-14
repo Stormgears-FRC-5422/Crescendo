@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.Toggles;
+import frc.robot.RobotState;
+import frc.robot.subsystems.NavX;
 
 public abstract class DrivetrainBase extends SubsystemBase {
 
@@ -27,7 +29,6 @@ public abstract class DrivetrainBase extends SubsystemBase {
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
 
-    public static Rotation2d angle = new Rotation2d();
 
 
 
@@ -49,7 +50,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
                 speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
                 speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond);
         if (fieldRelative) {
-        Rotation2d rotation = getGyroData();
+        Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
         m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speed, rotation);}
         else {
             m_chassisSpeeds = speeds;
@@ -87,9 +88,5 @@ public abstract class DrivetrainBase extends SubsystemBase {
 //    public void updateOdometryData() {}
 
 
-
-    public Rotation2d getGyroData() {
-        return angle;
-    }
 }
 

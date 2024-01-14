@@ -28,11 +28,8 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 
 public class SwerveDriveTrain extends DrivetrainBase {
 
-    public double m_maxVelocityMetersPerSecond;
 
-    public double m_maxAngularVelocityRadiansPerSecond;
 
-    private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
 
 
     private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);

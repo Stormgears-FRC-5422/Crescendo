@@ -75,7 +75,6 @@ public class ConstantGenerator {
 
         for (String prop : propFiles) {
             reader = new FileReader(path + "/" + prop);
-            System.out.println(prop);
             p = new Properties();
             p.load(reader);
             keys = p.keys();
@@ -154,9 +153,7 @@ public class ConstantGenerator {
             e.getStackTrace();
         }
 
-        for (Map.Entry<String, Map<String, PropItem>> entry : allConstants.entrySet()) {
-            System.out.println(entry);
-        }
+
     }
 
 }
