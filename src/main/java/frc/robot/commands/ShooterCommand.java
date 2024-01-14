@@ -11,6 +11,8 @@ public class ShooterCommand extends Command {
     public ShooterCommand(Shooter shooter, StormXboxController stormXboxController) {
         this.shooter = shooter;
         this.stormXboxController = stormXboxController;
+
+        addRequirements(shooter);
     }
 
     @Override
