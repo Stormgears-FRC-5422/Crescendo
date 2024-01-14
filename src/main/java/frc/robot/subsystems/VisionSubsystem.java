@@ -7,27 +7,24 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class VisionSubsystem extends SubsystemBase {
     NetworkTable tableInstance;
     double ty;
-    double mountAngle = 25.0;
-    double limelightHeight = 20.0;
-    double goalHeight = 60.0;
-    public VisionSubsystem() {}
+    double tx;
+    double MOUNT_ANGLE_DEGREES = 25.0;
+    double LIMELIGHT_HEIGHT = 20.0;
+    double GOAL_HEIGHT = 60.0;
 
-    public double getDistance(){
+    public VisionSubsystem() {
+    }
+
+    public double getDistance() {
         ty = tableInstance.getEntry("ty").getDouble(0.0);
-        double degrees = mountAngle + ty;
-        double radians = degrees * (3.14159 / 180.0);
-        double distance = (goalHeight - limelightHeight) / Math.tan(radians);
-        return distance;
+        tx = tableInstance.getEntry("tx").getDouble(0.0);
+        double degrees = MOUNT_ANGLE_DEGREES + ty;
+        double radians = Math.toRadians(degrees);
+        return ((GOAL_HEIGHT - LIMELIGHT_HEIGHT) / Math.tan(radians)) / Math.cos(tx);
     }
-    public double getAngleDifferential(){
-        return ty;
-    }
+
     @Override
     public void periodic() {
         tableInstance = NetworkTableInstance.getDefault().getTable("limelight");
     }
-
-
-
-
 }
