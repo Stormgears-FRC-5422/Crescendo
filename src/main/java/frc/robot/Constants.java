@@ -69,6 +69,9 @@ public final class Constants {
 		public static final double driveYki = StormProp.getNumber("driveYki",0.0);
 		public static final double driveYkd = StormProp.getNumber("driveYkd",0.0);
 	}
+	public static final class ShooterConstants {
+		public static final int shooterID = StormProp.getInt("shooterID",0);
+	}
 
 	public static final class OperatorConstants {
 		public static final int kDriverControllerPort = StormProp.getInt("kDriverControllerPort",0);
