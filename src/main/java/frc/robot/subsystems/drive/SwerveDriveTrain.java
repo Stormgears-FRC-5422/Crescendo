@@ -32,7 +32,6 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
 
 
-    private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
 
 
@@ -143,3 +142,4 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
 
 }
+
