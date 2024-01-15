@@ -28,7 +28,6 @@ public class JoyStickDrive extends Command {
         this.robotRelativeSupplier = robotRelativeSupplier;
         this.turboSupplier = turboSupplier;
 
-
         addRequirements(m_drivetrain);
     }
 

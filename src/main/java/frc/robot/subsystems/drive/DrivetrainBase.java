@@ -24,14 +24,12 @@ import frc.robot.subsystems.NavX;
 
 public abstract class DrivetrainBase extends SubsystemBase {
 
-
     public double m_maxVelocityMetersPerSecond;
     public double m_maxAngularVelocityRadiansPerSecond;
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
 
     protected final ShuffleboardTab tab;
-
 
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 //    protected final ShuffleboardTab tab;

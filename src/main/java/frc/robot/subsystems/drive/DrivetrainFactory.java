@@ -11,6 +11,9 @@ public class DrivetrainFactory {
             case "SwerveDrive":
                 instance = new SwerveDriveTrain();
                 return instance;
+            case "SwerveDiagnosticDrive":
+                instance = new SwerveDiagnosticDriveTrain();
+                return instance;
             case "MecanumDrive":
                 instance = new MecanumDrivetrain();
                 return instance;
