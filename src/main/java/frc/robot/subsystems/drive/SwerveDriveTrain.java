@@ -28,14 +28,6 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 
 public class SwerveDriveTrain extends DrivetrainBase {
 
-
-
-
-
-
-
-
-
     public static final double MAX_VOLTAGE = 12.0;
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
@@ -49,8 +41,6 @@ public class SwerveDriveTrain extends DrivetrainBase {
     );
 
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-
-
     private final SwerveModule
             m_frontLeftModule, m_frontRightModule,
             m_backLeftModule, m_backRightModule;
@@ -67,7 +57,6 @@ public class SwerveDriveTrain extends DrivetrainBase {
                 Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
 
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
-
 
         ShuffleboardLayout frontLeftModuleLayout = tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                 .withSize(2, 4)
@@ -124,22 +113,16 @@ public class SwerveDriveTrain extends DrivetrainBase {
         ((CANSparkMax) m_backRightModule.getDriveMotor()).setInverted(false);
     }
 
-
-
     @Override
     public void periodic() {
 
         states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocityMetersPerSecond);
 
-
         m_frontLeftModule.set(MAX_VOLTAGE * states[0].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[0].angle.getRadians());
         m_frontRightModule.set(MAX_VOLTAGE * states[1].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[1].angle.getRadians());
         m_backLeftModule.set(MAX_VOLTAGE * states[2].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[2].angle.getRadians());
         m_backRightModule.set(MAX_VOLTAGE * states[3].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[3].angle.getRadians());
     }
-
-
-
 }
 

@@ -49,8 +49,6 @@ public class NavX extends SubsystemBase {
 //    }
 
 
-
-
     public double getYaw() {
         return m_gyro.getYaw();
     }
@@ -73,10 +71,9 @@ public class NavX extends SubsystemBase {
     }
 
 
-
-    /** get absolute rotation (-180, 180) inverted so counter-clockwise is positive with offset */
-
-
+    /**
+     * get absolute rotation (-180, 180) inverted so counter-clockwise is positive with offset
+     */
 
 
     @Override

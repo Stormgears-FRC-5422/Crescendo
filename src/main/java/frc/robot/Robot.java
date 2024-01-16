@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.drive.IllegalDriveTypeException;
 import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -52,7 +53,7 @@ public class Robot extends LoggedRobot {
     }
 
     if (isReal()) {
-      LoggerWrapper.addDataReceiver(new WPILOGWriter("/media/sda")); // Log to a USB stick ("/U/logs")
+      LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder)); // Log to a USB stick ("/U/logs")
       LoggerWrapper.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
       LoggerWrapper.enablePowerDistributionLogging();
     } else {
@@ -65,7 +66,11 @@ public class Robot extends LoggedRobot {
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    try {
+      m_robotContainer = new RobotContainer();
+    } catch (IllegalDriveTypeException e) {
+      throw new RuntimeException(e);
+    }
     System.out.println("[DONE] Robot");
   }
 
@@ -101,8 +106,6 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
