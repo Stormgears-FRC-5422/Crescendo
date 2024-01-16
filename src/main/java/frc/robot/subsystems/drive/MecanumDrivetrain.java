@@ -1,10 +1,11 @@
 package frc.robot.subsystems.drive;
 
+// Need Phoenix5 for Talon SRX
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
-import frc.robot.Constants;
+
 import frc.robot.Constants.Drive;
 
 
@@ -14,7 +15,7 @@ public class MecanumDrivetrain extends DrivetrainBase{
      * <p>
      * This can be reduced to cap the robot's maximum speed. Typically, this is useful during initial testing of the robot.
      */
-    public static final double MAX_VOLTAGE = 12.0;
+    public static final double m_maxMotorVoltage = Drive.maxMotorVoltage;
 
     private final MecanumDriveKinematics m_kinematics = new MecanumDriveKinematics(
 
@@ -60,9 +61,9 @@ public class MecanumDrivetrain extends DrivetrainBase{
         MecanumDriveWheelSpeeds wheelSpeeds = m_kinematics.toWheelSpeeds(m_chassisSpeeds);
         wheelSpeeds.desaturate(this.m_maxVelocityMetersPerSecond);
 
-        m_frontLeftTalon.setVoltage(MAX_VOLTAGE * wheelSpeeds.frontLeftMetersPerSecond / m_maxVelocityMetersPerSecond);
-        m_frontRightTalon.setVoltage(MAX_VOLTAGE * wheelSpeeds.frontRightMetersPerSecond / m_maxVelocityMetersPerSecond);
-        m_backLeftTalon.setVoltage(MAX_VOLTAGE * wheelSpeeds.rearLeftMetersPerSecond / m_maxVelocityMetersPerSecond);
-        m_backRightTalon.setVoltage(MAX_VOLTAGE * wheelSpeeds.rearRightMetersPerSecond / m_maxVelocityMetersPerSecond);
+        m_frontLeftTalon.setVoltage(m_maxMotorVoltage * wheelSpeeds.frontLeftMetersPerSecond / m_maxVelocityMetersPerSecond);
+        m_frontRightTalon.setVoltage(m_maxMotorVoltage * wheelSpeeds.frontRightMetersPerSecond / m_maxVelocityMetersPerSecond);
+        m_backLeftTalon.setVoltage(m_maxMotorVoltage * wheelSpeeds.rearLeftMetersPerSecond / m_maxVelocityMetersPerSecond);
+        m_backRightTalon.setVoltage(m_maxMotorVoltage * wheelSpeeds.rearRightMetersPerSecond / m_maxVelocityMetersPerSecond);
     }
 }

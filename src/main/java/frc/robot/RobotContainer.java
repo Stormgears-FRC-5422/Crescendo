@@ -32,6 +32,7 @@ public class RobotContainer {
   public RobotContainer() throws IllegalDriveTypeException {
     if (Toggles.useDrive) {
 
+      System.out.println("Create drive type " + Drive.driveType);
       drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
 
       if (Toggles.useController){
