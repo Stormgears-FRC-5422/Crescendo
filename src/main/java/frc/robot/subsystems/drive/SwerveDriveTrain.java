@@ -1,30 +1,15 @@
 package frc.robot.subsystems.drive;
 
-import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.swervedrivespecialties.swervelib.*;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-
-import com.swervedrivespecialties.swervelib.MechanicalConfiguration;
-import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
-import com.swervedrivespecialties.swervelib.SwerveModule;
-import com.swervedrivespecialties.swervelib.MotorType;
-
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
-import frc.robot.subsystems.drive.DrivetrainBase;
 
 public class SwerveDriveTrain extends DrivetrainBase {
 
@@ -41,9 +26,10 @@ public class SwerveDriveTrain extends DrivetrainBase {
     );
 
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-    private final SwerveModule
-            m_frontLeftModule, m_frontRightModule,
-            m_backLeftModule, m_backRightModule;
+    private final SwerveModule m_frontLeftModule;
+    private final SwerveModule m_frontRightModule;
+    private final SwerveModule m_backLeftModule;
+    private final SwerveModule m_backRightModule;
 
     public SwerveDriveTrain() {
 
@@ -53,64 +39,26 @@ public class SwerveDriveTrain extends DrivetrainBase {
         double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
                 moduleConfiguration.getDriveReduction() *
                 moduleConfiguration.getWheelDiameter() * Math.PI;
+
         double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
                 Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
 
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
 
-        ShuffleboardLayout frontLeftModuleLayout = tab.getLayout("Front Left Module", BuiltInLayouts.kList)
-                .withSize(2, 4)
-                .withPosition(0, 0);
-        ShuffleboardLayout frontRightModuleLayout = tab.getLayout("Front Right Module", BuiltInLayouts.kList)
-                .withSize(2, 4)
-                .withPosition(2, 0);
-        ShuffleboardLayout backLeftModuleLayout = tab.getLayout("Back Left Module", BuiltInLayouts.kList)
-                .withSize(2, 4)
-                .withPosition(4, 0);
-        ShuffleboardLayout backRightModuleLayout = tab.getLayout("Back Right Module", BuiltInLayouts.kList)
-                .withSize(2, 4)
-                .withPosition(6, 0);
+        ShuffleboardLayout frontLeftModuleLayout = getShuffleboardLayout("Front Left Module", 2,4, 0,0);
+        ShuffleboardLayout frontRightModuleLayout = getShuffleboardLayout("Front Right Module", 2,4, 2,0);
+        ShuffleboardLayout backLeftModuleLayout = getShuffleboardLayout("Back Left Module", 2,4, 4,0);
+        ShuffleboardLayout backRightModuleLayout = getShuffleboardLayout("Back Right Module", 2,4, 6,0);
 
-        m_frontLeftModule = new MkSwerveModuleBuilder()
-                .withLayout(frontLeftModuleLayout)
-                .withGearRatio(SdsModuleConfigurations.MK4_L2)
-                .withDriveMotor(MotorType.NEO, Drive.frontLeftDriveID)
-                .withSteerMotor(MotorType.NEO, Drive.frontLeftSteerID)
-                .withSteerEncoderPort(Drive.frontLeftEncoderID)
-                .withSteerOffset(Drive.frontLeftOffsetTicks)
-                .build();
+        m_frontLeftModule = buildSwerveModule(frontLeftModuleLayout, Drive.frontLeftDriveID, Drive.frontLeftSteerID, Drive.frontLeftEncoderID, Drive.frontLeftOffsetTicks);
+        m_frontRightModule = buildSwerveModule(frontRightModuleLayout, Drive.frontRightDriveID, Drive.frontRightSteerID, Drive.frontRightEncoderID, Drive.frontRightOffsetTicks);
+        m_backLeftModule = buildSwerveModule(backLeftModuleLayout, Drive.backLeftDriveID, Drive.backLeftSteerID, Drive.backLeftEncoderID, Drive.backLeftOffsetTicks);
+        m_backRightModule = buildSwerveModule(backRightModuleLayout, Drive.backRightDriveID, Drive.backRightSteerID, Drive.backRightEncoderID, Drive.backRightOffsetTicks);
 
-        m_frontRightModule = new MkSwerveModuleBuilder()
-                .withLayout(frontRightModuleLayout)
-                .withGearRatio(SdsModuleConfigurations.MK4_L2)
-                .withDriveMotor(MotorType.NEO, Drive.frontRightDriveID)
-                .withSteerMotor(MotorType.NEO, Drive.frontRightSteerID)
-                .withSteerEncoderPort(Drive.frontRightEncoderID)
-                .withSteerOffset(Drive.frontRightOffsetTicks)
-                .build();
-
-        m_backLeftModule = new MkSwerveModuleBuilder()
-                .withLayout(backLeftModuleLayout)
-                .withGearRatio(SdsModuleConfigurations.MK4_L2)
-                .withDriveMotor(MotorType.NEO, Drive.backLeftDriveID)
-                .withSteerMotor(MotorType.NEO, Drive.backLeftSteerID)
-                .withSteerEncoderPort(Drive.backLeftEncoderID)
-                .withSteerOffset(Drive.backLeftOffsetTicks)
-                .build();
-
-        m_backRightModule = new MkSwerveModuleBuilder()
-                .withLayout(backRightModuleLayout)
-                .withGearRatio(SdsModuleConfigurations.MK4_L2)
-                .withDriveMotor(MotorType.NEO, Drive.backRightDriveID)
-                .withSteerMotor(MotorType.NEO, Drive.backRightSteerID)
-                .withSteerEncoderPort(Drive.backRightEncoderID)
-                .withSteerOffset(Drive.backRightOffsetTicks)
-                .build();
-
-        ((CANSparkMax) m_frontLeftModule.getDriveMotor()).setInverted(false);
-        ((CANSparkMax) m_frontRightModule.getDriveMotor()).setInverted(false);
-        ((CANSparkMax) m_backLeftModule.getDriveMotor()).setInverted(false);
-        ((CANSparkMax) m_backRightModule.getDriveMotor()).setInverted(false);
+        setMotorInvertedState(m_frontLeftModule.getDriveMotor(), false);
+        setMotorInvertedState(m_frontRightModule.getDriveMotor(), false);
+        setMotorInvertedState(m_backLeftModule.getDriveMotor(), false);
+        setMotorInvertedState(m_backRightModule.getDriveMotor(), false);
     }
 
     @Override
@@ -119,10 +67,37 @@ public class SwerveDriveTrain extends DrivetrainBase {
         states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocityMetersPerSecond);
 
-        m_frontLeftModule.set(MAX_VOLTAGE * states[0].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[0].angle.getRadians());
-        m_frontRightModule.set(MAX_VOLTAGE * states[1].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[1].angle.getRadians());
-        m_backLeftModule.set(MAX_VOLTAGE * states[2].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[2].angle.getRadians());
-        m_backRightModule.set(MAX_VOLTAGE * states[3].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[3].angle.getRadians());
+        setSwerveModuleVoltageAndSteerAngle(m_frontLeftModule, states[0]);
+        setSwerveModuleVoltageAndSteerAngle(m_frontRightModule, states[1]);
+        setSwerveModuleVoltageAndSteerAngle(m_backLeftModule, states[2]);
+        setSwerveModuleVoltageAndSteerAngle(m_backRightModule, states[3]);
+    }
+
+    private void setSwerveModuleVoltageAndSteerAngle(SwerveModule swerveModule, SwerveModuleState moduleState) {
+        swerveModule.set(MAX_VOLTAGE * moduleState.speedMetersPerSecond/m_maxVelocityMetersPerSecond, moduleState.angle.getRadians());
+    }
+
+    private void setMotorInvertedState(MotorController motorController, boolean invertedState) {
+        if(motorController instanceof CANSparkMax) {
+            ((CANSparkMax) motorController).setInverted(invertedState);
+        }
+    }
+
+    private SwerveModule buildSwerveModule(ShuffleboardLayout moduleLayout, int driveId, int steerId, int encoderId, int offsetTicks) {
+        return new MkSwerveModuleBuilder()
+                .withLayout(moduleLayout)
+                .withGearRatio(SdsModuleConfigurations.MK4_L2)
+                .withDriveMotor(MotorType.NEO, driveId)
+                .withSteerMotor(MotorType.NEO, steerId)
+                .withSteerEncoderPort(encoderId)
+                .withSteerOffset(offsetTicks)
+                .build();
+    }
+
+    private ShuffleboardLayout getShuffleboardLayout(String title, int width, int height, int colIndex, int rowIndex) {
+        return tab.getLayout(title, BuiltInLayouts.kList)
+                .withSize(width, height)
+                .withPosition(colIndex, rowIndex);
     }
 }
 

@@ -13,34 +13,39 @@ import java.util.function.DoubleSupplier;
 
 public class JoyStickDrive extends Command {
 
-    private DrivetrainBase m_drivetrain;
-    private final DoubleSupplier txSupplier, tySupplier, omegaSupplier;
+    private DrivetrainBase drivetrain;
+    private final DoubleSupplier txSupplier;
+    private final DoubleSupplier tySupplier;
+    private final DoubleSupplier omegaSupplier;
 
-    private final BooleanSupplier robotRelativeSupplier, turboSupplier;
+    private final BooleanSupplier robotRelativeSupplier;
+    private final BooleanSupplier turboSupplier;
 
     public JoyStickDrive(DrivetrainBase drivetrain,
-                                     DoubleSupplier txSupplier, DoubleSupplier tySupplier, DoubleSupplier omegaSupplier,
-                                     BooleanSupplier robotRelativeSupplier, BooleanSupplier turboSupplier) {
-        m_drivetrain = drivetrain;
+                         DoubleSupplier txSupplier, DoubleSupplier tySupplier, DoubleSupplier omegaSupplier,
+                         BooleanSupplier robotRelativeSupplier, BooleanSupplier turboSupplier) {
+        this.drivetrain = drivetrain;
         this.txSupplier = txSupplier;
         this.tySupplier = tySupplier;
         this.omegaSupplier = omegaSupplier;
         this.robotRelativeSupplier = robotRelativeSupplier;
         this.turboSupplier = turboSupplier;
 
-        addRequirements(m_drivetrain);
+        addRequirements(drivetrain);
     }
 
     @Override
     public void execute() {
-        if (!turboSupplier.getAsBoolean())
-            m_drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
-        else
-            m_drivetrain.setDriveSpeedScale(Drive.driveSpeedScale);
+        if (!turboSupplier.getAsBoolean()) {
+            drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
+        } else {
+            drivetrain.setDriveSpeedScale(Drive.driveSpeedScale);
+        }
 
-        m_drivetrain.drive(
-                new ChassisSpeeds(txSupplier.getAsDouble(),tySupplier.getAsDouble(),omegaSupplier.getAsDouble()),
-                robotRelativeSupplier.getAsBoolean()
-        );
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(txSupplier.getAsDouble(),
+                                                        tySupplier.getAsDouble(),
+                                                        omegaSupplier.getAsDouble());
+
+        drivetrain.drive(chassisSpeeds, robotRelativeSupplier.getAsBoolean());
     }
 }
