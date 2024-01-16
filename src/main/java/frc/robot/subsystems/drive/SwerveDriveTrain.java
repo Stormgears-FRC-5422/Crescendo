@@ -119,6 +119,14 @@ public class SwerveDriveTrain extends DrivetrainBase {
         m_backRightModule.set(m_maxMotorVoltage * states[3].speedMetersPerSecond / m_maxVelocityMetersPerSecond, states[3].angle.getRadians());
     }
 
+    void checkStatus(StatusCode statusCode, String operation) {
+        if (statusCode.isWarning()) {
+            System.out.println("Warning on operation " + operation + ": " + statusCode.getName());
+        } else if (statusCode.isError()) {
+            System.out.println("Error on operation " + operation + ": " + statusCode.getName());
+        } // else OK - do nothing
+    }
+
     private void initEncoders() {
         try (
            CANcoder fl = new CANcoder(Drive.frontLeftEncoderID);
@@ -149,46 +157,6 @@ public class SwerveDriveTrain extends DrivetrainBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//        System.out.println("**********");
-//        System.out.println("** FL " + (Math.toDegrees(-FRONT_LEFT_MODULE_STEER_OFFSET)));
-//        System.out.println("** FR " + (Math.toDegrees(-FRONT_RIGHT_MODULE_STEER_OFFSET)));
-//        System.out.println("** BL " + (Math.toDegrees(-BACK_LEFT_MODULE_STEER_OFFSET)));
-//        System.out.println("** BR " + (Math.toDegrees(-BACK_RIGHT_MODULE_STEER_OFFSET)));
-//        System.out.println("**********");
-
-//        for (CANcoder tmp : arr) {
-//            System.out.println("**********");
-//            System.out.println("** ID  " + tmp.getDeviceID());
-//            System.out.println("** Abs " + tmp.getAbsolutePosition());
-//            System.out.println("** Pos " + tmp.getPosition());
-//            System.out.println("** Off " + tmp.configGetMagnetOffset());
-//            System.out.println("**********");
-            // This is the Phoenix6 way to factory reset. Should be unnecessary now, and basically redone below
-            // when setting up the offsets
-            // tmp.getConfigurator().apply(new CANcoderConfiguration());
-//        }
-
-//        System.out.println("\n**********");
-//        System.out.println("** Setting new offset ");
-//        System.out.println("**********\n");
-//
-//        for (CANCoder tmp : arr) {
-//            System.out.println("**********");
-//            System.out.println("** ID  " + tmp.getDeviceID());
-//            System.out.println("** Abs " + tmp.getAbsolutePosition());
-//            System.out.println("** Pos " + tmp.getPosition());
-//            System.out.println("** Off " + tmp.configGetMagnetOffset());
-//            System.out.println("**********");
-//        }
-    }
-
-    void checkStatus(StatusCode statusCode, String operation) {
-        if (statusCode.isWarning()) {
-            System.out.println("Warning on operation " + operation + ": " + statusCode.getName());
-        } else if (statusCode.isError()) {
-            System.out.println("Error on operation " + operation + ": " + statusCode.getName());
-        } // else OK - do nothing
     }
 
 }
