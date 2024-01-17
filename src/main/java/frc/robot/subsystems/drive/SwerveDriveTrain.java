@@ -1,5 +1,10 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
 import com.swervedrivespecialties.swervelib.*;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,9 +16,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 
-public class SwerveDriveTrain extends DrivetrainBase {
+import static java.lang.Math.PI;
 
-    public static final double MAX_VOLTAGE = 12.0;
+public class SwerveDriveTrain extends DrivetrainBase {
+    public static final double m_maxMotorVoltage = Drive.maxMotorVoltage;
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
             new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
@@ -32,6 +38,7 @@ public class SwerveDriveTrain extends DrivetrainBase {
     private final SwerveModule m_backRightModule;
 
     public SwerveDriveTrain() {
+        initEncoders();
 
         MechanicalConfiguration moduleConfiguration = SdsModuleConfigurations.MK4_L2;
 
@@ -39,16 +46,15 @@ public class SwerveDriveTrain extends DrivetrainBase {
         double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
                 moduleConfiguration.getDriveReduction() *
                 moduleConfiguration.getWheelDiameter() * Math.PI;
-
         double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
                 Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
 
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
 
-        ShuffleboardLayout frontLeftModuleLayout = getShuffleboardLayout("Front Left Module", 2,4, 0,0);
-        ShuffleboardLayout frontRightModuleLayout = getShuffleboardLayout("Front Right Module", 2,4, 2,0);
-        ShuffleboardLayout backLeftModuleLayout = getShuffleboardLayout("Back Left Module", 2,4, 4,0);
-        ShuffleboardLayout backRightModuleLayout = getShuffleboardLayout("Back Right Module", 2,4, 6,0);
+        ShuffleboardLayout frontLeftModuleLayout = getShuffleboardLayout("Front Left Module", 2, 4, 0, 0);
+        ShuffleboardLayout frontRightModuleLayout = getShuffleboardLayout("Front Right Module", 2, 4, 2, 0);
+        ShuffleboardLayout backLeftModuleLayout = getShuffleboardLayout("Back Left Module", 2, 4, 4, 0);
+        ShuffleboardLayout backRightModuleLayout = getShuffleboardLayout("Back Right Module", 2, 4, 6, 0);
 
         m_frontLeftModule = buildSwerveModule(frontLeftModuleLayout, Drive.frontLeftDriveID, Drive.frontLeftSteerID, Drive.frontLeftEncoderID, Drive.frontLeftOffsetTicks);
         m_frontRightModule = buildSwerveModule(frontRightModuleLayout, Drive.frontRightDriveID, Drive.frontRightSteerID, Drive.frontRightEncoderID, Drive.frontRightOffsetTicks);
@@ -63,8 +69,7 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
-
-        states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocityMetersPerSecond);
 
         setSwerveModuleVoltageAndSteerAngle(m_frontLeftModule, states[0]);
@@ -74,11 +79,11 @@ public class SwerveDriveTrain extends DrivetrainBase {
     }
 
     private void setSwerveModuleVoltageAndSteerAngle(SwerveModule swerveModule, SwerveModuleState moduleState) {
-        swerveModule.set(MAX_VOLTAGE * moduleState.speedMetersPerSecond/m_maxVelocityMetersPerSecond, moduleState.angle.getRadians());
+        swerveModule.set(m_maxMotorVoltage * moduleState.speedMetersPerSecond / m_maxVelocityMetersPerSecond, moduleState.angle.getRadians());
     }
 
     private void setMotorInvertedState(MotorController motorController, boolean invertedState) {
-        if(motorController instanceof CANSparkMax) {
+        if (motorController instanceof CANSparkMax) {
             ((CANSparkMax) motorController).setInverted(invertedState);
         }
     }
@@ -99,5 +104,48 @@ public class SwerveDriveTrain extends DrivetrainBase {
                 .withSize(width, height)
                 .withPosition(colIndex, rowIndex);
     }
+
+    void checkStatus(StatusCode statusCode, String operation) {
+        if (statusCode.isWarning()) {
+            System.out.printf("Warning on operation %s : %s" , operation , statusCode.getName());
+        } else if (statusCode.isError()) {
+            System.out.printf("Error on operation %s : %s" , operation , statusCode.getName());
+        } // else OK - do nothing
+    }
+
+    private void initEncoders() {
+        System.out.println("Initializing Encoders");
+        try (
+                CANcoder fl = new CANcoder(Drive.frontLeftEncoderID);
+                CANcoder fr = new CANcoder(Drive.frontRightEncoderID);
+                CANcoder bl = new CANcoder(Drive.backLeftEncoderID);
+                CANcoder br = new CANcoder(Drive.backRightEncoderID);
+        ) {
+            // from CTRE Github Phoenix6-Examples/java/FusedCANcoder/src/main/java/frc/robot
+            // TODO check these configs wrt swerve modules
+            CANcoderConfiguration cc_cfg = new CANcoderConfiguration();
+            cc_cfg.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+            cc_cfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+
+            // TODO - change this to match the proper units. For now assuming Radians
+            double offsetScale = 2 * PI / Drive.steerEncoderTicksPerRotation;
+
+            cc_cfg.MagnetSensor.MagnetOffset = Drive.frontLeftOffsetTicks * offsetScale;
+            checkStatus(fl.getConfigurator().apply(cc_cfg), "set FL encoder");
+
+            cc_cfg.MagnetSensor.MagnetOffset = Drive.frontRightOffsetTicks * offsetScale;
+            checkStatus(fr.getConfigurator().apply(cc_cfg), "set FR encoder");
+
+            cc_cfg.MagnetSensor.MagnetOffset = Drive.backLeftOffsetTicks * offsetScale;
+            checkStatus(bl.getConfigurator().apply(cc_cfg), "set BL encoder");
+
+            cc_cfg.MagnetSensor.MagnetOffset = Drive.backRightOffsetTicks * offsetScale;
+            checkStatus(br.getConfigurator().apply(cc_cfg), "set BR encoder");
+        } catch (Exception e) {
+            System.out.printf("Error on initEncoders. %s", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }
 
