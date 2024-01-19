@@ -21,6 +21,7 @@ public class RobotState extends SubsystemBase {
         currentGyroData = angle;
     }
 
+
     public Rotation2d getCurrentGyroData() {
         if (!Constants.Toggles.useNavX) {
             System.out.println("NOT using gyro. Can't get current gyro rotation!");

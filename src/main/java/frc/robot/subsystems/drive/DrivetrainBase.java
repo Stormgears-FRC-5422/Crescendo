@@ -31,9 +31,11 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     protected final ShuffleboardTab tab;
 
+
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 //    protected final ShuffleboardTab tab;
     DrivetrainBase() {
+
         setDriveSpeedScale(Drive.driveSpeedScale);
         speedScaleLimiter.reset(m_driveSpeedScale);
         tab = ShuffleboardConstants.getInstance().drivetrainTab;

@@ -8,13 +8,13 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
 import com.swervedrivespecialties.swervelib.*;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
+import frc.robot.RobotState;
 
 import static java.lang.Math.PI;
 
@@ -32,6 +32,7 @@ public class SwerveDriveTrain extends DrivetrainBase {
     );
 
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+
     private final SwerveModule m_frontLeftModule;
     private final SwerveModule m_frontRightModule;
     private final SwerveModule m_backLeftModule;
@@ -69,7 +70,7 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+        states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocityMetersPerSecond);
 
         setSwerveModuleVoltageAndSteerAngle(m_frontLeftModule, states[0]);
@@ -114,6 +115,7 @@ public class SwerveDriveTrain extends DrivetrainBase {
     }
 
     private void initEncoders() {
+
         System.out.println("Initializing Encoders");
         try (
                 CANcoder fl = new CANcoder(Drive.frontLeftEncoderID);
@@ -128,7 +130,7 @@ public class SwerveDriveTrain extends DrivetrainBase {
             cc_cfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 
             // TODO - change this to match the proper units. For now assuming Radians
-            double offsetScale = 2 * PI / Drive.steerEncoderTicksPerRotation;
+            double offsetScale = 2 * PI / Drive.SteerEncoderTicksPerRotation;
 
             cc_cfg.MagnetSensor.MagnetOffset = Drive.frontLeftOffsetTicks * offsetScale;
             checkStatus(fl.getConfigurator().apply(cc_cfg), "set FL encoder");

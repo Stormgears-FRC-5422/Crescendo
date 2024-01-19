@@ -19,6 +19,7 @@ import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
+import frc.utils.joysticks.StormLogitechController;
 import frc.utils.joysticks.StormXboxController;
 
 /**
@@ -38,6 +39,8 @@ public class RobotContainer {
   DrivetrainBase drivetrainBase;
 
   StormXboxController xboxController;
+
+  StormLogitechController logitechController;
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -49,7 +52,7 @@ public class RobotContainer {
       System.out.println("Create drive type " + Drive.driveType);
       drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
 
-      if (Toggles.useController){
+      if (Toggles.useXboxController){
 
         xboxController = new StormXboxController(0);
         JoyStickDrive driveWithJoystick = new JoyStickDrive(
@@ -63,6 +66,20 @@ public class RobotContainer {
         drivetrainBase.setDefaultCommand(driveWithJoystick);
       }
     }
+    if (Toggles.useLogitechController){
+
+      logitechController = new StormLogitechController(0);
+      JoyStickDrive driveWithJoystick = new JoyStickDrive(
+              drivetrainBase,
+              logitechController::getWpiXSpeed,
+              logitechController::getWpiYSpeed,
+              logitechController::getOmegaSpeed,
+              () -> logitechController.getRawButton(11),
+              () -> logitechController.getRawButton(2)
+      );
+      drivetrainBase.setDefaultCommand(driveWithJoystick);
+    }
+
 
     if (Toggles.useNavX) {
       navX = new NavX();
