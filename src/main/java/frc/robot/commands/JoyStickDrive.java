@@ -41,8 +41,8 @@ public class JoyStickDrive extends Command {
 
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(txSupplier.getAsDouble(),
                                                         tySupplier.getAsDouble(),
-                                                        omegaSupplier.getAsDouble());
-
+                                                        0);
+//        omegaSupplier.getAsDouble()
         drivetrain.drive(chassisSpeeds, robotRelativeSupplier.getAsBoolean());
     }
 }

@@ -25,7 +25,8 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
 
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-//    protected final ShuffleboardTab tab;
+
+    //    protected final ShuffleboardTab tab;
     DrivetrainBase() {
 
         setDriveSpeedScale(Drive.driveSpeedScale);
@@ -40,14 +41,14 @@ public abstract class DrivetrainBase extends SubsystemBase {
     }
 
     public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-        ChassisSpeeds speed = new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
+        ChassisSpeeds limitSpeed = new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
                 speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
                 speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond);
         if (fieldRelative) {
-        Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
-        m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speed, rotation);}
-        else {
-            m_chassisSpeeds = speeds;
+            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
+            m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(limitSpeed, rotation);
+        } else {
+            m_chassisSpeeds = limitSpeed;
         }
     }
 
@@ -74,9 +75,13 @@ public abstract class DrivetrainBase extends SubsystemBase {
         return m_chassisSpeeds;
     }
 
-    public SwerveDriveKinematics getSwerveDriveKinematics() {return new SwerveDriveKinematics();}
+    public SwerveDriveKinematics getSwerveDriveKinematics() {
+        return new SwerveDriveKinematics();
+    }
 
-    public SwerveModulePosition[] getSwerveModulePositions() {return new SwerveModulePosition[4];}
+    public SwerveModulePosition[] getSwerveModulePositions() {
+        return new SwerveModulePosition[4];
+    }
 //    public void goToPPTrajectoryState(PathPlannerTrajectory.PathPlannerState goalState) {}
 //    public boolean atReferenceState() {return true;}
 //    public void updateOdometryData() {}

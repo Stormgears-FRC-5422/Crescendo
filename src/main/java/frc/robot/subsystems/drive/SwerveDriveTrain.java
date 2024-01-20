@@ -57,10 +57,10 @@ public class SwerveDriveTrain extends DrivetrainBase {
         ShuffleboardLayout backLeftModuleLayout = getShuffleboardLayout("Back Left Module", 2, 4, 4, 0);
         ShuffleboardLayout backRightModuleLayout = getShuffleboardLayout("Back Right Module", 2, 4, 6, 0);
 
-        m_frontLeftModule = buildSwerveModule(frontLeftModuleLayout, Drive.frontLeftDriveID, Drive.frontLeftSteerID, Drive.frontLeftEncoderID, Drive.frontLeftOffsetTicks);
-        m_frontRightModule = buildSwerveModule(frontRightModuleLayout, Drive.frontRightDriveID, Drive.frontRightSteerID, Drive.frontRightEncoderID, Drive.frontRightOffsetTicks);
-        m_backLeftModule = buildSwerveModule(backLeftModuleLayout, Drive.backLeftDriveID, Drive.backLeftSteerID, Drive.backLeftEncoderID, Drive.backLeftOffsetTicks);
-        m_backRightModule = buildSwerveModule(backRightModuleLayout, Drive.backRightDriveID, Drive.backRightSteerID, Drive.backRightEncoderID, Drive.backRightOffsetTicks);
+        m_frontLeftModule = buildSwerveModule(frontLeftModuleLayout, Drive.frontLeftDriveID, Drive.frontLeftSteerID, Drive.frontLeftEncoderID, Drive.frontLeftOffsetDegrees);
+        m_frontRightModule = buildSwerveModule(frontRightModuleLayout, Drive.frontRightDriveID, Drive.frontRightSteerID, Drive.frontRightEncoderID, Drive.frontRightOffsetDegrees);
+        m_backLeftModule = buildSwerveModule(backLeftModuleLayout, Drive.backLeftDriveID, Drive.backLeftSteerID, Drive.backLeftEncoderID, Drive.backLeftOffsetDegrees);
+        m_backRightModule = buildSwerveModule(backRightModuleLayout, Drive.backRightDriveID, Drive.backRightSteerID, Drive.backRightEncoderID, Drive.backRightOffsetDegrees);
 
         setMotorInvertedState(m_frontLeftModule.getDriveMotor(), false);
         setMotorInvertedState(m_frontRightModule.getDriveMotor(), false);
@@ -89,14 +89,14 @@ public class SwerveDriveTrain extends DrivetrainBase {
         }
     }
 
-    private SwerveModule buildSwerveModule(ShuffleboardLayout moduleLayout, int driveId, int steerId, int encoderId, int offsetTicks) {
+    private SwerveModule buildSwerveModule(ShuffleboardLayout moduleLayout, int driveId, int steerId, int encoderId, double offset) {
         return new MkSwerveModuleBuilder()
                 .withLayout(moduleLayout)
                 .withGearRatio(SdsModuleConfigurations.MK4_L2)
                 .withDriveMotor(MotorType.NEO, driveId)
                 .withSteerMotor(MotorType.NEO, steerId)
                 .withSteerEncoderPort(encoderId)
-                .withSteerOffset(offsetTicks)
+                .withSteerOffset(-Math.toRadians(offset))
                 .build();
     }
 
@@ -132,17 +132,17 @@ public class SwerveDriveTrain extends DrivetrainBase {
             // TODO - change this to match the proper units. For now assuming Radians
             double offsetScale = 2 * PI / Drive.SteerEncoderTicksPerRotation;
 
-            cc_cfg.MagnetSensor.MagnetOffset = Drive.frontLeftOffsetTicks * offsetScale;
-            checkStatus(fl.getConfigurator().apply(cc_cfg), "set FL encoder");
-
-            cc_cfg.MagnetSensor.MagnetOffset = Drive.frontRightOffsetTicks * offsetScale;
-            checkStatus(fr.getConfigurator().apply(cc_cfg), "set FR encoder");
-
-            cc_cfg.MagnetSensor.MagnetOffset = Drive.backLeftOffsetTicks * offsetScale;
-            checkStatus(bl.getConfigurator().apply(cc_cfg), "set BL encoder");
-
-            cc_cfg.MagnetSensor.MagnetOffset = Drive.backRightOffsetTicks * offsetScale;
-            checkStatus(br.getConfigurator().apply(cc_cfg), "set BR encoder");
+//            cc_cfg.MagnetSensor.MagnetOffset = Drive.frontLeftOffsetDegrees * offsetScale;
+//            checkStatus(fl.getConfigurator().apply(cc_cfg), "set FL encoder");
+//
+//            cc_cfg.MagnetSensor.MagnetOffset = Drive.frontRightOffsetDegrees * offsetScale;
+//            checkStatus(fr.getConfigurator().apply(cc_cfg), "set FR encoder");
+//
+//            cc_cfg.MagnetSensor.MagnetOffset = Drive.backLeftOffsetDegrees * offsetScale;
+//            checkStatus(bl.getConfigurator().apply(cc_cfg), "set BL encoder");
+//
+//            cc_cfg.MagnetSensor.MagnetOffset = Drive.backRightOffsetDegrees * offsetScale;
+//            checkStatus(br.getConfigurator().apply(cc_cfg), "set BR encoder");
         } catch (Exception e) {
             System.out.printf("Error on initEncoders. %s", e.getMessage());
             e.printStackTrace();
