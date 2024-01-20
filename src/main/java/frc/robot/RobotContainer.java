@@ -4,23 +4,19 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.Toggles;
-import frc.robot.Constants.Drive;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.JoyStickDrive;
-import frc.robot.subsystems.ExampleSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Drive;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.Toggles;
+import frc.robot.commands.JoyStickDrive;
+import frc.robot.joysticks.CrescendoJoystick;
+import frc.robot.joysticks.CrescendoJoystickFactory;
+import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.utils.joysticks.StormLogitechController;
-import frc.utils.joysticks.StormXboxController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -38,45 +34,24 @@ public class RobotContainer {
 
   DrivetrainBase drivetrainBase;
 
-  StormXboxController xboxController;
+  CrescendoJoystick joystick;
 
-  StormLogitechController logitechController;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer() throws IllegalDriveTypeException {
+  public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
     System.out.println("[Init] RobotContainer");
 
     if (Toggles.useDrive) {
 
       System.out.println("Create drive type " + Drive.driveType);
       drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
+      joystick = CrescendoJoystickFactory.getInstance(Drive.joystick);
 
-      if (Toggles.useXboxController){
 
-        xboxController = new StormXboxController(0);
-        JoyStickDrive driveWithJoystick = new JoyStickDrive(
-                drivetrainBase,
-                xboxController::getWpiXSpeed,
-                xboxController::getWpiYSpeed,
-                xboxController::getOmegaSpeed,
-                () -> xboxController.getLeftTrigger() > 0.2,
-                () -> xboxController.getRightTrigger() > 0.2
-        );
-        drivetrainBase.setDefaultCommand(driveWithJoystick);
-      }
-    }
-    if (Toggles.useLogitechController){
-
-      logitechController = new StormLogitechController(0);
       JoyStickDrive driveWithJoystick = new JoyStickDrive(
-              drivetrainBase,
-              logitechController::getWpiXSpeed,
-              logitechController::getWpiYSpeed,
-              logitechController::getOmegaSpeed,
-              () -> logitechController.getRawButton(11),
-              () -> logitechController.getRawButton(2)
-      );
+              drivetrainBase, joystick);
       drivetrainBase.setDefaultCommand(driveWithJoystick);
     }
 
