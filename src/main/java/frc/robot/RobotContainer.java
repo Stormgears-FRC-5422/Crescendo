@@ -29,81 +29,82 @@ import frc.utils.joysticks.StormXboxController;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-          new CommandXboxController(OperatorConstants.kDriverControllerPort);
+    // The robot's subsystems and commands are defined here...
+    // Replace with CommandPS4Controller or CommandJoystick if needed
+    private final CommandXboxController m_driverController =
+            new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
-  NavX navX;
+    NavX navX;
 
-  DrivetrainBase drivetrainBase;
+    DrivetrainBase drivetrainBase;
 
-  StormXboxController xboxController;
+    StormXboxController xboxController;
 
-  StormLogitechController logitechController;
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() throws IllegalDriveTypeException {
-    System.out.println("[Init] RobotContainer");
+    StormLogitechController logitechController;
 
-    if (Toggles.useDrive) {
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() throws IllegalDriveTypeException {
+        System.out.println("[Init] RobotContainer");
 
-      System.out.println("Create drive type " + Drive.driveType);
-      drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
+        if (Toggles.useDrive) {
+            System.out.println("Create drive type " + Drive.driveType);
+            drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
+        }
 
-      if (Toggles.useXboxController){
+        if (Toggles.useXboxController) {
 
-        xboxController = new StormXboxController(0);
-        JoyStickDrive driveWithJoystick = new JoyStickDrive(
-                drivetrainBase,
-                xboxController::getWpiXSpeed,
-                xboxController::getWpiYSpeed,
-                xboxController::getOmegaSpeed,
-                () -> xboxController.getLeftTrigger() > 0.2,
-                () -> xboxController.getRightTrigger() > 0.2
-        );
-        drivetrainBase.setDefaultCommand(driveWithJoystick);
-      }
+            xboxController = new StormXboxController(0);
+            JoyStickDrive driveWithJoystick = new JoyStickDrive(
+                    drivetrainBase,
+                    xboxController::getWpiXSpeed,
+                    xboxController::getWpiYSpeed,
+                    xboxController::getOmegaSpeed,
+                    () -> xboxController.getLeftTrigger() > 0.2,
+                    () -> xboxController.getRightTrigger() > 0.2
+            );
+            drivetrainBase.setDefaultCommand(driveWithJoystick);
+        }
+
+        if (Toggles.useLogitechController) {
+
+            logitechController = new StormLogitechController(1);
+            JoyStickDrive driveWithJoystick = new JoyStickDrive(
+                    drivetrainBase,
+                    logitechController::getWpiXSpeed,
+                    logitechController::getWpiYSpeed,
+                    logitechController::getOmegaSpeed,
+                    () -> logitechController.getRawButton(11),
+                    () -> logitechController.getRawButton(2)
+            );
+            drivetrainBase.setDefaultCommand(driveWithJoystick);
+        }
+
+
+        if (Toggles.useNavX) {
+            navX = new NavX();
+        }
+
+        // Configure the trigger bindings
+        configureBindings();
+
+        System.out.println("[DONE] RobotContainer");
     }
-    if (Toggles.useLogitechController){
 
-      logitechController = new StormLogitechController(0);
-      JoyStickDrive driveWithJoystick = new JoyStickDrive(
-              drivetrainBase,
-              logitechController::getWpiXSpeed,
-              logitechController::getWpiYSpeed,
-              logitechController::getOmegaSpeed,
-              () -> logitechController.getRawButton(11),
-              () -> logitechController.getRawButton(2)
-      );
-      drivetrainBase.setDefaultCommand(driveWithJoystick);
+    /**
+     * Use this method to define your trigger->command mappings. Triggers can be created via the
+     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+     * predicate, or via the named factories in {@link
+     * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
+     * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+     * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+     * joysticks}.
+     */
+    private void configureBindings() {
+        System.out.println("[Init] configureBindings");
+
+        System.out.println("[DONE] configureBindings");
     }
-
-
-    if (Toggles.useNavX) {
-      navX = new NavX();
-    }
-
-    // Configure the trigger bindings
-    configureBindings();
-
-    System.out.println("[DONE] RobotContainer");
-  }
-
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private void configureBindings() {
-    System.out.println("[Init] configureBindings");
-
-    System.out.println("[DONE] configureBindings");
-  }
 
 }
