@@ -12,14 +12,17 @@ import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
-import frc.robot.RobotState;
+import frc.utils.LoggerWrapper;
 
 import static java.lang.Math.PI;
 
 public class SwerveDriveTrain extends DrivetrainBase {
     public static final double m_maxMotorVoltage = Drive.maxMotorVoltage;
+    CANcoder[] m_encoders = new CANcoder[4];
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
             new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
@@ -37,6 +40,9 @@ public class SwerveDriveTrain extends DrivetrainBase {
     private final SwerveModule m_frontRightModule;
     private final SwerveModule m_backLeftModule;
     private final SwerveModule m_backRightModule;
+
+    SuppliedValueWidget<Double> CANabs;
+    SuppliedValueWidget<Double> ABS;
 
     public SwerveDriveTrain() {
         initEncoders();
@@ -66,6 +72,11 @@ public class SwerveDriveTrain extends DrivetrainBase {
         setMotorInvertedState(m_frontRightModule.getDriveMotor(), false);
         setMotorInvertedState(m_backLeftModule.getDriveMotor(), false);
         setMotorInvertedState(m_backRightModule.getDriveMotor(), false);
+        buildDriveShuffleBoard(m_frontLeftModule, m_encoders[0]);
+        buildDriveShuffleBoard(m_frontRightModule, m_encoders[1]);
+        buildDriveShuffleBoard(m_backLeftModule, m_encoders[2]);
+        buildDriveShuffleBoard(m_backRightModule, m_encoders[3]);
+
     }
 
     @Override
@@ -73,15 +84,33 @@ public class SwerveDriveTrain extends DrivetrainBase {
         states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocityMetersPerSecond);
 
-        setSwerveModuleVoltageAndSteerAngle(m_frontLeftModule, states[0]);
-        setSwerveModuleVoltageAndSteerAngle(m_frontRightModule, states[1]);
-        setSwerveModuleVoltageAndSteerAngle(m_backLeftModule, states[2]);
-        setSwerveModuleVoltageAndSteerAngle(m_backRightModule, states[3]);
+        setSwerveModuleVoltageAndSteerAngle(m_frontLeftModule, states[0], m_encoders[0]);
+        setSwerveModuleVoltageAndSteerAngle(m_frontRightModule, states[1], m_encoders[1]);
+        setSwerveModuleVoltageAndSteerAngle(m_backLeftModule, states[2], m_encoders[2]);
+        setSwerveModuleVoltageAndSteerAngle(m_backRightModule, states[3], m_encoders[3]);
     }
 
-    private void setSwerveModuleVoltageAndSteerAngle(SwerveModule swerveModule, SwerveModuleState moduleState) {
-        swerveModule.set(m_maxMotorVoltage * moduleState.speedMetersPerSecond / m_maxVelocityMetersPerSecond, moduleState.angle.getRadians());
+    public void buildDriveShuffleBoard(SwerveModule swerveModule, CANcoder can) {
+        int deviceID = ((CANSparkMax)swerveModule.getDriveMotor()).getDeviceId();
+        tab.addNumber("CANAbsAngle_" + deviceID, ()-> Math.toDegrees(can.getPosition().getValueAsDouble()));
+        tab.addNumber("AbsAngle" + deviceID, () -> Math.toDegrees(swerveModule.getSteerEncoder().getAbsoluteAngle()));
+
     }
+
+    private void setSwerveModuleVoltageAndSteerAngle(SwerveModule swerveModule, SwerveModuleState moduleState, CANcoder can) {
+        int deviceID = ((CANSparkMax)swerveModule.getDriveMotor()).getDeviceId();
+        swerveModule.set(m_maxMotorVoltage * moduleState.speedMetersPerSecond / m_maxVelocityMetersPerSecond, moduleState.angle.getRadians());
+        LoggerWrapper.recordOutput("Drive/DeviceId" + deviceID, deviceID);
+        LoggerWrapper.recordOutput("Drive/Distance" + deviceID, swerveModule.getDriveDistance());
+        LoggerWrapper.recordOutput("Drive/SteerInverted" + deviceID, swerveModule.getSteerMotor().getInverted());
+        LoggerWrapper.recordOutput("Drive/SteerAngle" + deviceID, swerveModule.getSteerAngle());
+        LoggerWrapper.recordOutput("Drive/SteerEncoderAbsoluteAngle" + deviceID, swerveModule.getSteerEncoder().getAbsoluteAngle());
+        LoggerWrapper.recordOutput("Drive/SteerEncoderAbsoluteAngleCAN" + deviceID, can.getPosition().getValue());
+
+        SmartDashboard.putNumber("CANAbsAngle_" + deviceID, Math.toDegrees(can.getPosition().getValue()));
+        SmartDashboard.putNumber("AbsAngle" + deviceID, Math.toDegrees(swerveModule.getSteerEncoder().getAbsoluteAngle()));
+    }
+
 
     private void setMotorInvertedState(MotorController motorController, boolean invertedState) {
         if (motorController instanceof CANSparkMax) {
@@ -123,6 +152,11 @@ public class SwerveDriveTrain extends DrivetrainBase {
                 CANcoder bl = new CANcoder(Drive.backLeftEncoderID);
                 CANcoder br = new CANcoder(Drive.backRightEncoderID);
         ) {
+            m_encoders[0] = fl;
+            m_encoders[1] = fr;
+            m_encoders[2] = bl;
+            m_encoders[3] = br;
+
             // from CTRE Github Phoenix6-Examples/java/FusedCANcoder/src/main/java/frc/robot
             // TODO check these configs wrt swerve modules
             CANcoderConfiguration cc_cfg = new CANcoderConfiguration();
