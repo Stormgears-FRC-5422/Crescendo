@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -69,6 +70,8 @@ public class Robot extends LoggedRobot {
     try {
       m_robotContainer = new RobotContainer();
     } catch (IllegalDriveTypeException e) {
+      throw new RuntimeException(e);
+    } catch (IllegalJoystickTypeException e) {
       throw new RuntimeException(e);
     }
     System.out.println("[DONE] Robot");
