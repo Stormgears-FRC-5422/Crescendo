@@ -12,7 +12,8 @@ import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.*;
+import frc.robot.Constants;
+import frc.robot.Constants.Toggles;
 import frc.robot.subsystems.Shooter;
 import frc.utils.joysticks.StormXboxController;
 
@@ -25,7 +26,9 @@ public class RobotContainer {
   public RobotContainer() {
     stormXboxController = new StormXboxController(0);
     configureBindings();
-    if (Toggles.useDrive) {
+
+    
+    if (true) { // TODO should be Toggles.useShooter
       shooter = new Shooter();
       shooterCommand = new ShooterCommand(shooter, stormXboxController);
       shooter.setDefaultCommand(shooterCommand);
