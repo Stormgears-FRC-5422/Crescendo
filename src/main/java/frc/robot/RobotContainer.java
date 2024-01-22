@@ -10,7 +10,6 @@ import frc.robot.Constants.Drive;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.Toggles;
 import frc.robot.commands.JoyStickDrive;
-import frc.robot.commands.NewJoystickDrive;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.joysticks.CrescendoJoystickFactory;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -52,13 +51,9 @@ public class RobotContainer {
             System.out.println("Create drive type " + Drive.driveType);
             drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
             joystick = CrescendoJoystickFactory.getInstance(Drive.joystick);
+            JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrainBase, joystick);
+            drivetrainBase.setDefaultCommand(driveWithJoystick);
         }
-
-        JoyStickDrive driveWithJoystick = new JoyStickDrive(
-                drivetrainBase, joystick);
-        NewJoystickDrive newJoystickDrive = new NewJoystickDrive(drivetrainBase, joystick);
-        drivetrainBase.setDefaultCommand(newJoystickDrive);
-
 
         if (Toggles.useNavX) {
             navX = new NavX();

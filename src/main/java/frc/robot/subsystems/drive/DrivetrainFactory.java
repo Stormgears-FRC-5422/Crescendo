@@ -11,9 +11,9 @@ public class DrivetrainFactory {
             switch (driveType) {
                 case "SwerveDrive" -> instance = new SwerveDriveTrain();
                 case "SwerveDiagnosticDrive" -> instance = new SwerveDiagnosticDriveTrain();
-                case "NewSwerDrive" -> {
+                case "YagslDrive" -> {
                     try {
-                        instance = new NewSwerveDriveTrain();
+                        instance = new YagslDriveTrain();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
