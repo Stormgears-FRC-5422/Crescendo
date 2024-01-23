@@ -7,8 +7,8 @@ public class CrescendoJoystickFactory {
         if (instance == null) {
             System.out.printf("Initializing %s", joystickType);
             switch (joystickType) {
-                case "XboxController" -> instance = new CrescendoLogitechController(0);
-                case "SwerveDiagnosticDrive" -> instance = new CrescendoXboxController(0);
+                case "XboxController" -> instance = new CrescendoXboxController(0);
+                case "LogitechController" -> instance = new CrescendoLogitechController(0);
                 default -> throw new IllegalJoystickTypeException("Illegal Joystick Type: " + joystickType + " ---!");
             }
         }

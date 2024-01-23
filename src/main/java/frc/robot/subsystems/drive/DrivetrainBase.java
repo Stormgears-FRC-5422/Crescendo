@@ -16,8 +16,8 @@ import frc.robot.ShuffleboardConstants;
 
 public abstract class DrivetrainBase extends SubsystemBase {
 
-    public double m_maxVelocityMetersPerSecond;
-    public double m_maxAngularVelocityRadiansPerSecond;
+    public double m_maxVelocityMetersPerSecond = 1 ;
+    public double m_maxAngularVelocityRadiansPerSecond = 1;
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
 

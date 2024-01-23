@@ -17,7 +17,7 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
         double maxVelocityMetersPerSecond = m_maxMotorVoltage;
         double maxAngularVelocityRadiansPerSecond = m_maxMotorVoltage;
 
-        super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
+        super.setMaxVelocities(maxVelocityMetersPerSecond*0.2, maxAngularVelocityRadiansPerSecond*0.2);
         
         m_frontLeftDrive = new CANSparkMax(Drive.frontLeftDriveID, MotorType.kBrushless);
         m_frontLeftSteer = new CANSparkMax(Drive.frontLeftSteerID, MotorType.kBrushless);
