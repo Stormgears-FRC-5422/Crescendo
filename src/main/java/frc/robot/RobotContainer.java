@@ -7,7 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Toggles;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.joysticks.CrescendoJoystick;
@@ -28,17 +28,8 @@ import frc.utils.joysticks.StormXboxController;
  */
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
-    // Replace with CommandPS4Controller or CommandJoystick if needed
-    private final CommandXboxController m_driverController =
-            new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
     NavX navX;
-
     DrivetrainBase drivetrainBase;
-
-    StormXboxController xboxController;
-
-    StormLogitechController logitechController;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -50,7 +41,7 @@ public class RobotContainer {
         if (Toggles.useDrive) {
             System.out.println("Create drive type " + Drive.driveType);
             drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
-            joystick = CrescendoJoystickFactory.getInstance(Drive.joystick);
+            joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrainBase, joystick);
             drivetrainBase.setDefaultCommand(driveWithJoystick);
         }

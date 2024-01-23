@@ -3,12 +3,12 @@ package frc.robot.joysticks;
 public class CrescendoJoystickFactory {
     public static CrescendoJoystick instance;
 
-    public static CrescendoJoystick getInstance(String joystickType) throws IllegalJoystickTypeException {
+    public static CrescendoJoystick getInstance(String joystickType, int port) throws IllegalJoystickTypeException {
         if (instance == null) {
             System.out.printf("Initializing %s", joystickType);
             switch (joystickType) {
-                case "XboxController" -> instance = new CrescendoXboxController(0);
-                case "LogitechController" -> instance = new CrescendoLogitechController(0);
+                case "XboxController" -> instance = new CrescendoXboxController(port);
+                case "LogitechController" -> instance = new CrescendoLogitechController(port);
                 default -> throw new IllegalJoystickTypeException("Illegal Joystick Type: " + joystickType + " ---!");
             }
         }
