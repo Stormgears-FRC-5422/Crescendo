@@ -28,36 +28,52 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     //    protected final ShuffleboardTab tab;
     DrivetrainBase() {
-
         setDriveSpeedScale(Drive.driveSpeedScale);
-        speedScaleLimiter.reset(m_driveSpeedScale);
         tab = ShuffleboardConstants.getInstance().drivetrainTab;
     }
-
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
         this.m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
         this.m_maxAngularVelocityRadiansPerSecond = maxAngularVelocityRadiansPerSecond;
     }
 
-    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-        ChassisSpeeds limitSpeed = new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
-                speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
-                speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond);
-        if (fieldRelative) {
-            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
-            m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(limitSpeed, rotation);
-        } else {
-            m_chassisSpeeds = limitSpeed;
-        }
+    // Be careful scaling ChassisSpeeds. Need to scale X and Y the same or your robot will move in the wrong direction!
+    public ChassisSpeeds scaleChassisSpeeds(ChassisSpeeds speeds, double scale) {
+        return new ChassisSpeeds(scale * speeds.vxMetersPerSecond,
+                                 scale * speeds.vyMetersPerSecond,
+                                 scale * speeds.omegaRadiansPerSecond);
     }
 
-//    public void percentOutDrive(ChassisSpeeds speeds, boolean fieldRelative) {
-//        drive(new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
-//                        speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
-//                        speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond),
-//                fieldRelative);
-//    }
+    /**
+     * Command the robot to drive.
+     * This method expects real speeds in meters/second.
+     * Speed may be limited by speedScale and / or slew rate limiter
+     * @param speeds        Chassis speedsSwerveDriveConfiguration for the swerve, esp from joystick.
+     * @param fieldRelative True for field relative driving
+     */
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
+        if (fieldRelative) {
+            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
+            m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
+        }
+
+        // TODO - work in the slew rate limiter. Not sure whether to apply before or after scale
+        m_chassisSpeeds = scaleChassisSpeeds(m_chassisSpeeds, m_driveSpeedScale);
+    }
+
+    /**
+     * Command the robot to drive, especially from Joystick
+     * This method expects units from -1 to 1, and then scales them to the max speeds
+     * You should call setMaxVelocities() before calling this method
+     * @param speeds        Chassis speeds, especially from joystick.
+     * @param fieldRelative True for field relative driving
+     */
+    public void percentOutputDrive(ChassisSpeeds speeds, boolean fieldRelative) {
+        drive(new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
+                        speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
+                        speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond),
+                fieldRelative);
+    }
 
     public void setDriveSpeedScale(double scale) {
         m_driveSpeedScale = MathUtil.clamp(scale, 0, Drive.driveSpeedScale);
