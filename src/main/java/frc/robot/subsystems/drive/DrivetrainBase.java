@@ -74,6 +74,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
                         speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond),
                 fieldRelative);
     }
+    
 
     public void setDriveSpeedScale(double scale) {
         m_driveSpeedScale = MathUtil.clamp(scale, 0, Drive.driveSpeedScale);

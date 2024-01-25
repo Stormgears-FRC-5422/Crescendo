@@ -4,12 +4,20 @@
 
 package frc.robot;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Toggles;
 import frc.robot.commands.JoyStickDrive;
+import frc.robot.commands.auto.AutoBuilder;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.joysticks.CrescendoJoystickFactory;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -17,6 +25,7 @@ import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
+import frc.robot.subsystems.drive.SwerveDiagnosticDriveTrain;
 import frc.utils.joysticks.StormLogitechController;
 import frc.utils.joysticks.StormXboxController;
 
@@ -30,6 +39,8 @@ public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     NavX navX;
     DrivetrainBase drivetrainBase;
+
+    AutoBuilder autoBuilder;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -71,4 +82,8 @@ public class RobotContainer {
         System.out.println("[DONE] configureBindings");
     }
 
+    public Command getAutonomousCommand() {
+        autoBuilder = new AutoBuilder(drivetrainBase);
+        return autoBuilder.buildAuto();
+    }
 }
