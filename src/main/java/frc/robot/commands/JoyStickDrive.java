@@ -10,12 +10,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class JoyStickDrive extends Command {
-
     private DrivetrainBase drivetrain;
     private final DoubleSupplier txSupplier;
     private final DoubleSupplier tySupplier;
     private final DoubleSupplier omegaSupplier;
-
     private final BooleanSupplier robotRelativeSupplier;
     private final BooleanSupplier turboSupplier;
 
@@ -42,7 +40,7 @@ public class JoyStickDrive extends Command {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(txSupplier.getAsDouble(),
                 tySupplier.getAsDouble(),
                 omegaSupplier.getAsDouble());
+
         drivetrain.percentOutputDrive(chassisSpeeds, robotRelativeSupplier.getAsBoolean());
-//        System.out.println("x: " + txSupplier.getAsDouble());
     }
 }

@@ -26,13 +26,7 @@ import java.io.IOException;
 import frc.robot.Constants.Swerve;
 
 public class YagslDriveTrain extends DrivetrainBase {
-
-    private SwerveDrive swerveDrive;
-
-    CANCoderSwerve[] canCoderSwerves = new CANCoderSwerve[]{new CANCoderSwerve(Drive.frontLeftSteerID),
-            new CANCoderSwerve(Drive.frontRightSteerID),
-            new CANCoderSwerve(Drive.backRightSteerID),
-            new CANCoderSwerve(Drive.backLeftSteerID)};
+    private final SwerveDrive swerveDrive;
 
     YagslDriveTrain() throws IOException {
         File directory = new File(Filesystem.getDeployDirectory(),Swerve.configDirectory);
@@ -42,25 +36,10 @@ public class YagslDriveTrain extends DrivetrainBase {
             swerveDrive.resetOdometry(RobotState.getInstance().getStartPose());
         }
 
-
-//        buildDriveShuffleBoard(canCoderSwerves[0], Drive.frontLeftSteerID);
-//        buildDriveShuffleBoard(canCoderSwerves[1], Drive.frontRightSteerID);
-//        buildDriveShuffleBoard(canCoderSwerves[2],  Drive.backLeftSteerID);
-//        buildDriveShuffleBoard(canCoderSwerves[3], Drive.backRightSteerID);
-
     @Override
     public void periodic() {
         swerveDrive.drive(m_chassisSpeeds);
         swerveDrive.updateOdometry();
         RobotState.getInstance().addPose(swerveDrive.getPose());
     }
-    }
-
-//    public void buildDriveShuffleBoard(CANCoderSwerve canCoderSwerve, int deviceID) {
-//        tab.addNumber("AbsAngle" + deviceID, () -> Math.toDegrees(canCoderSwerve.getAbsolutePosition()));
-//    }
-
-
-
-
-
+}

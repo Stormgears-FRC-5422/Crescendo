@@ -58,6 +58,7 @@ public class RobotContainer {
         }
 
         if (Toggles.useNavX) {
+            System.out.println("Create NavX");
             navX = new NavX();
         }
 

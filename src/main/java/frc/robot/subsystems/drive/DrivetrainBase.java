@@ -20,10 +20,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     public double m_maxAngularVelocityRadiansPerSecond = 1;
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
-
     protected final ShuffleboardTab tab;
-
-
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
     //    protected final ShuffleboardTab tab;
@@ -33,8 +30,8 @@ public abstract class DrivetrainBase extends SubsystemBase {
     }
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
-        this.m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
-        this.m_maxAngularVelocityRadiansPerSecond = maxAngularVelocityRadiansPerSecond;
+        m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
+        m_maxAngularVelocityRadiansPerSecond = maxAngularVelocityRadiansPerSecond;
     }
 
     // Be careful scaling ChassisSpeeds. Need to scale X and Y the same or your robot will move in the wrong direction!
@@ -55,6 +52,8 @@ public abstract class DrivetrainBase extends SubsystemBase {
         if (fieldRelative) {
             Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
             m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
+        } else {
+            m_chassisSpeeds = speeds;
         }
 
         // TODO - work in the slew rate limiter. Not sure whether to apply before or after scale
