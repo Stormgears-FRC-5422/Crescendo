@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainBase.*;
@@ -43,7 +44,9 @@ public class NavX extends SubsystemBase {
 
     @Override
     public void periodic() {
-        RobotState.getInstance().setGyroData(getAbsoluteRotation);
+        if (!Constants.Drive.driveType.equals("YagslDrive")) {
+            RobotState.getInstance().setGyroData(getAbsoluteRotation);
+        }
     }
 
 }

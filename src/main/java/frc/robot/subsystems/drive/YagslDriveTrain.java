@@ -3,6 +3,8 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -41,5 +43,6 @@ public class YagslDriveTrain extends DrivetrainBase {
         swerveDrive.drive(m_chassisSpeeds);
         swerveDrive.updateOdometry();
         RobotState.getInstance().addPose(swerveDrive.getPose());
+        RobotState.getInstance().setGyroData(swerveDrive.getYaw());
     }
 }

@@ -4,13 +4,7 @@
 
 package frc.robot;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
@@ -25,9 +19,6 @@ import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.robot.subsystems.drive.SwerveDiagnosticDriveTrain;
-import frc.utils.joysticks.StormLogitechController;
-import frc.utils.joysticks.StormXboxController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -57,7 +48,7 @@ public class RobotContainer {
             drivetrainBase.setDefaultCommand(driveWithJoystick);
         }
 
-        if (Toggles.useNavX) {
+        if (Toggles.useNavX && !Drive.driveType.equals("YagslDrive")) {
             System.out.println("Create NavX");
             navX = new NavX();
         }
