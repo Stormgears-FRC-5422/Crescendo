@@ -34,7 +34,15 @@ public class YagslDriveTrain extends DrivetrainBase {
         File directory = new File(Filesystem.getDeployDirectory(),Swerve.configDirectory);
             swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
             swerveDrive.setHeadingCorrection(false);
-            SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
+
+            SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase() ) {
+                case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
+                case "medium" -> SwerveDriveTelemetry.TelemetryVerbosity.LOW;
+                case "low" -> SwerveDriveTelemetry.TelemetryVerbosity.MACHINE;
+                case "none" -> SwerveDriveTelemetry.TelemetryVerbosity.NONE;
+                default ->  SwerveDriveTelemetry.TelemetryVerbosity.NONE;
+                };
+
             swerveDrive.resetOdometry(RobotState.getInstance().getStartPose());
         }
 
