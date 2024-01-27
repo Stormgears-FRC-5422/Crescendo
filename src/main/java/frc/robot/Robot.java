@@ -90,9 +90,7 @@ public class Robot extends LoggedRobot {
     // autonomous chooser on the dashboard.
     try {
       m_robotContainer = new RobotContainer();
-    } catch (IllegalDriveTypeException e) {
-      throw new RuntimeException(e);
-    } catch (IllegalJoystickTypeException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
     System.out.println("[DONE] Robot");

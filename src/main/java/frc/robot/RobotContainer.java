@@ -39,11 +39,10 @@ public class RobotContainer {
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         System.out.println("[Init] RobotContainer");
 
-        CrescendoJoystick joystick = null;
         if (Toggles.useDrive) {
             System.out.println("Create drive type " + Drive.driveType);
             drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
-            joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
+            CrescendoJoystick joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrainBase, joystick);
             drivetrainBase.setDefaultCommand(driveWithJoystick);
         }

@@ -1,8 +1,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Drive;
+import frc.robot.ShuffleboardConstants;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
 
@@ -31,6 +33,7 @@ public class JoyStickDrive extends Command {
 
     @Override
     public void execute() {
+        ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction", robotRelativeSupplier.getAsBoolean()? "Field Orientation": "Robot Orientation");
         if (!turboSupplier.getAsBoolean()) {
             drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
         } else {
