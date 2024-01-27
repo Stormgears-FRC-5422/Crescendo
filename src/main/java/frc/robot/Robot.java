@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
+import frc.utils.Alert;
+import frc.utils.Alert.AlertType;
 import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -27,6 +31,17 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
+  private static final double canErrorTimeThreshold = 0.5; // Seconds to disable alert
+  private static final double lowBatteryVoltage = 10.0;
+  private final Timer canErrorTimer = new Timer();
+  private final Timer canErrorTimerInitial = new Timer();
+  private final Alert canErrorAlert =
+          new Alert("CAN errors detected, robot may not be controllable.", AlertType.ERROR);
+  private final Alert lowBatteryAlert =
+          new Alert(
+                  "Battery voltage is very low, consider turning off the robot or replacing the battery.",
+                  AlertType.WARNING);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -64,6 +79,12 @@ public class Robot extends LoggedRobot {
       LoggerWrapper.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
     }
     LoggerWrapper.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+    // Start timers
+    canErrorTimer.reset();
+    canErrorTimer.start();
+    canErrorTimerInitial.reset();
+    canErrorTimerInitial.start();
+
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
@@ -91,6 +112,19 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // Update CAN error alert
+    var canStatus = RobotController.getCANStatus();
+    if (canStatus.receiveErrorCount > 0 || canStatus.transmitErrorCount > 0) {
+      canErrorTimer.reset();
+    }
+    canErrorAlert.set(
+            !canErrorTimer.hasElapsed(canErrorTimeThreshold)
+                    && canErrorTimerInitial.hasElapsed(canErrorTimeThreshold));
+
+    if (RobotController.getBatteryVoltage() < lowBatteryVoltage) {
+      lowBatteryAlert.set(true);
+    }
   }
 
   /**
