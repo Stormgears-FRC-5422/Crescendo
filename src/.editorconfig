@@ -3,13 +3,29 @@
 # top-most EditorConfig file
 root = true
 
+# Unix-style newlines with a newline ending every file
 [*]
-indent_style = space
-indent_size = 4
 end_of_line = lf
+insert_final_newline = true
 charset = utf-8
 trim_trailing_whitespace = true
-insert_final_newline = true
+
+# 4 space indentation
+[*.{java,js,html,css}]
+indent_style = space
+indent_size = 4
+
+# 2 space indentation for JSON files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Max 120 char line length
+[*.{java,js,html,css,json}]
+max_line_length = 120
+# Use tab indentation for Makefiles
+[Makefile]
+indent_style = tab
 
 # The following are examples that EditorConfig generated automatically.
 # # Unix-style newlines with a newline ending every file
