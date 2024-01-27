@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import swervelib.SwerveController;
@@ -26,31 +28,44 @@ import java.io.File;
 import java.io.IOException;
 
 import frc.robot.Constants.Swerve;
+import frc.robot.Constants.Drive;
 
 public class YagslDriveTrain extends DrivetrainBase {
     private final SwerveDrive swerveDrive;
 
+
+    double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
+            Drive.driveReduction * Drive.wheelDiameter * Math.PI;
+    double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
+            Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
+
     YagslDriveTrain() throws IOException {
-        File directory = new File(Filesystem.getDeployDirectory(),Swerve.configDirectory);
-            swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
-            swerveDrive.setHeadingCorrection(false);
+        super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
+        File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
+        swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
+        swerveDrive.setHeadingCorrection(false);
 
-            SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase() ) {
-                case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
-                case "medium" -> SwerveDriveTelemetry.TelemetryVerbosity.LOW;
-                case "low" -> SwerveDriveTelemetry.TelemetryVerbosity.MACHINE;
-                case "none" -> SwerveDriveTelemetry.TelemetryVerbosity.NONE;
-                default ->  SwerveDriveTelemetry.TelemetryVerbosity.NONE;
-                };
+        SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
+            case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
+            case "medium" -> SwerveDriveTelemetry.TelemetryVerbosity.LOW;
+            case "low" -> SwerveDriveTelemetry.TelemetryVerbosity.MACHINE;
+            case "none" -> SwerveDriveTelemetry.TelemetryVerbosity.NONE;
+            default -> SwerveDriveTelemetry.TelemetryVerbosity.NONE;
+        };
 
-            swerveDrive.resetOdometry(RobotState.getInstance().getStartPose());
-        }
+        swerveDrive.resetOdometry(RobotState.getInstance().getPose());
+
+    }
 
     @Override
     public void periodic() {
-        swerveDrive.drive(m_chassisSpeeds);
+        if (fieldRelative) {
+            swerveDrive.driveFieldOriented(m_chassisSpeeds);
+        } else {
+            swerveDrive.drive(m_chassisSpeeds);
+        }
         swerveDrive.updateOdometry();
-        RobotState.getInstance().addPose(swerveDrive.getPose());
+        RobotState.getInstance().setPose(swerveDrive.getPose());
         RobotState.getInstance().setGyroData(swerveDrive.getYaw());
     }
 }

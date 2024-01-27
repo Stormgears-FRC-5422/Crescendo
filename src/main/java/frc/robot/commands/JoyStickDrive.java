@@ -44,6 +44,6 @@ public class JoyStickDrive extends Command {
                 tySupplier.getAsDouble(),
                 omegaSupplier.getAsDouble());
 
-        drivetrain.percentOutputDrive(chassisSpeeds, robotRelativeSupplier.getAsBoolean());
+        drivetrain.percentOutputDrive(chassisSpeeds, !robotRelativeSupplier.getAsBoolean());
     }
 }

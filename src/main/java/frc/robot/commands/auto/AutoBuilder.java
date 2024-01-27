@@ -22,20 +22,21 @@ public class AutoBuilder extends Command {
 
     public AutoBuilder(DrivetrainBase drivetrainBase) {
         this.drivetrainBase = drivetrainBase;
-        thetaController = new PIDController(1, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        thetaController = new PIDController(0, 0, 0);
+//        thetaController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     public Command buildAuto() {
+        RobotState.getInstance().setPose(traj.getInitialPose());
+
         Command swerveCommand = Choreo.choreoSwerveCommand(
                 traj,
                 RobotState.getInstance()::getPose,
-                new PIDController(1, 0.0, 0.0),
-                new PIDController(1, 0.0, 0.0),
+                new PIDController(0, 0.0, 0.0),
+                new PIDController(0, 0.0, 0.0),
                 thetaController,
-                (ChassisSpeeds speeds) -> drivetrainBase.percentOutputDrive(
-                        speeds,
-                        false),
+                (ChassisSpeeds speeds) -> {drivetrainBase.drive(speeds,false);
+                    System.out.println(speeds);},
                 () -> true,
                 drivetrainBase
         );

@@ -143,9 +143,17 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     // schedule the autonomous command (example)
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    System.out.println(RobotState.getInstance().getPose());
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+  }
+
+  @Override
+  public void autonomousExit() {
+    System.out.println(RobotState.getInstance().getPose());
   }
 
   /**

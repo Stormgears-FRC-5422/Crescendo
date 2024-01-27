@@ -21,6 +21,8 @@ public abstract class DrivetrainBase extends SubsystemBase {
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
     protected final ShuffleboardTab tab;
+
+    protected boolean fieldRelative = false;
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
     //    protected final ShuffleboardTab tab;
@@ -32,6 +34,8 @@ public abstract class DrivetrainBase extends SubsystemBase {
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
         m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
         m_maxAngularVelocityRadiansPerSecond = maxAngularVelocityRadiansPerSecond;
+        System.out.println("MaxDRIVEVal: " + m_maxVelocityMetersPerSecond);
+        System.out.println("MaxANgleVal: " + m_maxAngularVelocityRadiansPerSecond);
     }
 
     // Be careful scaling ChassisSpeeds. Need to scale X and Y the same or your robot will move in the wrong direction!
@@ -50,9 +54,11 @@ public abstract class DrivetrainBase extends SubsystemBase {
      */
     public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
         if (fieldRelative) {
+            this.fieldRelative = true;
             Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
             m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
         } else {
+            this.fieldRelative = false;
             m_chassisSpeeds = speeds;
         }
 
