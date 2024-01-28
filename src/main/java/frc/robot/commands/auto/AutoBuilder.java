@@ -27,16 +27,19 @@ public class AutoBuilder extends Command {
     }
 
     public Command buildAuto() {
-        RobotState.getInstance().setPose(traj.getInitialPose());
+        drivetrainBase.resetOdometry(traj.getInitialPose());
+        System.out.println("Pose: " + drivetrainBase.getPose());
+
+
 
         Command swerveCommand = Choreo.choreoSwerveCommand(
                 traj,
-                RobotState.getInstance()::getPose,
+                drivetrainBase::getPose,
                 new PIDController(0, 0.0, 0.0),
                 new PIDController(0, 0.0, 0.0),
                 thetaController,
-                (ChassisSpeeds speeds) -> {drivetrainBase.drive(speeds,false);
-                    System.out.println(speeds);},
+                (ChassisSpeeds speeds) -> drivetrainBase.drive(speeds,true),
+//                    System.out.println(speeds);
                 () -> true,
                 drivetrainBase
         );

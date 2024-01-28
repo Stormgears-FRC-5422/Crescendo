@@ -4,7 +4,9 @@ package frc.robot.subsystems.drive;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -35,15 +37,16 @@ public class YagslDriveTrain extends DrivetrainBase {
 
 
     double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
-            Drive.driveReduction * Drive.wheelDiameter * Math.PI;
+        Drive.driveReduction * Drive.wheelDiameter * Math.PI;
     double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
-            Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
+        Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
 
     YagslDriveTrain() throws IOException {
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
         swerveDrive.setHeadingCorrection(false);
+        swerveDrive.setGyro(new Rotation3d(0, 0, 3.1415));
 
         SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
             case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
@@ -53,19 +56,30 @@ public class YagslDriveTrain extends DrivetrainBase {
             default -> SwerveDriveTelemetry.TelemetryVerbosity.NONE;
         };
 
-        swerveDrive.resetOdometry(RobotState.getInstance().getPose());
+        tab.addNumber("PoseX", () -> getPose().getX());
+        tab.addNumber("ChassisSpeed", () -> m_chassisSpeeds.vxMetersPerSecond);
+        tab.addNumber("YagslChassisiSpeeds", () -> getCurrentChassisSpeeds().vxMetersPerSecond);
+    }
 
+    public void resetOdometry(Pose2d pose) {
+//        swerveDrive.resetDriveEncoders();
+        swerveDrive.resetOdometry(pose);
+    }
+
+    @Override
+    public Pose2d getPose() {
+        return swerveDrive.getPose();
     }
 
     @Override
     public void periodic() {
-        if (fieldRelative) {
-            swerveDrive.driveFieldOriented(m_chassisSpeeds);
-        } else {
-            swerveDrive.drive(m_chassisSpeeds);
-        }
-        swerveDrive.updateOdometry();
-        RobotState.getInstance().setPose(swerveDrive.getPose());
+//        if (fieldRelative) {
+        swerveDrive.driveFieldOriented(m_chassisSpeeds);
+//        System.out.println("Yaw: " + swerveDrive.getYaw());
+//        } else {
+//            swerveDrive.drive(m_chassisSpeeds);
+//        }
         RobotState.getInstance().setGyroData(swerveDrive.getYaw());
+        RobotState.getInstance().setPose(getPose());
     }
 }

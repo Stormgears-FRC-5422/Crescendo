@@ -7,6 +7,7 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
 import com.swervedrivespecialties.swervelib.*;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -181,6 +182,9 @@ public class SwerveDriveTrain extends DrivetrainBase {
             System.out.printf("Error on initEncoders. %s", e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void resetOdometry(Pose2d pose) {
     }
 
 }

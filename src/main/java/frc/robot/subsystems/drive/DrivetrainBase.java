@@ -4,6 +4,7 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -53,17 +54,19 @@ public abstract class DrivetrainBase extends SubsystemBase {
      * @param fieldRelative True for field relative driving
      */
     public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-        if (fieldRelative) {
-            this.fieldRelative = true;
-            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
-            m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
-        } else {
+//        if (fieldRelative) {
+//            this.fieldRelative = true;
+//            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
+//            m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
+//        } else {
             this.fieldRelative = false;
             m_chassisSpeeds = speeds;
-        }
+//        }
 
         // TODO - work in the slew rate limiter. Not sure whether to apply before or after scale
         m_chassisSpeeds = scaleChassisSpeeds(m_chassisSpeeds, m_driveSpeedScale);
+//        System.out.println("DriveChassisSpeed: " + m_chassisSpeeds);
+
     }
 
     /**
@@ -79,7 +82,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
                         speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond),
                 fieldRelative);
     }
-    
+
 
     public void setDriveSpeedScale(double scale) {
         m_driveSpeedScale = MathUtil.clamp(scale, 0, Drive.driveSpeedScale);
@@ -108,6 +111,11 @@ public abstract class DrivetrainBase extends SubsystemBase {
 //    public boolean atReferenceState() {return true;}
 //    public void updateOdometryData() {}
 
+   public abstract void resetOdometry(Pose2d pose2d);
+
+    public Pose2d getPose(){
+        return new Pose2d();
+    }
 
 }
 

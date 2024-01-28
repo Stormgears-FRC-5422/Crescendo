@@ -29,11 +29,12 @@ public class JoyStickDrive extends Command {
         omegaSupplier = joystick::getOmegaSpeed;
         robotRelativeSupplier = joystick::getRobotRelative;
         turboSupplier = joystick::getTurbo;
+        ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction", robotRelativeSupplier.getAsBoolean()? "Field Orientation": "Robot Orientation");
+
     }
 
     @Override
     public void execute() {
-        ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction", robotRelativeSupplier.getAsBoolean()? "Field Orientation": "Robot Orientation");
         if (!turboSupplier.getAsBoolean()) {
             drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
         } else {

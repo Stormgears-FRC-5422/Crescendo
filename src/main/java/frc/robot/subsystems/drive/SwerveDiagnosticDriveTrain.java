@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.Drive;
 
 public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
@@ -18,7 +19,7 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
         double maxAngularVelocityRadiansPerSecond = m_maxMotorVoltage;
 
         super.setMaxVelocities(maxVelocityMetersPerSecond*0.2, maxAngularVelocityRadiansPerSecond*0.2);
-        
+
         m_frontLeftDrive = new CANSparkMax(Drive.frontLeftDriveID, MotorType.kBrushless);
         m_frontLeftSteer = new CANSparkMax(Drive.frontLeftSteerID, MotorType.kBrushless);
         m_frontRightDrive = new CANSparkMax(Drive.frontRightDriveID, MotorType.kBrushless);
@@ -47,6 +48,9 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
         for (CANSparkMax m : m_steerArray) {
             m.set(steerSpeed);
         }
+    }
+
+    public void resetOdometry(Pose2d pose) {
     }
 
 }
