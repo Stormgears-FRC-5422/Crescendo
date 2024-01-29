@@ -1,28 +1,13 @@
 package frc.robot.subsystems.drive;
 
 
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
-import frc.robot.RobotState;
-import swervelib.SwerveController;
 import swervelib.SwerveDrive;
-import swervelib.SwerveModule;
-import swervelib.encoders.CANCoderSwerve;
-import swervelib.encoders.CanAndCoderSwerve;
-import swervelib.encoders.SwerveAbsoluteEncoder;
-import swervelib.math.SwerveMath;
-import swervelib.motors.SwerveMotor;
-import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
@@ -30,11 +15,9 @@ import java.io.File;
 import java.io.IOException;
 
 import frc.robot.Constants.Swerve;
-import frc.robot.Constants.Drive;
 
 public class YagslDriveTrain extends DrivetrainBase {
     private final SwerveDrive swerveDrive;
-
 
     double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
         Drive.driveReduction * Drive.wheelDiameter * Math.PI;
@@ -62,7 +45,6 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-//        swerveDrive.resetDriveEncoders();
         swerveDrive.resetOdometry(pose);
     }
 
@@ -72,14 +54,19 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     @Override
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative, double speedScale) {
+        // Use the calculation from Drive base class, but don't let it do relative calculations
+        super.drive(speeds, false, speedScale);
+    }
+
+    @Override
     public void periodic() {
-//        if (fieldRelative) {
-        swerveDrive.driveFieldOriented(m_chassisSpeeds);
-//        System.out.println("Yaw: " + swerveDrive.getYaw());
-//        } else {
-//            swerveDrive.drive(m_chassisSpeeds);
-//        }
-        RobotState.getInstance().setGyroData(swerveDrive.getYaw());
-        RobotState.getInstance().setPose(getPose());
+        if (m_fieldRelative) {
+            swerveDrive.driveFieldOriented(m_chassisSpeeds);
+        } else {
+            swerveDrive.drive(m_chassisSpeeds);
+        }
+//        RobotState.getInstance().setGyroData(swerveDrive.getYaw());
+//        RobotState.getInstance().setPose(getPose());
     }
 }

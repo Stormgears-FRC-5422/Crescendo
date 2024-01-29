@@ -57,37 +57,36 @@ public class Robot extends LoggedRobot {
 
         if (useAdvantageKit) {
             System.out.println("[Init] Starting AdvantageKit");
-        }
-        LoggerWrapper.recordMetadata("Robot", Constants.robotName);
-        LoggerWrapper.recordMetadata("RuntimeType", getRuntimeType().toString());
-        LoggerWrapper.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-        LoggerWrapper.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-        LoggerWrapper.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-        LoggerWrapper.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-        LoggerWrapper.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-        switch (BuildConstants.DIRTY) {
-            case 0 -> LoggerWrapper.recordMetadata("GitDirty", "All changes committed");
-            case 1 -> LoggerWrapper.recordMetadata("GitDirty", "Uncomitted changes");
-            default -> LoggerWrapper.recordMetadata("GitDirty", "Unknown");
-        }
+            LoggerWrapper.recordMetadata("Robot", Constants.robotName);
+            LoggerWrapper.recordMetadata("RuntimeType", getRuntimeType().toString());
+            LoggerWrapper.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+            LoggerWrapper.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+            LoggerWrapper.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+            LoggerWrapper.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+            LoggerWrapper.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+            switch (BuildConstants.DIRTY) {
+                case 0 -> LoggerWrapper.recordMetadata("GitDirty", "All changes committed");
+                case 1 -> LoggerWrapper.recordMetadata("GitDirty", "Uncomitted changes");
+                default -> LoggerWrapper.recordMetadata("GitDirty", "Unknown");
+            }
 
-        if (isReal()) {
-            LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder)); // Log to a USB stick ("/U/logs")
-            LoggerWrapper.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            LoggerWrapper.enablePowerDistributionLogging();
-        } else {
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-            LoggerWrapper.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            LoggerWrapper.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+            if (isReal()) {
+                LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder)); // Log to a USB stick ("/U/logs")
+                LoggerWrapper.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+                LoggerWrapper.enablePowerDistributionLogging();
+            } else {
+                setUseTiming(false); // Run as fast as possible
+                String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+                LoggerWrapper.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+                LoggerWrapper.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+            }
+            LoggerWrapper.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+            // Start timers
+            canErrorTimer.reset();
+            canErrorTimer.start();
+            canErrorTimerInitial.reset();
+            canErrorTimerInitial.start();
         }
-        LoggerWrapper.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-        // Start timers
-        canErrorTimer.reset();
-        canErrorTimer.start();
-        canErrorTimerInitial.reset();
-        canErrorTimerInitial.start();
-
 
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.

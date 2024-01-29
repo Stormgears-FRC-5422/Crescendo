@@ -23,7 +23,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
     protected final ShuffleboardTab tab;
 
-    protected boolean fieldRelative = false;
+    protected boolean m_fieldRelative = false;
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
     //    protected final ShuffleboardTab tab;
@@ -54,18 +54,21 @@ public abstract class DrivetrainBase extends SubsystemBase {
      * @param fieldRelative True for field relative driving
      */
     public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-//        if (fieldRelative) {
-//            this.fieldRelative = true;
-//            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
-//            m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
-//        } else {
-            this.fieldRelative = false;
-            m_chassisSpeeds = speeds;
-//        }
+        drive(speeds, fieldRelative, m_driveSpeedScale);
+    }
 
-        // TODO - work in the slew rate limiter. Not sure whether to apply before or after scale
-        m_chassisSpeeds = scaleChassisSpeeds(m_chassisSpeeds, m_driveSpeedScale);
-//        System.out.println("DriveChassisSpeed: " + m_chassisSpeeds);
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative, double speedScale) {
+        m_fieldRelative = fieldRelative;
+
+        if (fieldRelative) {
+            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
+            m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
+        } else {
+            m_chassisSpeeds = speeds;
+        }
+
+        // TODO - work in the slew rate limiter. Apply before scale to preserve motion details
+        m_chassisSpeeds = scaleChassisSpeeds(m_chassisSpeeds, speedScale);
 
     }
 
