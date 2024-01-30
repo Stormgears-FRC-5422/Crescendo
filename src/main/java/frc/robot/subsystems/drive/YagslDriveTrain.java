@@ -18,6 +18,7 @@ import frc.robot.Constants.Swerve;
 
 public class YagslDriveTrain extends DrivetrainBase {
     private final SwerveDrive swerveDrive;
+    protected boolean m_localFieldRelative;
 
     double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
         Drive.driveReduction * Drive.wheelDiameter * Math.PI;
@@ -56,17 +57,23 @@ public class YagslDriveTrain extends DrivetrainBase {
     @Override
     public void drive(ChassisSpeeds speeds, boolean fieldRelative, double speedScale) {
         // Use the calculation from Drive base class, but don't let it do relative calculations
+        // TODO - this is a bit hokey. We should have an explicit way to defer this to the drive subclass
+        // without lying to the base class. That could cause other problems.
         super.drive(speeds, false, speedScale);
+        m_localFieldRelative = fieldRelative;
     }
 
     @Override
     public void periodic() {
-        if (m_fieldRelative) {
+        if (m_localFieldRelative) {
+            System.out.println("yaw: " + swerveDrive.getYaw());
             swerveDrive.driveFieldOriented(m_chassisSpeeds);
         } else {
             swerveDrive.drive(m_chassisSpeeds);
         }
-//        RobotState.getInstance().setGyroData(swerveDrive.getYaw());
-//        RobotState.getInstance().setPose(getPose());
+
+        // We can't use the navX directly, so we need to update the angle here
+        m_state.setGyroData(swerveDrive.getYaw());
+        m_state.setPose(getPose());
     }
 }

@@ -30,7 +30,8 @@ public class AutoBuilder extends Command {
                 new PIDController(0, 0.0, 0.0),
                 thetaController,
                 (ChassisSpeeds speeds) -> drivetrain.drive(speeds,true, 1.0),
-                () -> true,
+                () -> false
+            ,
                 drivetrain);
 
     }

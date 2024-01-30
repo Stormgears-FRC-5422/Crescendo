@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -34,6 +35,17 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
                                        m_backLeftDrive, m_backRightDrive};
         m_steerArray = new CANSparkMax[]{m_frontLeftSteer, m_frontRightSteer,
                                        m_backLeftSteer, m_backRightSteer};
+
+        // Initialize to known states
+        for (CANSparkMax m : m_driveArray) {
+            m.setInverted(false);
+            m.setIdleMode(CANSparkBase.IdleMode.kCoast);
+        }
+
+        for (CANSparkMax m : m_steerArray) {
+            m.setInverted(false);
+            m.setIdleMode(CANSparkBase.IdleMode.kCoast);
+        }
     }
 
     @Override

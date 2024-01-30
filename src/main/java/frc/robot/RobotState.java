@@ -11,7 +11,7 @@ public class RobotState extends SubsystemBase {
 
     private static RobotState m_instance;
 
-    private Rotation2d currentGyroData = null;
+    private Rotation2d currentGyroData = new Rotation2d();
 
     private Pose2d currentPose = new Pose2d();
 

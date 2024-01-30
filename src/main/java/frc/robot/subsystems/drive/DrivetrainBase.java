@@ -23,6 +23,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
     protected final ShuffleboardTab tab;
 
+    protected final RobotState m_state;
     protected boolean m_fieldRelative = false;
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -30,6 +31,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     DrivetrainBase() {
         setDriveSpeedScale(Drive.driveSpeedScale);
         tab = ShuffleboardConstants.getInstance().drivetrainTab;
+        m_state = RobotState.getInstance();
     }
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
