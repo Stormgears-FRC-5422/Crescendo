@@ -30,6 +30,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
         swerveDrive.setHeadingCorrection(false);
+        swerveDrive.setGyroOffset(swerveDrive.getGyroRotation3d());
         swerveDrive.setGyro(new Rotation3d(0, 0, 3.1415));
 
         SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
@@ -66,13 +67,14 @@ public class YagslDriveTrain extends DrivetrainBase {
     @Override
     public void periodic() {
         if (m_localFieldRelative) {
-            System.out.println("yaw: " + swerveDrive.getYaw());
+//            System.out.println("yaw: " + swerveDrive.getYaw());
             swerveDrive.driveFieldOriented(m_chassisSpeeds);
         } else {
             swerveDrive.drive(m_chassisSpeeds);
         }
 
         // We can't use the navX directly, so we need to update the angle here
+//        m_state.setGyroData(swerveDrive.getOdometryHeading());
         m_state.setGyroData(swerveDrive.getYaw());
         m_state.setPose(getPose());
     }

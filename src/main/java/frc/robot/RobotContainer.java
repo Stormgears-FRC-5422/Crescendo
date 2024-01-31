@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -20,6 +22,8 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 
+import java.sql.Driver;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -33,11 +37,16 @@ public class RobotContainer {
 
     AutoBuilder autoBuilder;
 
+    // Assume blue alliance until we know otherwise
+    Alliance m_alliance = Alliance.Blue;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         System.out.println("[Init] RobotContainer");
+        setAlliance();
+        System.out.println("Alliance: " + (m_alliance == Alliance.Blue ? "Blue" : "Red")) ;
 
         if (Toggles.useDrive) {
             System.out.println("Create drive type " + Drive.driveType);
@@ -58,6 +67,12 @@ public class RobotContainer {
         System.out.println("[DONE] RobotContainer");
     }
 
+    public void setAlliance() {
+        // We don't always get a clear alliance from the driver station call. Assume Blue...
+        //m_alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
+        m_alliance = Alliance.Red;
+    }
+
     /**
      * Use this method to define your trigger->command mappings. Triggers can be created via the
      * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -75,6 +90,6 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         autoBuilder = new AutoBuilder(drivetrainBase);
-        return autoBuilder.buildAuto();
+        return autoBuilder.buildAuto(m_alliance);
     }
 }
