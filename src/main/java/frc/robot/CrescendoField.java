@@ -14,8 +14,8 @@ public class CrescendoField {
     public final static double FIELD_LENGTH = Units.feetToMeters(54) + Units.inchesToMeters(3.25);
     public final static double FIELD_WIDTH = Units.feetToMeters(26) + Units.inchesToMeters(3.5);
 
-    public static Pose2d remapPose(Pose2d pose2d, DriverStation.Alliance alliance) {
-        if (alliance == DriverStation.Alliance.Blue)
+    public static Pose2d remapPose(Pose2d pose2d, boolean blueAlliance) {
+        if (blueAlliance)
             return pose2d;
         else
             return mirrorPose(pose2d);

@@ -7,7 +7,7 @@ public class DrivetrainFactory {
 
     public static DrivetrainBase getInstance(String driveType) throws IllegalDriveTypeException {
         if (instance ==  null) {
-            System.out.printf("Initializing %s", driveType);
+            System.out.println("Initializing " + driveType);
             switch (driveType) {
                 case "SwerveDrive" -> instance = new SwerveDriveTrain();
                 case "SwerveDiagnosticDrive" -> instance = new SwerveDiagnosticDriveTrain();

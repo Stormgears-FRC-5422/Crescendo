@@ -13,6 +13,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import frc.robot.Constants.Swerve;
 
@@ -31,7 +32,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
         swerveDrive.setHeadingCorrection(false);
         swerveDrive.setGyroOffset(swerveDrive.getGyroRotation3d());
-        swerveDrive.setGyro(new Rotation3d(0, 0, 3.1415));
+        swerveDrive.setGyro(new Rotation3d(0, 0, 3.1415927));
 
         SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
             case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
@@ -44,6 +45,10 @@ public class YagslDriveTrain extends DrivetrainBase {
         tab.addNumber("PoseX", () -> getPose().getX());
         tab.addNumber("ChassisSpeed", () -> m_chassisSpeeds.vxMetersPerSecond);
         tab.addNumber("YagslChassisiSpeeds", () -> getCurrentChassisSpeeds().vxMetersPerSecond);
+
+//        System.out.println("Current module positions:");
+//        System.out.println(Arrays.toString(swerveDrive.getModulePositions()));
+//        System.out.println(swerveDrive.getModules()[0].);
     }
 
     public void resetOdometry(Pose2d pose) {

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +24,7 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 
-import java.sql.Driver;
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -31,29 +33,44 @@ import java.sql.Driver;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    // The robot's subsystems and commands are defined here...
-    NavX navX;
-    DrivetrainBase drivetrainBase;
 
+    // **********
+    // SubSystems
+    // **********
+    DrivetrainBase drivetrain;
+    NavX navX;
+
+    // **********
+    // Commands
+    // **********
     AutoBuilder autoBuilder;
 
-    // Assume blue alliance until we know otherwise
-    Alliance m_alliance = Alliance.Blue;
+    // **********
+    // Fields
+    // **********
+    final RobotState robotState;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         System.out.println("[Init] RobotContainer");
+        robotState = RobotState.getInstance();
         setAlliance();
-        System.out.println("Alliance: " + (m_alliance == Alliance.Blue ? "Blue" : "Red")) ;
 
         if (Toggles.useDrive) {
             System.out.println("Create drive type " + Drive.driveType);
-            drivetrainBase = DrivetrainFactory.getInstance(Drive.driveType);
+            drivetrain = DrivetrainFactory.getInstance(Drive.driveType);
             CrescendoJoystick joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
-            JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrainBase, joystick);
-            drivetrainBase.setDefaultCommand(driveWithJoystick);
+            JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
+            drivetrain.setDefaultCommand(driveWithJoystick);
+
+            // TODO - for now.  We have to start somewhere.
+            Pose2d initialPose = new Pose2d(ButtonBoard.initPoseX, ButtonBoard.initPoseY,
+                Rotation2d.fromDegrees(ButtonBoard.initPoseDegrees));
+
+            initialPose = CrescendoField.remapPose(initialPose, robotState.isAllianceBlue());
+            drivetrain.resetOdometry(initialPose);
         }
 
         if (Toggles.useNavX && !Drive.driveType.equals("YagslDrive")) {
@@ -68,9 +85,22 @@ public class RobotContainer {
     }
 
     public void setAlliance() {
-        // We don't always get a clear alliance from the driver station call. Assume Blue...
-        //m_alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
-        m_alliance = Alliance.Red;
+        // TODO We don't always get a clear alliance from the driver station call. Assume Blue...
+        DriverStation.refreshData();
+
+        Optional<Alliance> tmpAlliance = DriverStation.getAlliance();
+        Alliance alliance;
+
+        if (tmpAlliance.isPresent()) {
+            System.out.print("Alliance is reported as ");
+            alliance = tmpAlliance.get();
+        } else {
+            System.out.print("Alliance is NOT reported. Defaulting to ");
+            alliance = Alliance.Blue;
+        }
+
+        robotState.setAlliance(alliance);
+        System.out.println( alliance == Alliance.Blue ? "Blue" : "Red");
     }
 
     /**
@@ -89,7 +119,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        autoBuilder = new AutoBuilder(drivetrainBase);
-        return autoBuilder.buildAuto(m_alliance);
+        autoBuilder = new AutoBuilder(drivetrain);
+        return autoBuilder.buildAuto();
     }
 }

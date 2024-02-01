@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -132,10 +133,16 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void disabledInit() {
+        m_robotContainer.setAlliance();
     }
 
     @Override
     public void disabledPeriodic() {
+    }
+
+    @Override
+    public void disabledExit() {
+        System.out.println("DisabledExit");
     }
 
     /**
@@ -145,16 +152,18 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         // schedule the autonomous command (example)
         System.out.println("AutoInit");
+        m_robotContainer.setAlliance();
+
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
-
     }
 
     @Override
     public void autonomousExit() {
+        System.out.println("AutoExit");
     }
 
     /**
@@ -162,13 +171,12 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousPeriodic() {
-//      System.out.println("Pose: " + RobotState.getInstance().getPose());
-//      System.out.println("Yaw: " + RobotState.getInstance().getCurrentGyroData());
-
     }
 
     @Override
     public void teleopInit() {
+        System.out.println("TeleopInit");
+
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
@@ -176,6 +184,8 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        m_robotContainer.setAlliance();
     }
 
     /**
@@ -186,7 +196,14 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
+    public void teleopExit() {
+        System.out.println("TeleopExit");
+    }
+
+    @Override
     public void testInit() {
+        System.out.println("TestInit");
+        m_robotContainer.setAlliance();
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
     }
@@ -198,11 +215,19 @@ public class Robot extends LoggedRobot {
     public void testPeriodic() {
     }
 
+    @Override
+    public void testExit() {
+        System.out.println("TestExit");
+    }
+
+
     /**
      * This function is called once when the robot is first started up.
      */
     @Override
     public void simulationInit() {
+        System.out.println("SimulationInit");
+        m_robotContainer.setAlliance();
     }
 
     /**
@@ -211,4 +236,5 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationPeriodic() {
     }
+
 }

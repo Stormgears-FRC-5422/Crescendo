@@ -1,19 +1,20 @@
 package frc.robot;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.drive.YagslDriveTrain;
 
 public class RobotState extends SubsystemBase {
 
     private static RobotState m_instance;
+    private Alliance m_alliance = Alliance.Blue;
 
     private Rotation2d currentGyroData = new Rotation2d();
 
     private Pose2d currentPose = new Pose2d();
+
 
     private Field2d field2d;
 
@@ -24,10 +25,17 @@ public class RobotState extends SubsystemBase {
         return m_instance;
     }
 
+    public void setAlliance(Alliance alliance) {
+        m_alliance = alliance;
+    }
+
+    public boolean isAllianceBlue() {
+        return m_alliance == Alliance.Blue;
+    }
+
     public void setGyroData(Rotation2d angle) {
         currentGyroData = angle;
     }
-
 
     public Rotation2d getCurrentGyroData() {
 //        if (!Constants.Toggles.useNavX) {

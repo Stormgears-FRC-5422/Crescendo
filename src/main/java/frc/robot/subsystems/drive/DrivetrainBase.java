@@ -88,7 +88,6 @@ public abstract class DrivetrainBase extends SubsystemBase {
                 fieldRelative);
     }
 
-
     public void setDriveSpeedScale(double scale) {
         m_driveSpeedScale = MathUtil.clamp(scale, 0, Drive.driveSpeedScale);
     }
@@ -97,26 +96,11 @@ public abstract class DrivetrainBase extends SubsystemBase {
         drive(new ChassisSpeeds(0, 0, 0), false);
     }
 
-//    protected Rotation2d getGyroscopeRotation() {
-//        return RobotState.getInstance().getCurrentGyroData();
-//    }
-
     public ChassisSpeeds getCurrentChassisSpeeds() {
         return m_chassisSpeeds;
     }
 
-    public SwerveDriveKinematics getSwerveDriveKinematics() {
-        return new SwerveDriveKinematics();
-    }
-
-    public SwerveModulePosition[] getSwerveModulePositions() {
-        return new SwerveModulePosition[4];
-    }
-//    public void goToPPTrajectoryState(PathPlannerTrajectory.PathPlannerState goalState) {}
-//    public boolean atReferenceState() {return true;}
-//    public void updateOdometryData() {}
-
-   public abstract void resetOdometry(Pose2d pose2d);
+    public abstract void resetOdometry(Pose2d pose2d);
 
     public Pose2d getPose(){
         return new Pose2d();
