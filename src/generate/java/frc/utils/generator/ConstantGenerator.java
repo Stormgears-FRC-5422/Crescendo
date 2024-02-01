@@ -3,7 +3,6 @@ package frc.utils.generator;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
-
 import static java.lang.System.exit;
 public class ConstantGenerator {
     static Map<String, Map<String, PropItem>> allConstants = new HashMap<>();
@@ -24,27 +23,45 @@ public class ConstantGenerator {
         return "\t".repeat(Math.max(0, n)) + s + "\n";
     }
 
+    
     public static void programWriter() {
+        Set<String> keys= new HashSet<>();
+         
         int tabs = 0;
         program.append(programHeader);
         program.append("\npublic final class Constants {\n");
         tabs += 1;
-        for (Map.Entry<String, Map<String, PropItem>> entry : allConstants.entrySet()) {
-            if (!entry.getKey().equals("general")) {
+        List<String> prefixes = new ArrayList<>(allConstants.keySet());
+        prefixes.sort(null);
+        prefixes.remove("general");
+        prefixes.add(0,"general");
+
+        for (String prefix : prefixes) {            
+            if (!prefix.equals("general")) {
                 program.append("\n");
                 program.append(indent("public static final class " +
-                        entry.getKey().substring(0, 1).toUpperCase() +
-                        entry.getKey().substring(1)
+                        prefix.substring(0, 1).toUpperCase() +
+                        prefix.substring(1)
                         + " {", tabs));
                 tabs += 1;
-                for (Map.Entry<String, PropItem> entry2 : entry.getValue().entrySet()) {
-                    program.append(indent(entry2.getValue().toString(), tabs));
+                keys =  allConstants.get(prefix).keySet();
+                List<String> tempList = new ArrayList<>(keys);
+                tempList.sort(null);
+
+                for(String key: tempList){
+                    program.append(indent(allConstants.get(prefix).get(key).toString(), tabs));
                 }
+                
                 tabs -= 1;
                 program.append(indent("}", tabs));
             } else {
-                for (Map.Entry<String, PropItem> entry2 : entry.getValue().entrySet()) {
-                    program.append(indent(entry2.getValue().toString(), tabs));
+                
+                Set<String> gen= new HashSet<>();
+                gen = allConstants.get(prefix).keySet();
+                List<String> sortList = new ArrayList<>(gen);
+                sortList.sort(null);
+                for(String k: sortList){
+                    program.append(indent(allConstants.get(prefix).get(k).toString(), tabs));
                 }
             }
         }
