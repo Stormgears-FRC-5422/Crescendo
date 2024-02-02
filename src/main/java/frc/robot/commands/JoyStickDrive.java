@@ -34,13 +34,14 @@ public class JoyStickDrive extends Command {
         turboSupplier = joystick::getTurbo;
 
         ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction",
-            robotRelativeSupplier.getAsBoolean()? "Field Orientation": "Robot Orientation");
+            robotRelativeSupplier.getAsBoolean() ? "Robot Orientation": "Field Orientation");
     }
 
     @Override
     public void initialize() {
         System.out.println("Starting Joystick Drive");
         m_flipJoystick = ButtonBoard.flipJoystickForRed && !RobotState.getInstance().isAllianceBlue();
+        System.out.println("Joystick is " + (m_flipJoystick ? "" : "NOT")+ " flipped for alliance");
     }
     @Override
     public void end(boolean interrupted) {
@@ -59,13 +60,16 @@ public class JoyStickDrive extends Command {
         ChassisSpeeds speeds;
         boolean fieldRelative = !robotRelativeSupplier.getAsBoolean();
 
+        double x = txSupplier.getAsDouble();
+        double y = tySupplier.getAsDouble();
+        double omega = omegaSupplier.getAsDouble();
+
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
-        if (!m_flipJoystick) {
-            speeds = new ChassisSpeeds(txSupplier.getAsDouble(), tySupplier.getAsDouble(),
-                omegaSupplier.getAsDouble());
+        // But only for field relative driving. Robot relative driving is always the same
+        if (m_flipJoystick && fieldRelative) {
+            speeds = new ChassisSpeeds(-x, -y, omega);
         } else {
-            speeds = new ChassisSpeeds(-txSupplier.getAsDouble(), -tySupplier.getAsDouble(),
-                omegaSupplier.getAsDouble());
+            speeds = new ChassisSpeeds(x, y, omega);
         }
 
         drivetrain.percentOutputDrive(speeds, fieldRelative);
