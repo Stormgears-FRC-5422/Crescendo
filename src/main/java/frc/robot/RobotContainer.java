@@ -34,9 +34,29 @@ import java.util.Optional;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
+    private Shooter shooter;
+    private ShooterCommand shooterCommand;
     // **********
     // SubSystems
+
+    public RobotContainer() {
+        stormXboxController = new StormXboxController(0); //crescendo xbox?
+        configureBindings();
+    
+        
+        if (Toggles.useShooter) {
+          shooter = new Shooter();
+          shooterCommand = new ShooterCommand(shooter, CrescendoXboxController);
+          shooter.setDefaultCommand(shooterCommand);
+        }
+
+        if (Toggles.useIntake) {
+            intake = new Intake();
+            intakeCommand = new IntakeCommand(intake, CrescendoXboxController)
+            shooter.setDefaultCommand(intakeCommand);
+        }
+      }
+    
     // **********
     DrivetrainBase drivetrain;
     NavX navX;
@@ -87,6 +107,8 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
+
+
         System.out.println("[DONE] RobotContainer");
 
 //      TODO need to add place for this
@@ -132,9 +154,11 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         System.out.println("[DONE] configureBindings");
+
     }
 
     public Command getAutonomousCommand() {
         return autoChooser.get();
     }
+
 }

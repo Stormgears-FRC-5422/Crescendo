@@ -1,5 +1,4 @@
 package frc.robot.subsystems.drive;
-
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;

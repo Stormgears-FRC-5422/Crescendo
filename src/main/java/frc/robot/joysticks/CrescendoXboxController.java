@@ -28,4 +28,6 @@ public class CrescendoXboxController extends CrescendoJoystick {
     public boolean getTurbo() {
         return controller.getRightTrigger() > 0.2;
     }
+
+
 }
