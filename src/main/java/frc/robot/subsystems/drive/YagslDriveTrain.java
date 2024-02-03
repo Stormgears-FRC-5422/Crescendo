@@ -4,9 +4,12 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
+import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -20,6 +23,7 @@ import frc.robot.Constants.Swerve;
 public class YagslDriveTrain extends DrivetrainBase {
     private final SwerveDrive swerveDrive;
     protected boolean m_localFieldRelative;
+    private final StructPublisher<Pose2d> publisher;
 
     double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
         Drive.driveReduction * Drive.wheelDiameter * Math.PI;
@@ -46,6 +50,14 @@ public class YagslDriveTrain extends DrivetrainBase {
         tab.addNumber("ChassisSpeed", () -> m_chassisSpeeds.vxMetersPerSecond);
         tab.addNumber("YagslChassisiSpeeds", () -> getCurrentChassisSpeeds().vxMetersPerSecond);
 
+        //        needs to get moved just for testing
+//      coold not figure out how to add pose through logger--- this allows us to use 3d field!!!
+        publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("MyPose", Pose2d.struct).publish();
+//        Logger.recordOutput("MyPose", swerveDrive.getPose());
+
+
+        
 //        System.out.println("Current module positions:");
 //        System.out.println(Arrays.toString(swerveDrive.getModulePositions()));
 //        System.out.println(swerveDrive.getModules()[0].);
@@ -71,6 +83,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
+        publisher.set(swerveDrive.getPose());
 //        System.out.println("Field Relative: " + m_localFieldRelative);
         if (m_localFieldRelative) {
 //            System.out.println("yaw: " + swerveDrive.getYaw());

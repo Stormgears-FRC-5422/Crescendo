@@ -15,7 +15,7 @@ import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Toggles;
 import frc.robot.commands.JoyStickDrive;
-import frc.robot.commands.auto.AutoBuilder;
+import frc.robot.commands.auto.AutoCommands;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.joysticks.CrescendoJoystickFactory;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -23,6 +23,7 @@ import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.Optional;
 
@@ -43,7 +44,10 @@ public class RobotContainer {
     // **********
     // Commands
     // **********
-    AutoBuilder autoBuilder;
+    AutoCommands autoCommands;
+
+    private final LoggedDashboardChooser<Command> autoChooser;
+
 
     // **********
     // Fields
@@ -84,6 +88,16 @@ public class RobotContainer {
         configureBindings();
 
         System.out.println("[DONE] RobotContainer");
+
+//      TODO need to add place for this
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+
+        autoCommands = new AutoCommands(drivetrain);
+//         need a better way of doing this-don't want to have to write this out everytime
+        autoChooser.addOption("test_2m", autoCommands.test2m());
+        autoChooser.addOption("test_2m", autoCommands.fourNoteAmp());
+
+
     }
 
     public void setAlliance() {
@@ -121,7 +135,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        autoBuilder = new AutoBuilder(drivetrain);
-        return autoBuilder.buildAuto();
+        return autoChooser.get();
     }
 }

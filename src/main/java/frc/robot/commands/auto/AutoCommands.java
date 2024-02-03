@@ -15,20 +15,21 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.CrescendoField;
 
 
-public class AutoBuilder extends Command {
+public class AutoCommands extends Command {
     final RobotState robotState;
     DrivetrainBase drivetrain;
-    ChoreoTrajectory traj = Choreo.getTrajectory(Constants.Choreo.path);
 
-    public AutoBuilder(DrivetrainBase drivetrainBase) {
+    public AutoCommands(DrivetrainBase drivetrainBase) {
         this.drivetrain = drivetrainBase;
         robotState = RobotState.getInstance();
     }
 
-    public Command buildAuto() {
+    public Command buildAuto(String trajectoryName) {
+//        TODO need a better way of getting trajectory name
+        ChoreoTrajectory trajectory = Choreo.getTrajectory(trajectoryName);
         boolean openLoop = Swerve.openLoopAuto;
         boolean reflectField = !robotState.isAllianceBlue();
-        Pose2d initialPose = CrescendoField.remapPose(traj.getInitialPose(), robotState.isAllianceBlue());
+        Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), robotState.isAllianceBlue());
 
         System.out.println("Building auto command on " + (reflectField ? "Red" : "Blue") + " alliance");
         System.out.println("Starting pose = " + initialPose);
@@ -57,7 +58,7 @@ public class AutoBuilder extends Command {
         // for example, based on vision detection of an April Tag to make sure we aren't in the entirely wrong place
         drivetrain.resetOdometry(initialPose);
         return Choreo.choreoSwerveCommand(
-                traj,
+                trajectory,
                 drivetrain::getPose,
                 xController,
                 yController,
@@ -67,5 +68,19 @@ public class AutoBuilder extends Command {
                 drivetrain
         );
 
+    }
+
+
+    public Command test2m() {
+        Command choreoTraj = buildAuto("simple_2m");
+//        empty for now bc have not added shooter and intake
+        return choreoTraj;
+    }
+
+    public Command fourNoteAmp() {
+        Command choreoTraj = buildAuto("four_note_w_amp");
+//        empty for now bc have not added shooter and intake
+
+        return choreoTraj;
     }
 }
