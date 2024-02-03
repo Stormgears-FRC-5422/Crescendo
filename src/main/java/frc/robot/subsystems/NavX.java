@@ -47,6 +47,7 @@ public class NavX extends SubsystemBase {
         if (!Constants.Drive.driveType.equals("YagslDrive")) {
             RobotState.getInstance().setGyroData(getAbsoluteRotation);
         }
+//        System.out.println("NavX Yaw: " + getYaw());
     }
 
 }

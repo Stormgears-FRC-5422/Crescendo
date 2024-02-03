@@ -71,6 +71,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
+//        System.out.println("Field Relative: " + m_localFieldRelative);
         if (m_localFieldRelative) {
 //            System.out.println("yaw: " + swerveDrive.getYaw());
             swerveDrive.driveFieldOriented(m_chassisSpeeds);

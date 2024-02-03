@@ -61,9 +61,11 @@ public class RobotContainer {
         if (Toggles.useDrive) {
             System.out.println("Create drive type " + Drive.driveType);
             drivetrain = DrivetrainFactory.getInstance(Drive.driveType);
-            CrescendoJoystick joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
-            JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
-            drivetrain.setDefaultCommand(driveWithJoystick);
+            if (Toggles.useController) {
+                CrescendoJoystick joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
+                JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
+                drivetrain.setDefaultCommand(driveWithJoystick);
+            }
 
             // TODO - for now.  We have to start somewhere.
             Pose2d initialPose = new Pose2d(ButtonBoard.initPoseX, ButtonBoard.initPoseY,
@@ -100,7 +102,7 @@ public class RobotContainer {
         }
 
         robotState.setAlliance(alliance);
-        System.out.println( alliance == Alliance.Blue ? "Blue" : "Red");
+        System.out.println(alliance == Alliance.Blue ? "Blue" : "Red");
     }
 
     /**
