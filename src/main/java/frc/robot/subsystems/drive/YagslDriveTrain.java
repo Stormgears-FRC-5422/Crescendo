@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.utils.LoggerWrapper;
@@ -56,7 +57,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 //      coold not figure out how to add pose through logger--- this allows us to use 3d field!!!
         publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose2d.struct).publish();
-//        Logger.recordOutput("MyPose", swerveDrive.getPose());
+        Logger.recordOutput("MyPose", swerveDrive.getPose());
 
 
 
@@ -87,6 +88,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
+        
         publisher.set(swerveDrive.getPose());
 //        System.out.println("Field Relative: " + m_localFieldRelative);
         if (m_localFieldRelative) {

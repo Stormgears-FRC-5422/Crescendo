@@ -29,5 +29,23 @@ public class CrescendoXboxController extends CrescendoJoystick {
         return controller.getRightTrigger() > 0.2;
     }
 
+    @Override
+    public boolean shooter() {
+        return controller.getBButtonIsHeld();
+    }
 
+    @Override
+    public boolean shooterIntake() {
+        return controller.getYButtonIsHeld();
+    }
+
+    @Override
+    public boolean shooterAmp() {
+        return controller.getXButtonIsHeld();
+    }
+
+    @Override
+    public boolean intake() {
+        return controller.getAButtonIsHeld();
+    }
 }

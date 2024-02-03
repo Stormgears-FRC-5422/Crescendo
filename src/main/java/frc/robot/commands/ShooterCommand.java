@@ -1,21 +1,23 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter;
+import frc.robot.joysticks.CrescendoJoystick;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.utils.joysticks.StormXboxController;
 
 public class ShooterCommand extends Command {
-    
-    double Setpoint = 0.2;
-    double error; 
-    double kp=1;   //subject to change later because we have to experiment to see what works best
-    double newSpeed;
-    private final Shooter shooter;
-    private StormXboxController stormXboxController;
 
-    public ShooterCommand(Shooter shooter, StormXboxController stormXboxController) {
+    double Setpoint = 0.1;
+    double error;
+    double kp = 1;   //subject to change later because we have to experiment to see what works best
+    double newSpeed;
+    private final ShooterSubsystem shooter;
+    private CrescendoJoystick joystick;
+
+
+    public ShooterCommand(ShooterSubsystem shooter, CrescendoJoystick joystick) {
         this.shooter = shooter;
-        this.stormXboxController = stormXboxController;
+        this.joystick = joystick;
 
         addRequirements(shooter);
     }
@@ -28,14 +30,17 @@ public class ShooterCommand extends Command {
 
     @Override
     public void execute() {
-        if (stormXboxController.getBButtonIsHeld() ){
-            
-            error = Setpoint-(shooter.getShooterSpeed());
-            newSpeed = Setpoint+error*kp;
-            shooter.setShooterSpeed(newSpeed);
-                      
-        }
-        else {
+        if (joystick.shooter()) {
+//
+//            error = Setpoint-(shooter.getShooterSpeed());
+//            newSpeed = Setpoint+error*kp;
+            shooter.setShooterSpeed(1);
+
+        } else if (joystick.shooterIntake()) {
+            shooter.setShooterSpeed(-0.2);
+        } else if (joystick.shooterAmp()) {
+            shooter.setShooterSpeed(0.2);
+        } else {
             shooter.setShooterSpeed(0);
         }
 

@@ -14,12 +14,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Toggles;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.JoyStickDrive;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.auto.AutoCommands;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.joysticks.CrescendoJoystickFactory;
 import frc.robot.joysticks.IllegalJoystickTypeException;
+import frc.robot.subsystems.IntakeSubSystem;
 import frc.robot.subsystems.NavX;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -34,29 +38,17 @@ import java.util.Optional;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    private Shooter shooter;
-    private ShooterCommand shooterCommand;
+
+
     // **********
     // SubSystems
+    private ShooterSubsystem shooter;
+    private ShooterCommand shooterCommand;
 
-    public RobotContainer() {
-        stormXboxController = new StormXboxController(0); //crescendo xbox?
-        configureBindings();
-    
-        
-        if (Toggles.useShooter) {
-          shooter = new Shooter();
-          shooterCommand = new ShooterCommand(shooter, CrescendoXboxController);
-          shooter.setDefaultCommand(shooterCommand);
-        }
+    private IntakeSubSystem intake;
+    private IntakeCommand intakeCommand;
 
-        if (Toggles.useIntake) {
-            intake = new Intake();
-            intakeCommand = new IntakeCommand(intake, CrescendoXboxController)
-            shooter.setDefaultCommand(intakeCommand);
-        }
-      }
-    
+
     // **********
     DrivetrainBase drivetrain;
     NavX navX;
@@ -74,6 +66,8 @@ public class RobotContainer {
     // **********
     final RobotState robotState;
 
+    CrescendoJoystick joystick;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -86,9 +80,10 @@ public class RobotContainer {
             System.out.println("Create drive type " + Drive.driveType);
             drivetrain = DrivetrainFactory.getInstance(Drive.driveType);
             if (Toggles.useController) {
-                CrescendoJoystick joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
+                joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
                 JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
                 drivetrain.setDefaultCommand(driveWithJoystick);
+
             }
 
             // TODO - for now.  We have to start somewhere.
@@ -97,6 +92,18 @@ public class RobotContainer {
 
             initialPose = CrescendoField.remapPose(initialPose, robotState.isAllianceBlue());
             drivetrain.resetOdometry(initialPose);
+        }
+
+        if (Toggles.useShooter) {
+            shooter = new ShooterSubsystem();
+            shooterCommand = new ShooterCommand(shooter, joystick);
+            shooter.setDefaultCommand(shooterCommand);
+        }
+
+        if (Toggles.useIntake) {
+            intake = new IntakeSubSystem();
+            intakeCommand = new IntakeCommand(intake, joystick);
+            intake.setDefaultCommand(intakeCommand);
         }
 
         if (Toggles.useNavX && !Drive.driveType.equals("YagslDrive")) {
@@ -117,7 +124,8 @@ public class RobotContainer {
         autoCommands = new AutoCommands(drivetrain);
 //         need a better way of doing this-don't want to have to write this out everytime
         autoChooser.addOption("test_2m", autoCommands.test2m());
-        autoChooser.addOption("test_2m", autoCommands.fourNoteAmp());
+        autoChooser.addOption("4noteAmp", autoCommands.fourNoteAmp());
+        autoChooser.addDefaultOption("test_2m", autoCommands.test2m());
 
 
     }
@@ -160,5 +168,6 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.get();
     }
+
 
 }

@@ -1,22 +1,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Intake;
-import frc.utils.joysticks.StormXboxController;
+import frc.robot.joysticks.CrescendoJoystick;
+import frc.robot.subsystems.IntakeSubSystem;
 
 public class IntakeCommand extends Command {
-    
-    double Setpoint = 0.2;
-    double error; 
-    double kp=1;   //subject to change later because we have to experiment to see what works best
-    double newSpeed;
-    private final Intake intake;
-    private StormXboxController stormXboxController;
 
-    public ShooterCommand(Intake intake, StormXboxController stormXboxController) {
+    double Setpoint = 0.2;
+    double error;
+    double kp = 1;   //subject to change later because we have to experiment to see what works best
+    double newSpeed;
+    private final IntakeSubSystem intake;
+    private CrescendoJoystick joystick;
+
+    public IntakeCommand(IntakeSubSystem intake, CrescendoJoystick joystick) {
         this.intake = intake;
-        this.stormXboxController = stormXboxController;
+        this.joystick = joystick;
 
         addRequirements(intake);
     }
@@ -29,14 +28,13 @@ public class IntakeCommand extends Command {
 
     @Override
     public void execute() {
-        if (stormXboxController.getBButtonIsHeld() ){
-            
-            error = Setpoint-(intake.getShooterSpeed());
-            newSpeed = Setpoint+error*kp;
+        if (joystick.intake()) {
+
+            error = Setpoint - (intake.getIntakeSpeed());
+            newSpeed = Setpoint + error * kp;
             intake.setIntakeSpeed(newSpeed);
-                      
-        }
-        else {
+
+        } else {
             intake.setIntakeSpeed(0);
         }
 

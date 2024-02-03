@@ -24,6 +24,11 @@ public class AutoCommands extends Command {
         robotState = RobotState.getInstance();
     }
 
+    @Override
+    public void initialize() {
+        System.out.println("Auto INIT");
+    }
+
     public Command buildAuto(String trajectoryName) {
 //        TODO need a better way of getting trajectory name
         ChoreoTrajectory trajectory = Choreo.getTrajectory(trajectoryName);

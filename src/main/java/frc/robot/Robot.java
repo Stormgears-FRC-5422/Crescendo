@@ -79,7 +79,7 @@ public class Robot extends LoggedRobot {
                 LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder)); // Log to a USB stick ("/U/logs")
                 LoggerWrapper.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
                 LoggerWrapper.enablePowerDistributionLogging();
-            } else {
+            } else if (!isSimulation()) {
                 setUseTiming(false); // Run as fast as possible
                 String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
                 LoggerWrapper.setReplaySource(new WPILOGReader(logPath)); // Read replay log
