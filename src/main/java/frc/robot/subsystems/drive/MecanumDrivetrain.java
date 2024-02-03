@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
-import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 
 
@@ -58,6 +57,7 @@ public class MecanumDrivetrain extends DrivetrainBase{
     @Override
     public void periodic() {
         MecanumDriveWheelSpeeds wheelSpeeds = m_kinematics.toWheelSpeeds(m_chassisSpeeds);
+        System.out.println(wheelSpeeds);
         wheelSpeeds.desaturate(this.m_maxVelocityMetersPerSecond);
 
         m_frontLeftTalon.setVoltage(MAX_VOLTAGE * wheelSpeeds.frontLeftMetersPerSecond / m_maxVelocityMetersPerSecond);

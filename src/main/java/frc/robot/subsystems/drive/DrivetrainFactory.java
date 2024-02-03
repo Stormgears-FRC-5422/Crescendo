@@ -19,6 +19,7 @@ public class DrivetrainFactory {
                     }
                 }
                 case "MecanumDrive" -> instance = new MecanumDrivetrain();
+                case "MecanumDiagnosticDrive" -> instance = new MecanumDiagnosticDrivetrain();
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType + " ---!");
             }
         }
