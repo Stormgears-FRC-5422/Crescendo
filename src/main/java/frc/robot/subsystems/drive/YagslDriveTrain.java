@@ -9,6 +9,8 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
+import frc.utils.LoggerWrapper;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -57,7 +59,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 //        Logger.recordOutput("MyPose", swerveDrive.getPose());
 
 
-        
+
 //        System.out.println("Current module positions:");
 //        System.out.println(Arrays.toString(swerveDrive.getModulePositions()));
 //        System.out.println(swerveDrive.getModules()[0].);
@@ -68,6 +70,7 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     @Override
+    @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
         return swerveDrive.getPose();
     }
@@ -78,6 +81,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         // TODO - this is a bit hokey. We should have an explicit way to defer this to the drive subclass
         // without lying to the base class. That could cause other problems.
         super.drive(speeds, false, speedScale);
+        LoggerWrapper.recordOutput("Drive/DesiredSpeeds", speeds);
         m_localFieldRelative = fieldRelative;
     }
 

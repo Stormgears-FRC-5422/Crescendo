@@ -23,6 +23,10 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
 import static frc.robot.Constants.Toggles.useAdvantageKit;
 
 /**
@@ -81,6 +85,7 @@ public class Robot extends LoggedRobot {
                 LoggerWrapper.setReplaySource(new WPILOGReader(logPath)); // Read replay log
                 LoggerWrapper.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
             }
+            logActiveCommand();
             LoggerWrapper.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
             // Start timers
             canErrorTimer.reset();
@@ -126,6 +131,35 @@ public class Robot extends LoggedRobot {
         if (RobotController.getBatteryVoltage() < lowBatteryVoltage) {
             lowBatteryAlert.set(true);
         }
+    }
+
+    private void logActiveCommand() {
+        // Log active commands
+        Map<String, Integer> commandCounts = new HashMap<>();
+        BiConsumer<Command, Boolean> logCommandFunction =
+            (Command command, Boolean active) -> {
+                String name = command.getName();
+                int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
+                commandCounts.put(name, count);
+                LoggerWrapper.recordOutput(
+                    "CommandsUnique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
+                LoggerWrapper.recordOutput("CommandsAll/" + name, count > 0);
+            };
+        CommandScheduler.getInstance()
+            .onCommandInitialize(
+                (Command command) -> {
+                    logCommandFunction.accept(command, true);
+                });
+        CommandScheduler.getInstance()
+            .onCommandFinish(
+                (Command command) -> {
+                    logCommandFunction.accept(command, false);
+                });
+        CommandScheduler.getInstance()
+            .onCommandInterrupt(
+                (Command command) -> {
+                    logCommandFunction.accept(command, false);
+                });
     }
 
     /**
