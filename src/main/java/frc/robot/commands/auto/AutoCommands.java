@@ -7,20 +7,32 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.Swerve;
 
 import frc.robot.RobotState;
+import frc.robot.subsystems.IntakeSubSystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.CrescendoField;
 
 
 public class AutoCommands extends Command {
+
     final RobotState robotState;
     DrivetrainBase drivetrain;
+    ShooterSubsystem shooterSubsystem;
+    IntakeSubSystem intakeSubSystem;
 
-    public AutoCommands(DrivetrainBase drivetrainBase) {
+    Pose2d initialPose;
+    ChoreoTrajectory trajectory;
+    boolean reflectField;
+
+
+    public AutoCommands(DrivetrainBase drivetrainBase, ShooterSubsystem shooterSubsystem, IntakeSubSystem intakeSubSystem) {
         this.drivetrain = drivetrainBase;
+        this.shooterSubsystem = shooterSubsystem;
+        this.intakeSubSystem = intakeSubSystem;
         robotState = RobotState.getInstance();
     }
 
@@ -29,25 +41,29 @@ public class AutoCommands extends Command {
         System.out.println("Auto INIT");
     }
 
-    public Command buildAuto(String trajectoryName) {
-//        TODO need a better way of getting trajectory name
-        ChoreoTrajectory trajectory = Choreo.getTrajectory(trajectoryName);
-        boolean openLoop = Swerve.openLoopAuto;
-        boolean reflectField = !robotState.isAllianceBlue();
-        Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), robotState.isAllianceBlue());
+    public Command setUpPose(String trajectoryName) {
+        //        TODO need a better way of getting trajectory name
+        trajectory = Choreo.getTrajectory(trajectoryName);
+        reflectField = !robotState.isAllianceBlue();
+        initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), robotState.isAllianceBlue());
 
-        System.out.println("Building auto command on " + (reflectField ? "Red" : "Blue") + " alliance");
+
+        System.out.println("Setting up Alliance! " + (reflectField ? "Red" : "Blue") + " alliance");
         System.out.println("Starting pose = " + initialPose);
+        return Commands.runOnce(() -> drivetrain.resetOdometry(initialPose));
+    }
+
+
+    public Command buildChoreoCommand() {
+
+        boolean openLoop = Swerve.openLoopAuto;
+
         System.out.println("Control is " + (openLoop ? "open loop" : "pid controlled"));
 
-        // It looks like we don't want to reuse the controller objects
-        // I don't see anything in the source that would reset their state when the command is created.
-        // We don't want lingering integration values, for example
-        // Use openLoop to disable PID entirely and just get raw motion
         PIDController xController = new PIDController(openLoop ? 0 : Swerve.xPidKp,
             openLoop ? 0 : Swerve.xPidKi,
             openLoop ? 0 : Swerve.xPidKd
-            );
+        );
 
         PIDController yController = new PIDController(openLoop ? 0 : Swerve.yPidKp,
             openLoop ? 0 : Swerve.yPidKi,
@@ -59,33 +75,48 @@ public class AutoCommands extends Command {
             openLoop ? 0 : Swerve.rotPidKd
         );
 
-        // TODO - this way to set the initial pose is probably temporary. We could use something more sophisticated -
-        // for example, based on vision detection of an April Tag to make sure we aren't in the entirely wrong place
-        drivetrain.resetOdometry(initialPose);
+
         return Choreo.choreoSwerveCommand(
-                trajectory,
-                drivetrain::getPose,
-                xController,
-                yController,
-                rotationController,
-                (ChassisSpeeds speeds) -> drivetrain.drive(speeds,false, 1.0),
-                () -> reflectField,
-                drivetrain
+            trajectory,
+            drivetrain::getPose,
+            xController,
+            yController,
+            rotationController,
+            (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1.0),
+            () -> reflectField,
+            drivetrain
         );
 
     }
 
 
     public Command test2m() {
-        Command choreoTraj = buildAuto("simple_2m");
-//        empty for now bc have not added shooter and intake
-        return choreoTraj;
+        return Commands.sequence(setUpPose("simple_2m"), buildChoreoCommand());
     }
 
     public Command fourNoteAmp() {
-        Command choreoTraj = buildAuto("four_note_w_amp");
-//        empty for now bc have not added shooter and intake
+        return Commands.sequence(setUpPose("four_note_w_amp"), buildChoreoCommand());
+    }
 
-        return choreoTraj;
+    public Command threeNoteSpeakerpt1() {
+        return Commands.sequence(setUpPose("3_note_speaker_pt1"), buildChoreoCommand());
+    }
+
+    public Command threeNoteSpeakerpt2(){
+        return Commands.sequence(setUpPose("3_note_speaker_pt2"), buildChoreoCommand());
+    }
+
+    public Command threeNoteSpeakerpt3(){
+        return Commands.sequence(setUpPose("3_note_speaker_pt3"), buildChoreoCommand());
+    }
+    public Command threeNoteSpeakerpt4(){
+        return Commands.sequence(setUpPose("3_note_speaker_pt4"), buildChoreoCommand());
+    }
+
+    public Command threeNoteSpeaker() {
+        return Commands.sequence(shooterSubsystem.autoShoot(), threeNoteSpeakerpt1(),
+            intakeSubSystem.autoIntake(), threeNoteSpeakerpt2(),
+            shooterSubsystem.autoShoot(), threeNoteSpeakerpt3(),
+            intakeSubSystem.autoIntake(), threeNoteSpeakerpt4());
     }
 }

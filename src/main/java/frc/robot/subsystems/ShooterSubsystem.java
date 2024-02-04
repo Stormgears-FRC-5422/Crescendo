@@ -5,7 +5,7 @@ import com.ctre.phoenix6.signals.ForwardLimitTypeValue;
 import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
 import com.revrobotics.*;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants.Shooter;
 
 
@@ -32,5 +32,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getShooterSpeed() {
         return shooter1.getEncoder().getVelocity();
+    }
+
+    public Command autoShoot() {
+        return Commands.sequence(new InstantCommand(() -> setShooterSpeed(1)),
+            new WaitCommand(1.5),
+            new InstantCommand(() -> setShooterSpeed(0)));
     }
 }

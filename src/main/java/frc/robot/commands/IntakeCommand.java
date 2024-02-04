@@ -30,9 +30,9 @@ public class IntakeCommand extends Command {
     public void execute() {
         if (joystick.intake()) {
 
-            error = Setpoint - (intake.getIntakeSpeed());
-            newSpeed = Setpoint + error * kp;
-            intake.setIntakeSpeed(newSpeed);
+//            error = Setpoint - (intake.getIntakeSpeed());
+//            newSpeed = Setpoint + error * kp;
+            intake.setIntakeSpeed(0.2);
 
         } else {
             intake.setIntakeSpeed(0);

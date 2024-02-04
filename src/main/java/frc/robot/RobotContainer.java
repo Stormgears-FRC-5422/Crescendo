@@ -6,8 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -114,18 +116,14 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
-
-
-        System.out.println("[DONE] RobotContainer");
-
-//      TODO need to add place for this
         autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-
-        autoCommands = new AutoCommands(drivetrain);
-//         need a better way of doing this-don't want to have to write this out everytime
+        autoCommands = new AutoCommands(drivetrain, shooter, intake);
         autoChooser.addOption("test_2m", autoCommands.test2m());
         autoChooser.addOption("4noteAmp", autoCommands.fourNoteAmp());
+        autoChooser.addOption("3noteSpeaker", autoCommands.threeNoteSpeaker());
         autoChooser.addDefaultOption("test_2m", autoCommands.test2m());
+
+        System.out.println("[DONE] RobotContainer");
 
 
     }
@@ -168,6 +166,5 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.get();
     }
-
 
 }
