@@ -116,6 +116,10 @@ public class StormXboxController extends Joystick implements DriveJoystick {
         return getRawButtonPressed(BButton);
     }
 
+    public boolean getXisPressed(){
+        return  getRawButtonPressed(XButton);
+    }
+
     public boolean getBackIsPressed() {
         return getRawButtonPressed(littleLeftButton);
     }

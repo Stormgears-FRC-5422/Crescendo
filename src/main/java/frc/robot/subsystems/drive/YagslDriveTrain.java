@@ -2,7 +2,9 @@ package frc.robot.subsystems.drive;
 
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -70,6 +72,12 @@ public class YagslDriveTrain extends DrivetrainBase {
         swerveDrive.resetOdometry(pose);
     }
 
+    public void resetGyro() {
+        Pose2d pose = swerveDrive.getPose();
+        swerveDrive.zeroGyro();
+        swerveDrive.resetOdometry(new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)));
+    }
+
     @Override
     @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
@@ -88,7 +96,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
-        
+
         publisher.set(swerveDrive.getPose());
 //        System.out.println("Field Relative: " + m_localFieldRelative);
         if (m_localFieldRelative) {

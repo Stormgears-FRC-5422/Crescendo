@@ -48,4 +48,8 @@ public class CrescendoXboxController extends CrescendoJoystick {
     public boolean intake() {
         return controller.getAButtonIsHeld();
     }
+
+    public boolean zeroGyro() {
+        return controller.getRightBumperIsPressed();
+    }
 }

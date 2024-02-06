@@ -64,4 +64,6 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
     public void resetOdometry(Pose2d pose) {
     }
 
+    public void resetGyro(){}
+
 }

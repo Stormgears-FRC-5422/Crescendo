@@ -49,4 +49,8 @@ public class CrescendoLogitechController extends CrescendoJoystick {
     public boolean intake() {
         return controller.getRawButton(2);
     }
+
+    public boolean zeroGyro() {
+        return controller.getRawButton(5);
+    }
 }

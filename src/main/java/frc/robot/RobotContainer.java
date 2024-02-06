@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
@@ -61,6 +62,8 @@ public class RobotContainer {
     AutoCommands autoCommands;
 
     private final LoggedDashboardChooser<Command> autoChooser;
+
+
 
 
     // **********
@@ -120,7 +123,12 @@ public class RobotContainer {
         autoCommands = new AutoCommands(drivetrain, shooter, intake);
         autoChooser.addOption("test_2m", autoCommands.test2m());
         autoChooser.addOption("4noteAmp", autoCommands.fourNoteAmp());
-        autoChooser.addOption("3noteSpeaker", autoCommands.threeNoteSpeaker());
+        if (Toggles.useShooter && Toggles.useIntake) {
+            autoChooser.addOption("3noteSpeaker", autoCommands.threeNoteSpeaker());
+        }
+        if (Toggles.useShooter) {
+            autoChooser.addOption("3noteSpeakerv2", autoCommands.threeNoteSpeakerv2());
+        }
         autoChooser.addDefaultOption("test_2m", autoCommands.test2m());
 
         System.out.println("[DONE] RobotContainer");
@@ -158,6 +166,8 @@ public class RobotContainer {
      */
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
+
+        new Trigger(()-> joystick.zeroGyro()).onTrue(new InstantCommand(()->drivetrain.resetGyro()));
 
         System.out.println("[DONE] configureBindings");
 

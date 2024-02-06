@@ -82,7 +82,7 @@ public class AutoCommands extends Command {
             xController,
             yController,
             rotationController,
-            (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1.0),
+            (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
             () -> reflectField,
             drivetrain
         );
@@ -102,21 +102,41 @@ public class AutoCommands extends Command {
         return Commands.sequence(setUpPose("3_note_speaker_pt1"), buildChoreoCommand());
     }
 
-    public Command threeNoteSpeakerpt2(){
+    public Command threeNoteSpeakerpt2() {
         return Commands.sequence(setUpPose("3_note_speaker_pt2"), buildChoreoCommand());
     }
 
-    public Command threeNoteSpeakerpt3(){
+    public Command threeNoteSpeakerpt3() {
         return Commands.sequence(setUpPose("3_note_speaker_pt3"), buildChoreoCommand());
     }
-    public Command threeNoteSpeakerpt4(){
+
+    public Command threeNoteSpeakerpt4() {
         return Commands.sequence(setUpPose("3_note_speaker_pt4"), buildChoreoCommand());
     }
 
+    public Command threeNoteSpeakerpt5() {
+        return Commands.sequence(setUpPose("3_note_speaker_pt5"), buildChoreoCommand());
+    }
+
+    public Command threeNoteSpeakerpt6() {
+        return Commands.sequence(setUpPose("3_note_speaker_pt6"), buildChoreoCommand());
+    }
+// wrong for now
     public Command threeNoteSpeaker() {
         return Commands.sequence(shooterSubsystem.autoShoot(), threeNoteSpeakerpt1(),
             intakeSubSystem.autoIntake(), threeNoteSpeakerpt2(),
             shooterSubsystem.autoShoot(), threeNoteSpeakerpt3(),
-            intakeSubSystem.autoIntake(), threeNoteSpeakerpt4());
+            intakeSubSystem.autoIntake(), threeNoteSpeakerpt4(),
+            shooterSubsystem.autoShoot());
+    }
+
+    public Command threeNoteSpeakerv2() {
+        return Commands.sequence(shooterSubsystem.autoShoot(),
+            threeNoteSpeakerpt1(),
+            threeNoteSpeakerpt2(),
+            threeNoteSpeakerpt3(),
+            threeNoteSpeakerpt4(),
+            threeNoteSpeakerpt5(),
+            threeNoteSpeakerpt6());
     }
 }
