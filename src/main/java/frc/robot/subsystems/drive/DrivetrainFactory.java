@@ -8,17 +8,17 @@ public class DrivetrainFactory {
     public static DrivetrainBase getInstance(String driveType) throws IllegalDriveTypeException {
         if (instance ==  null) {
             System.out.println("Initializing " + driveType);
-            switch (driveType) {
-                case "SwerveDrive" -> instance = new SwerveDriveTrain();
-                case "SwerveDiagnosticDrive" -> instance = new SwerveDiagnosticDriveTrain();
-                case "YagslDrive" -> {
+            switch (driveType.toLowerCase()) {
+                case "swervedrive" -> instance = new SwerveDriveTrain();
+                case "swervediagnosticdrive" -> instance = new SwerveDiagnosticDriveTrain();
+                case "yagsldrive" -> {
                     try {
                         instance = new YagslDriveTrain();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
-                case "MecanumDrive" -> instance = new MecanumDrivetrain();
+                case "mecanumdrive" -> instance = new MecanumDrivetrain();
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType + " ---!");
             }
         }

@@ -90,7 +90,7 @@ public class AutoCommands extends Command {
     }
 
 
-    public Command test2m() {
+    public Command simple_2m() {
         return Commands.sequence(setUpPose("simple_2m"), buildChoreoCommand());
     }
 

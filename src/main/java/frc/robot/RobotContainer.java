@@ -6,10 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -17,13 +15,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Toggles;
+import frc.robot.Constants.Choreo;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.auto.AutoCommands;
-import frc.robot.joysticks.CrescendoJoystick;
-import frc.robot.joysticks.CrescendoJoystickFactory;
-import frc.robot.joysticks.IllegalJoystickTypeException;
+import frc.robot.joysticks.*;
 import frc.robot.subsystems.IntakeSubSystem;
 import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -45,25 +42,19 @@ public class RobotContainer {
 
     // **********
     // SubSystems
+    private DrivetrainBase drivetrain;
+    private NavX navX;
     private ShooterSubsystem shooter;
-    private ShooterCommand shooterCommand;
-
     private IntakeSubSystem intake;
-    private IntakeCommand intakeCommand;
-
-
-    // **********
-    DrivetrainBase drivetrain;
-    NavX navX;
 
     // **********
     // Commands
     // **********
-    AutoCommands autoCommands;
-
-    private final LoggedDashboardChooser<Command> autoChooser;
-
-
+    private LoggedDashboardChooser<Command> autoChooser;
+    private AutoCommands autoCommands;
+    private Command m_noChooserCommand;
+    private ShooterCommand shooterCommand;
+    private IntakeCommand intakeCommand;
 
 
     // **********
@@ -71,6 +62,9 @@ public class RobotContainer {
     // **********
     final RobotState robotState;
 
+    // **********
+    // Control
+    // **********
     CrescendoJoystick joystick;
 
     /**
@@ -119,17 +113,31 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         autoCommands = new AutoCommands(drivetrain, shooter, intake);
-        autoChooser.addOption("test_2m", autoCommands.test2m());
-        autoChooser.addOption("4noteAmp", autoCommands.fourNoteAmp());
-        if (Toggles.useShooter && Toggles.useIntake) {
-            autoChooser.addOption("3noteSpeaker", autoCommands.threeNoteSpeaker());
+        if (Toggles.useAutoChooser) {
+            // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
+            // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
+            // so we can add things to this list without messing with the code.
+            // This gets tricky if the commands might vary based on subsystem availability
+            System.out.println("Using AutoChooser");
+            autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+            autoChooser.addOption("simple_2m", autoCommands.simple_2m());
+            autoChooser.addOption("4noteAmp", autoCommands.fourNoteAmp());
+            if (Toggles.useShooter && Toggles.useIntake) {
+                autoChooser.addOption("3noteSpeaker", autoCommands.threeNoteSpeaker());
+            }
+            if (Toggles.useShooter) {
+                autoChooser.addOption("3noteSpeakerv2", autoCommands.threeNoteSpeakerv2());
+            }
+            autoChooser.addDefaultOption("simple_2m", autoCommands.simple_2m());
+        } else {
+            System.out.println("NoChooser Command set to " + Choreo.path);
+            m_noChooserCommand = switch(Choreo.path.toLowerCase()) {
+                case "simple_2m" -> autoCommands.simple_2m();
+                case "4noteamp" -> autoCommands.fourNoteAmp();
+                default -> autoCommands.simple_2m();
+            };
         }
-        if (Toggles.useShooter) {
-            autoChooser.addOption("3noteSpeakerv2", autoCommands.threeNoteSpeakerv2());
-        }
-        autoChooser.addDefaultOption("test_2m", autoCommands.test2m());
 
         System.out.println("[DONE] RobotContainer");
 
@@ -170,11 +178,18 @@ public class RobotContainer {
         new Trigger(()-> joystick.zeroGyro()).onTrue(new InstantCommand(()->drivetrain.resetGyro()));
 
         System.out.println("[DONE] configureBindings");
-
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        if (Toggles.useAutoChooser) {
+            return autoChooser.get();
+        } else {
+            return getNoChooserCommand();
+        }
+    }
+
+    private Command getNoChooserCommand() {
+        return m_noChooserCommand;
     }
 
 }

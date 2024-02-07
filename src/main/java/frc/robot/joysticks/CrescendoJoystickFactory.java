@@ -6,9 +6,10 @@ public class CrescendoJoystickFactory {
     public static CrescendoJoystick getInstance(String joystickType, int port) throws IllegalJoystickTypeException {
         if (instance == null) {
             System.out.printf("Initializing %s", joystickType);
-            switch (joystickType) {
-                case "XboxController" -> instance = new CrescendoXboxController(port);
-                case "LogitechController" -> instance = new CrescendoLogitechController(port);
+            switch (joystickType.toLowerCase()) {
+                case "xboxcontroller" -> instance = new CrescendoXboxController(port);
+                case "logitechcontroller" -> instance = new CrescendoLogitechController(port);
+                case "dummy" -> instance = new CrescendoDummyController(port);
                 default -> throw new IllegalJoystickTypeException("Illegal Joystick Type: " + joystickType + " ---!");
             }
         }
