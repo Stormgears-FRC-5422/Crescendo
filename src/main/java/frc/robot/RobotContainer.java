@@ -19,7 +19,7 @@ import frc.robot.Constants.Choreo;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.ShooterCommand;
-import frc.robot.commands.auto.AutoCommands;
+import frc.robot.commands.auto.AutoCommandFactory;
 import frc.robot.joysticks.*;
 import frc.robot.subsystems.IntakeSubSystem;
 import frc.robot.subsystems.NavX;
@@ -51,7 +51,7 @@ public class RobotContainer {
     // Commands
     // **********
     private LoggedDashboardChooser<Command> autoChooser;
-    private AutoCommands autoCommands;
+    private AutoCommandFactory autoCommandFactory;
     private Command m_noChooserCommand;
     private ShooterCommand shooterCommand;
     private IntakeCommand intakeCommand;
@@ -113,7 +113,7 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
-        autoCommands = new AutoCommands(drivetrain, shooter, intake);
+        autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, intake);
         if (Toggles.useAutoChooser) {
             // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
             // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
@@ -121,31 +121,31 @@ public class RobotContainer {
             // This gets tricky if the commands might vary based on subsystem availability
             System.out.println("Using AutoChooser");
             autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-            autoChooser.addOption("simple_2m", autoCommands.simple_2m());
-            autoChooser.addOption("4noteAmp", autoCommands.fourNoteAmp());
+            autoChooser.addOption("simple_2m", autoCommandFactory.simple_2m());
+            autoChooser.addOption("four_note_w_amp", autoCommandFactory.fourNoteAmp());
             if (Toggles.useShooter && Toggles.useIntake) {
-                autoChooser.addOption("3noteSpeaker", autoCommands.threeNoteSpeaker());
+                autoChooser.addOption("3_note_speaker", autoCommandFactory.threeNoteSpeaker());
             }
             if (Toggles.useShooter) {
-                autoChooser.addOption("3noteSpeakerv2", autoCommands.threeNoteSpeakerv2());
+                autoChooser.addOption("3_note_speaker_v2", autoCommandFactory.threeNoteSpeakerv2());
             }
-            autoChooser.addDefaultOption("simple_2m", autoCommands.simple_2m());
+            autoChooser.addDefaultOption("simple_2m", autoCommandFactory.simple_2m());
         } else {
             System.out.println("NoChooser Command set to " + Choreo.path);
             m_noChooserCommand = switch(Choreo.path.toLowerCase()) {
-                case "simple_2m" -> autoCommands.simple_2m();
-                case "4noteamp" -> autoCommands.fourNoteAmp();
-                default -> autoCommands.simple_2m();
+                case "simple_2m" -> autoCommandFactory.simple_2m();
+                case "four_note_w_amp" -> autoCommandFactory.fourNoteAmp();
+                case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
+                case "3_note_speaker_v2" -> autoCommandFactory.threeNoteSpeakerv2();
+                default -> autoCommandFactory.simple_2m();
             };
         }
 
         System.out.println("[DONE] RobotContainer");
-
-
     }
 
     public void setAlliance() {
-        // TODO We don't always get a clear alliance from the driver station call. Assume Blue...
+        // TODO We don't always get a clear alliance from the driver station call. Assume ButtonBoard.defaultAlliance
         DriverStation.refreshData();
 
         Optional<Alliance> tmpAlliance = DriverStation.getAlliance();
@@ -156,7 +156,11 @@ public class RobotContainer {
             alliance = tmpAlliance.get();
         } else {
             System.out.print("Alliance is NOT reported. Defaulting to ");
-            alliance = Alliance.Blue;
+            alliance = switch (ButtonBoard.defaultAlliance.toLowerCase()) {
+                case "blue" -> Alliance.Blue;
+                case "red" -> Alliance.Red;
+                default -> Alliance.Blue;
+            };
         }
 
         robotState.setAlliance(alliance);
@@ -184,12 +188,8 @@ public class RobotContainer {
         if (Toggles.useAutoChooser) {
             return autoChooser.get();
         } else {
-            return getNoChooserCommand();
+            return m_noChooserCommand;
         }
-    }
-
-    private Command getNoChooserCommand() {
-        return m_noChooserCommand;
     }
 
 }

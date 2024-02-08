@@ -69,6 +69,7 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     public void resetOdometry(Pose2d pose) {
+        System.out.println("resetting pose to = " + pose);
         swerveDrive.resetOdometry(pose);
     }
 

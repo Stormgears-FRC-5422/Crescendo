@@ -4,10 +4,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 
 public class CrescendoField {
-
     // By definition, all coordinates should be stored in Blue Alliance coordinates.
     // The far right corner on the Blue alliance side is the origin.
     // coordinates are in meters unless otherwise indicated.
@@ -15,8 +13,9 @@ public class CrescendoField {
     public final static double FIELD_WIDTH = Units.feetToMeters(26) + Units.inchesToMeters(3.5);
 
     public static Pose2d remapPose(Pose2d pose2d, boolean blueAlliance) {
+        // We want to make sure that both of these code paths return an entirely new object
         if (blueAlliance)
-            return pose2d;
+            return new Pose2d(pose2d.getX(), pose2d.getY(), new Rotation2d(pose2d.getRotation().getRadians()));
         else
             return mirrorPose(pose2d);
     }
@@ -27,7 +26,7 @@ public class CrescendoField {
     private static double mirrorY(double y) {return y;}
 
     private static Translation2d mirrorTranslation(Translation2d translation) {
-        return new Translation2d(mirrorX(translation.getX()), translation.getY());
+        return new Translation2d(mirrorX(translation.getX()), mirrorY(translation.getY()));
     }
 
     private static Rotation2d mirrorRotation(Rotation2d rotation) {
