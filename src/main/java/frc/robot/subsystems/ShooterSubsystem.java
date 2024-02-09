@@ -17,8 +17,8 @@ public class ShooterSubsystem extends SubsystemBase {
     boolean foo = true;
 
     public ShooterSubsystem() {
-        shooter1.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed);
-        shooter1.getReverseLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed);
+        shooter1.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed).enableLimitSwitch(false);
+        shooter1.getReverseLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed).enableLimitSwitch(true);
         shooter1.setInverted(foo);
         shooter2.follow(shooter1, true);
         shooter1.setIdleMode(CANSparkBase.IdleMode.kBrake);

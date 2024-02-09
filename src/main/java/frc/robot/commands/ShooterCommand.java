@@ -14,7 +14,6 @@ public class ShooterCommand extends Command {
     private final ShooterSubsystem shooter;
     private CrescendoJoystick joystick;
 
-
     public ShooterCommand(ShooterSubsystem shooter, CrescendoJoystick joystick) {
         this.shooter = shooter;
         this.joystick = joystick;
@@ -25,17 +24,12 @@ public class ShooterCommand extends Command {
     @Override
     public void initialize() {
         System.out.println("Shooter command runnin");
-
     }
 
     @Override
     public void execute() {
         if (joystick.shooter()) {
-//
-//            error = Setpoint-(shooter.getShooterSpeed());
-//            newSpeed = Setpoint+error*kp;
             shooter.setShooterSpeed(1);
-
         } else if (joystick.shooterIntake()) {
             shooter.setShooterSpeed(-0.2);
         } else if (joystick.shooterAmp()) {
@@ -43,7 +37,6 @@ public class ShooterCommand extends Command {
         } else {
             shooter.setShooterSpeed(0);
         }
-
     }
 
     @Override

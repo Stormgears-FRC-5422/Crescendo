@@ -7,15 +7,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class RobotState extends SubsystemBase {
-
     private static RobotState m_instance;
     private Alliance m_alliance = Alliance.Blue;
-
     private Rotation2d currentGyroData = new Rotation2d();
-
     private Pose2d currentPose = new Pose2d();
-
-
     private Field2d field2d;
 
     public static RobotState getInstance() {
@@ -26,6 +21,7 @@ public class RobotState extends SubsystemBase {
     }
 
     public void setAlliance(Alliance alliance) {
+        System.out.println("setAlliance to " + (alliance == Alliance.Blue ? "Blue" : "Red"));
         m_alliance = alliance;
     }
 
@@ -38,20 +34,16 @@ public class RobotState extends SubsystemBase {
     }
 
     public Rotation2d getCurrentGyroData() {
-//        if (!Constants.Toggles.useNavX) {
-//            //System.out.println("NOT using gyro. Can't get current gyro rotation!");
-//            return new Rotation2d();
-//        }
         return currentGyroData;
     }
 
     public void setPose(Pose2d pose) {
-        currentPose = pose;
+        // Make a copy, not a reference to the same object!
+        currentPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(pose.getRotation().getRadians()));
     }
 
     public Pose2d getPose() {
         return currentPose;
     }
-
 
 }
