@@ -30,5 +30,8 @@ public class VisionCommand extends Command {
         super.end(interrupted);
     }
 
+    public void align(){
+
+    }
 
 }
