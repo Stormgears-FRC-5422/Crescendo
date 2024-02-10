@@ -4,7 +4,7 @@ package frc.utils.joysticks;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
 
-import static frc.robot.Constants.StickNullSize;
+import frc.robot.Constants.ButtonBoard;
 
 public class StormXboxController extends Joystick implements DriveJoystick {
 
@@ -37,7 +37,7 @@ public class StormXboxController extends Joystick implements DriveJoystick {
 //
 //        // Scale up from 0 rather than jumping to the input value
 //        return ( (value - signum(value) * kStickNullSize) / (1.0 - kStickNullSize) );
-        return MathUtil.applyDeadband(value, StickNullSize);
+        return MathUtil.applyDeadband(value, ButtonBoard.stickNullSize);
     }
 
     @Override

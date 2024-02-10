@@ -34,6 +34,8 @@ public class StormProp {
     private static boolean overrideInit = false;
     private static boolean debug = false;
 
+
+
     public static void init() {
         System.out.println("Running in directory " + System.getProperty("user.dir"));
         System.out.println("Trying to use file " + configFile.getAbsolutePath());
@@ -72,6 +74,7 @@ public class StormProp {
 
     public static void overrideInit() {
         String overrideName = properties.getProperty("override");
+        overrideName = removeCast(overrideName);
 
         if ( overrideName.equalsIgnoreCase("auto")) {
             System.out.println("Using AUTOMATIC configuration");
@@ -117,8 +120,12 @@ public class StormProp {
 
         overrideInit = true;
     }
-
+    private static String removeCast(String value) {
+        String val = value.substring(value.indexOf(")") + 1).trim();
+        return val;
+    }
     private static String getPropString(String key) {
+        String val = "";
         if (!initialized) {
             init();
         }
@@ -128,10 +135,14 @@ public class StormProp {
         if (!overrideProperties.containsKey(key) && !properties.containsKey(key)) {
             return null;
         } else if (overrideProperties.containsKey(key)) {
-            return overrideProperties.getProperty(key);
+            val=overrideProperties.getProperty(key);
         } else {
-            return properties.getProperty(key);
+            val=properties.getProperty(key);
         }
+
+        return removeCast(val);
+
+
     }
 
     public static String getString(String key, String defaultVal) {
@@ -142,7 +153,8 @@ public class StormProp {
     }
 
     public static String getString(String prefix, String key, String defaultVal) {
-        String result = getStringInternal(prefix + "." + key,defaultVal);
+        String result = (prefix.equals("general")) ? getStringInternal(key,defaultVal) : getStringInternal(prefix + "." + key,defaultVal);
+
         if(debug) System.out.println("debug property " + prefix + "." + key + " = " + result);
 
         return result;
@@ -172,7 +184,7 @@ public class StormProp {
     }
 
     public static double getNumber(String prefix, String key, Double defaultVal) {
-        double result = getNumberInternal(prefix + "." + key, defaultVal);
+        double result = (prefix.equals("general")) ? getNumberInternal(key,defaultVal) : getNumberInternal(prefix + "." + key,defaultVal);
         if(debug) System.out.println("debug property " + prefix + "." + key + " = " + result);
 
         return result;
@@ -200,7 +212,7 @@ public class StormProp {
         return result;
     }
     public static int getInt(String prefix, String key, int defaultVal) {
-        int result = getIntInternal(prefix + "." + key, defaultVal);
+        int result = (prefix.equals("general")) ? getIntInternal(key,defaultVal) : getIntInternal(prefix + "." + key,defaultVal);
         if(debug) System.out.println("debug property " + prefix + "." + key + " = " + result);
 
         return result;
@@ -225,6 +237,13 @@ public class StormProp {
 
     public static boolean getBoolean(String key, Boolean defaultVal) {
         boolean result = getBooleanInternal(key, defaultVal);
+        if(debug) System.out.println("debug property " + key + " = " + result);
+
+        return result;
+    }
+
+    public static boolean getBoolean(String prefix, String key, Boolean defaultVal) {
+        boolean result = (prefix.equals("general")) ? getBooleanInternal(key,defaultVal) : getBooleanInternal(prefix + "." + key,defaultVal);
         if(debug) System.out.println("debug property " + key + " = " + result);
 
         return result;
