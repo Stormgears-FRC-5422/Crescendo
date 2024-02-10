@@ -29,9 +29,10 @@ public class RobotContainer {
 
     
     if (true) { // TODO should be Toggles.useShooter
-      shooter = new Shooter();
-      shooterCommand = new ShooterCommand(shooter, stormXboxController);
+      shooter = new Shooter(shooterCommand);
+      shooterCommand = new ShooterCommand(shooter);
       shooter.setDefaultCommand(shooterCommand);
+
 
     }
   }

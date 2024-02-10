@@ -4,13 +4,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.utils.joysticks.StormXboxController;
 import frc.robot.subsystems.Shooter;
 
-public class ShooterCommand extends Command {
+public class IntakeCommand extends Command {
     
-    private final Shooter s;
-
-    private int counter;
-
     private boolean whenpressed = false;
+
+    private final Shooter i;
 
     public boolean getWhenPressed(){
         return this.whenpressed;
@@ -20,32 +18,31 @@ public class ShooterCommand extends Command {
         this.whenpressed = whenpressed;
     }
 
-    public ShooterCommand(Shooter s) {
-        this.s = s;
-        addRequirements(s);
+    public IntakeCommand(Shooter i) {
+        this.i = i;
+        addRequirements(i);
     }
 
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.ShooterStateMachine(Shooter.ShooterStates.Shooting);
-        counter = 0;
+        i.ShooterStateMachine(Shooter.ShooterStates.GroundPickup);
     }
 
     @Override
     public void execute() {
-        counter++;
+
     }
 
     @Override
     public boolean isFinished() {
-        return counter > 150;
+        return getWhenPressed();
 
     }
     
     @Override
     public void end(boolean interrupted) {
-        s.ShooterStateMachine(Shooter.ShooterStates.IDLE);
+        i.ShooterStateMachine(Shooter.ShooterStates.IDLE);
     }
 
 }
