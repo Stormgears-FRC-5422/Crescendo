@@ -16,8 +16,11 @@ import frc.utils.joysticks.StormXboxController;
 
 
 public class RobotContainer {
+  private JoystickButton intakeButton;
+  private JoystickButton shooterButton;
   private Shooter shooter;
   private Shoot shooterCommand;
+  private GroundPickup intakeCommand;
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private StormXboxController stormXboxController;
   public RobotContainer() {
@@ -27,6 +30,11 @@ public class RobotContainer {
     if (true) { // TODO should be Toggles.useShooter
       shooter = new Shooter();
       shooterCommand = new Shoot(shooter);
+      intakeCommand = new GroundPickup(shooter);
+      intakeButton = new JoystickButton(stormXboxController, rightBumper);
+      shooterButton = new JoystickButton(stormXboxController, leftBumper);
+      intakeButton.whileTrue(intakeCommand);
+      shooterButton.whileTrue(shooterCommand);
       // TODO - Do we need a default command for the shooter? Probaly not.
       //shooter.setDefaultCommand(shooterCommand);
     }
@@ -45,6 +53,8 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
+
+    
 
   }
 
