@@ -112,6 +112,21 @@ public class AutoCommandFactory {
         return simpleAutoSequence("3_note_speaker_pt6");
     }
 
+//    public Command testAuto() {
+//        return  Commands.sequence(shooterSubsystem.autoShoot(),threeNoteSpeakerpt3(),
+//            intakeSubSystem.autoIntake(), threeNoteSpeakerpt4(),
+//            shooterSubsystem.autoShoot(), threeNoteSpeakerpt1(),
+//            intakeSubSystem.autoIntake(),threeNoteSpeakerpt2(),
+//            shooterSubsystem.autoShoot());
+//    }
+
+//    public Command testAuto() {return Commands.sequence(threeNoteSpeakerpt3(),
+//        threeNoteSpeakerpt4(),threeNoteSpeakerpt1(),threeNoteSpeakerpt2());}
+
+    public Command testAuto() {
+        return Commands.sequence(threeNoteSpeakerpt3(), threeNoteSpeakerpt4());
+    }
+
     public Command threeNoteSpeaker() {
         if (Toggles.useShooter && Toggles.useIntake) {
             return Commands.sequence(
