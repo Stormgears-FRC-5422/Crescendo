@@ -4,36 +4,31 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.ShooterCommand;
+import frc.robot.commands.Shoot;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants;
-import frc.robot.Constants.Toggles;
 import frc.robot.subsystems.Shooter;
 import frc.utils.joysticks.StormXboxController;
 
 
 public class RobotContainer {
   private Shooter shooter;
-  private ShooterCommand shooterCommand;
+  private Shoot shooterCommand;
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private StormXboxController stormXboxController;
   public RobotContainer() {
     stormXboxController = new StormXboxController(0);
     configureBindings();
 
-    
     if (true) { // TODO should be Toggles.useShooter
-      shooter = new Shooter(shooterCommand);
-      shooterCommand = new ShooterCommand(shooter);
-      shooter.setDefaultCommand(shooterCommand);
-
-
+      shooter = new Shooter();
+      shooterCommand = new Shoot(shooter);
+      // TODO - Do we need a default command for the shooter? Probaly not.
+      //shooter.setDefaultCommand(shooterCommand);
     }
   }
 

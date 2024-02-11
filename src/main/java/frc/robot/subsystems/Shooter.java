@@ -5,53 +5,36 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkLimitSwitch;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.commands.ShooterCommand;
 
 // public boolean getSensor() {
 //     return sensor.get();
 // }
 public class Shooter extends SubsystemBase {
     public enum ShooterStates {
-    IDLE,
-    SourcePickup,
-    GroundPickup,
-    Shooting,
-    StagedForShooting,
+        IDLE,
+        SOURCE_PICKUP,
+        GROUND_PICKUP,
+        SHOOTING,
+        STAGED_FOR_SHOOTING,
     }
 
-    private final CANSparkMax shooter1 = new CANSparkMax(Constants.Shooter.firstShooterID, CANSparkLowLevel.MotorType.kBrushless);
-    private final CANSparkMax shooter2 = new CANSparkMax(Constants.Shooter.secondShooterID, CANSparkLowLevel.MotorType.kBrushless);
-    private final CANSparkMax testIntake = new CANSparkMax(3, CANSparkLowLevel.MotorType.kBrushless);
+    private final CANSparkMax shooterLeadMotor = new CANSparkMax(Constants.Shooter.leaderID, CANSparkLowLevel.MotorType.kBrushless);
+    private final CANSparkMax shooterFollowerMotor = new CANSparkMax(Constants.Shooter.followerID, CANSparkLowLevel.MotorType.kBrushless);
+    private final CANSparkMax intakeMotor = new CANSparkMax(Constants.Shooter.intakeID, CANSparkLowLevel.MotorType.kBrushless);
     
-    private final SparkLimitSwitch shooterFWD;
-    private final SparkLimitSwitch shooterReverse;
+    private final SparkLimitSwitch shooterForwardLimitSwitch;
+    private final SparkLimitSwitch shooterReverseLimitSwitch;
     
     double scale = 1;
 
-    private ShooterCommand shooterCommand;
-
-    public Shooter(ShooterCommand shooterCommand) {
-        shooterFWD = shooter1.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed);
-        shooterReverse = shooter1.getReverseLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed);
-        shooter1.setInverted(true);
-        shooter2.follow(shooter1, true);
-        shooter1.setIdleMode(CANSparkBase.IdleMode.kBrake);
-        shooter2.setIdleMode(CANSparkBase.IdleMode.kBrake);
+    public Shooter() {
+        shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed);
+        shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(SparkLimitSwitch.Type.kNormallyClosed);
+        shooterLeadMotor.setInverted(true);
+        shooterFollowerMotor.follow(shooterLeadMotor, true);
         ShooterStateMachine(ShooterStates.IDLE);
-        shooterCommand = this.shooterCommand;
-    }
-
-    public void setShooterSpeed(double speed) {
-        shooter1.set(scale*speed);
-    }
-    public void setIntakeSpeed(double speed) {
-        testIntake.set(scale*speed);
     }
 
     public void ShooterStateMachine(ShooterStates state) {
@@ -59,40 +42,48 @@ public class Shooter extends SubsystemBase {
             case IDLE:
                 setShooterSpeed(0);
                 setIntakeSpeed(0);
+                shooterLeadMotor.setIdleMode(CANSparkBase.IdleMode.kCoast);
+                shooterFollowerMotor.setIdleMode(CANSparkBase.IdleMode.kCoast);
+                intakeMotor.setIdleMode(CANSparkBase.IdleMode.kCoast);
                 break;
-            case SourcePickup:
-                shooterFWD.enableLimitSwitch(true);
-                setShooterSpeed(-0.5);
+            case SOURCE_PICKUP:
+                shooterForwardLimitSwitch.enableLimitSwitch(true);
+                setShooterSpeed(-Constants.Shooter.intakeUpperMotorSpeed);
                 break;
-            case GroundPickup:
-                shooterFWD.enableLimitSwitch(true);
-                setIntakeSpeed(0.5);
-                setShooterSpeed(0.5);
-                if (shooterFWD.isPressed()) {
-                    setIntakeSpeed(0);
-                    shooterCommand.setWhenPressed(true);
-                }
+            case GROUND_PICKUP:
+                shooterForwardLimitSwitch.enableLimitSwitch(true);
+                setIntakeSpeed(Constants.Shooter.intakeLowerMotorSpeed);
+                setShooterSpeed(Constants.Shooter.intakeUpperMotorSpeed);
                 break;
-            case Shooting:
-                shooterFWD.enableLimitSwitch(false);
-                // setIntakeSpeed(speed);
-                setShooterSpeed(0.5);
+            case SHOOTING:
+                shooterForwardLimitSwitch.enableLimitSwitch(false);
+                setShooterSpeed(Constants.Shooter.shootMotorSpeed);
                 break;
-            case StagedForShooting:
+            case STAGED_FOR_SHOOTING:
                 setShooterSpeed(0);
                 setIntakeSpeed(0);
+                shooterLeadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+                shooterFollowerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+                intakeMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
                 break;
-
-            
             default:
                 System.out.println("invalid state");
                 break;
         }
     }
 
+    public void setShooterSpeed(double speed) {
+        shooterLeadMotor.set(scale*speed);
+    }
+    public void setIntakeSpeed(double speed) {
+        intakeMotor.set(scale*speed);
+    }
     public double getShooterSpeed() {
-        return shooter1.getEncoder().getVelocity();
+        return shooterLeadMotor.getEncoder().getVelocity();
     }
 
+    public boolean isUpperSensorTriggered() {
+        return shooterForwardLimitSwitch.isPressed();
+    }
 
 }
