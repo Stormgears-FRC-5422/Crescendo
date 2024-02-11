@@ -114,7 +114,7 @@ public class RobotContainer {
         configureBindings();
 
         autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, intake);
-        if (Toggles.useAutoChooser) {
+        if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
             // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
             // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
             // so we can add things to this list without messing with the code.
@@ -123,6 +123,7 @@ public class RobotContainer {
             autoChooser = new LoggedDashboardChooser<>("Auto Choices");
             autoChooser.addOption("simple_2m", autoCommandFactory.simple_2m());
             autoChooser.addOption("four_note_w_amp", autoCommandFactory.fourNoteAmp());
+            autoChooser.addOption("testAuto", autoCommandFactory.testAuto());
             if (Toggles.useShooter && Toggles.useIntake) {
                 autoChooser.addOption("3_note_speaker", autoCommandFactory.threeNoteSpeaker());
             }
@@ -137,6 +138,7 @@ public class RobotContainer {
                 case "four_note_w_amp" -> autoCommandFactory.fourNoteAmp();
                 case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
                 case "3_note_speaker_v2" -> autoCommandFactory.threeNoteSpeakerv2();
+                case "testauto" -> autoCommandFactory.testAuto();
                 default -> autoCommandFactory.simple_2m();
             };
         }
@@ -185,7 +187,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        if (Toggles.useAutoChooser) {
+        if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
+            System.out.println("AutoChooser command: " + autoChooser.get());
             return autoChooser.get();
         } else {
             return m_noChooserCommand;
