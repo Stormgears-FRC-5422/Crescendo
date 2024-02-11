@@ -16,14 +16,11 @@ import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Toggles;
 import frc.robot.Constants.Choreo;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.JoyStickDrive;
-import frc.robot.commands.ShooterCommand;
+import frc.robot.commands.*;
 import frc.robot.commands.auto.AutoCommandFactory;
 import frc.robot.joysticks.*;
-import frc.robot.subsystems.IntakeSubSystem;
 import frc.robot.subsystems.NavX;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -44,8 +41,8 @@ public class RobotContainer {
     // SubSystems
     private DrivetrainBase drivetrain;
     private NavX navX;
-    private ShooterSubsystem shooter;
-    private IntakeSubSystem intake;
+    private Shooter shooter;
+
 
     // **********
     // Commands
@@ -53,8 +50,12 @@ public class RobotContainer {
     private LoggedDashboardChooser<Command> autoChooser;
     private AutoCommandFactory autoCommandFactory;
     private Command m_noChooserCommand;
-    private ShooterCommand shooterCommand;
-    private IntakeCommand intakeCommand;
+    private Shoot shoot;
+    private AmpShoot ampShoot;
+    private GroundPickup groundPickup;
+    private DiagnosticShooterIntake diagnosticShooterIntake;
+    private Outtake outtake;
+    private ShooterIntake shooterIntake;
 
 
     // **********
@@ -93,16 +94,14 @@ public class RobotContainer {
             drivetrain.resetOdometry(initialPose);
         }
 
-        if (Toggles.useShooter) {
-            shooter = new ShooterSubsystem();
-            shooterCommand = new ShooterCommand(shooter, joystick);
-            shooter.setDefaultCommand(shooterCommand);
-        }
-
-        if (Toggles.useIntake) {
-            intake = new IntakeSubSystem();
-            intakeCommand = new IntakeCommand(intake, joystick);
-            intake.setDefaultCommand(intakeCommand);
+        if (Toggles.useShooter && Toggles.useIntake) {
+            shooter = new Shooter();
+            shoot = new Shoot(shooter);
+            diagnosticShooterIntake = new DiagnosticShooterIntake(shooter);
+            groundPickup = new GroundPickup(shooter);
+            ampShoot = new AmpShoot(shooter);
+            outtake = new Outtake(shooter);
+            shooterIntake = new ShooterIntake(shooter);
         }
 
         if (Toggles.useNavX && !Drive.driveType.equals("YagslDrive")) {
@@ -111,9 +110,8 @@ public class RobotContainer {
         }
 
         // Configure the trigger bindings
-        configureBindings();
 
-        autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, intake);
+        autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, shoot);
         if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
             // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
             // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
@@ -133,7 +131,7 @@ public class RobotContainer {
             autoChooser.addDefaultOption("simple_2m", autoCommandFactory.simple_2m());
         } else {
             System.out.println("NoChooser Command set to " + Choreo.path);
-            m_noChooserCommand = switch(Choreo.path.toLowerCase()) {
+            m_noChooserCommand = switch (Choreo.path.toLowerCase()) {
                 case "simple_2m" -> autoCommandFactory.simple_2m();
                 case "four_note_w_amp" -> autoCommandFactory.fourNoteAmp();
                 case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
@@ -141,7 +139,9 @@ public class RobotContainer {
                 case "testauto" -> autoCommandFactory.testAuto();
                 default -> autoCommandFactory.simple_2m();
             };
+
         }
+        configureBindings();
 
         System.out.println("[DONE] RobotContainer");
     }
@@ -180,8 +180,16 @@ public class RobotContainer {
      */
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
+        if (Toggles.useIntake && Toggles.useShooter) {
+            new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
 
-        new Trigger(()-> joystick.zeroGyro()).onTrue(new InstantCommand(()->drivetrain.resetGyro()));
+            new Trigger(() -> joystick.shooter()).onTrue(shoot);
+            new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+            new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
+            new Trigger(() -> joystick.outtake()).onTrue(outtake);
+            new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
+        }
 
         System.out.println("[DONE] configureBindings");
     }

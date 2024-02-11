@@ -3,35 +3,36 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 
-public class GroundPickup extends Command {
+public class AmpShoot extends Command {
     private final Shooter s;
+    private int counter;
 
-    public GroundPickup(Shooter s) {
+    public AmpShoot(Shooter s) {
         this.s = s;
         addRequirements(s);
     }
 
     @Override
     public void initialize() {
-        System.out.println("Ground Pickup command running");
-        s.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP);
+        System.out.println("Shooter command running");
+        s.ShooterStateMachine(Shooter.ShooterStates.AMPSHOOTING);
+        counter = 0;
     }
 
     @Override
     public void execute() {
+        counter++;
     }
 
     @Override
     public boolean isFinished() {
-        return s.isUpperSensorTriggered();
+        return counter > 50;
     }
 
     @Override
     public void end(boolean interrupted) {
-        s.ShooterStateMachine(Shooter.ShooterStates.STAGED_FOR_SHOOTING);
-        System.out.println("Ending Ground PIckup Command");
+        s.ShooterStateMachine(Shooter.ShooterStates.IDLE);
     }
-
 }
 
 

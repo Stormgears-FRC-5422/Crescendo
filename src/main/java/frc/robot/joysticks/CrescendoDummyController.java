@@ -46,4 +46,14 @@ public class CrescendoDummyController extends CrescendoJoystick {
     public boolean zeroGyro() {
         return false;
     }
+
+    @Override
+    public boolean diagnosticShooterIntake() {
+        return false;
+    }
+
+    @Override
+    public boolean outtake() {
+        return false;
+    }
 }

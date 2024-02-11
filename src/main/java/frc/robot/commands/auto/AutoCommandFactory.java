@@ -8,25 +8,27 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.Swerve;
 import frc.robot.Constants.Toggles;
 
 import frc.robot.RobotState;
-import frc.robot.subsystems.IntakeSubSystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.commands.Shoot;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.CrescendoField;
 
 public class AutoCommandFactory {
     final RobotState robotState;
     final DrivetrainBase drivetrain;
-    final ShooterSubsystem shooterSubsystem;
-    final IntakeSubSystem intakeSubSystem;
+    final Shooter shooter;
+    final Shoot shoot;
 
-    public AutoCommandFactory(DrivetrainBase drivetrainBase, ShooterSubsystem shooterSubsystem, IntakeSubSystem intakeSubSystem) {
+
+    public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter, Shoot shoot) {
+        this.shoot = shoot;
         this.drivetrain = drivetrainBase;
-        this.shooterSubsystem = shooterSubsystem;
-        this.intakeSubSystem = intakeSubSystem;
+        this.shooter = shooter;
         robotState = RobotState.getInstance();
     }
 
@@ -122,19 +124,25 @@ public class AutoCommandFactory {
 
 //    public Command testAuto() {return Commands.sequence(threeNoteSpeakerpt3(),
 //        threeNoteSpeakerpt4(),threeNoteSpeakerpt1(),threeNoteSpeakerpt2());}
-
+//
     public Command testAuto() {
         return Commands.sequence(threeNoteSpeakerpt3(), threeNoteSpeakerpt4());
     }
 
+
+
     public Command threeNoteSpeaker() {
         if (Toggles.useShooter && Toggles.useIntake) {
             return Commands.sequence(
-                shooterSubsystem.autoShoot(), threeNoteSpeakerpt1(),
-                intakeSubSystem.autoIntake(), threeNoteSpeakerpt2(),
-                shooterSubsystem.autoShoot(), threeNoteSpeakerpt3(),
-                intakeSubSystem.autoIntake(), threeNoteSpeakerpt4(),
-                shooterSubsystem.autoShoot()
+                new Shoot(shooter),
+                    new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
+                threeNoteSpeakerpt3(),
+                 threeNoteSpeakerpt4(),
+                new Shoot(shooter),
+                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
+                threeNoteSpeakerpt1(),
+                 threeNoteSpeakerpt2(),
+                new Shoot(shooter)
             );
         } else {
             return Commands.sequence(
@@ -149,7 +157,7 @@ public class AutoCommandFactory {
     public Command threeNoteSpeakerv2() {
         if (Toggles.useShooter) {
             return Commands.sequence(
-                shooterSubsystem.autoShoot(),
+                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.SHOOTING)),
                 threeNoteSpeakerpt1(),
                 threeNoteSpeakerpt2(),
                 threeNoteSpeakerpt3(),
