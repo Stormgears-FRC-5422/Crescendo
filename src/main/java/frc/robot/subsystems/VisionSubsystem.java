@@ -5,7 +5,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.utils.LimelightHelpers;
 
 public class VisionSubsystem extends SubsystemBase {
     private boolean initialized = false;
@@ -18,6 +21,7 @@ public class VisionSubsystem extends SubsystemBase {
     private NetworkTableEntry tl = null;
     private NetworkTableEntry cl = null;
     private Alliance alliance = Alliance.Blue;
+    Field2d m_field = new Field2d();
     NetworkTable tableInstance;
 
     double ty;
@@ -128,9 +132,13 @@ public class VisionSubsystem extends SubsystemBase {
             tl = tableInstance.getEntry("tl");
             cl = tableInstance.getEntry("cl");
             initialized = true;
+            m_field.setRobotPose(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])));
+            SmartDashboard.putData(m_field);
         } catch (Exception e) {
             //SmartDashboard.putBoolean("couldn't get nt entries", true);
         }
+        SmartDashboard.putNumber("tx", tx);
+        SmartDashboard.putNumber("ty", ty);
 
 
         double[] pose = tableInstance.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
