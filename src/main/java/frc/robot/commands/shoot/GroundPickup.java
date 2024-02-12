@@ -29,7 +29,7 @@ public class GroundPickup extends Command {
     @Override
     public void end(boolean interrupted) {
         s.ShooterStateMachine(Shooter.ShooterStates.STAGED_FOR_SHOOTING);
-        System.out.println("Ending Ground PIckup Command");
+        System.out.println("Ending Ground Pickup Command");
     }
 
 }

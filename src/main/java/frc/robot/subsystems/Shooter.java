@@ -125,12 +125,13 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setShooterSpeed(double speed) {
-        shooterLeadMotor.set(scale*speed);
+        shooterLeadMotor.set(scale * speed);
     }
 
     public void setIntakeSpeed(double speed) {
-        intakeMotor.set(scale*speed);
+        intakeMotor.set(scale * speed);
     }
+
     public double getShooterSpeed() {
         return shooterLeadMotor.getEncoder().getVelocity();
     }

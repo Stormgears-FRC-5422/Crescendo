@@ -68,6 +68,7 @@ public class RobotContainer {
     // Control
     // **********
     CrescendoJoystick joystick;
+    CrescendoJoystick joystick2;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -85,6 +86,9 @@ public class RobotContainer {
                 JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
                 drivetrain.setDefaultCommand(driveWithJoystick);
 
+            }
+            if (Toggles.useSecondXbox) {
+                joystick2 = CrescendoJoystickFactory.getInstance(ButtonBoard.joystick2, ButtonBoard.secondJoystickPort);
             }
 
             // TODO - for now.  We have to start somewhere.
@@ -182,14 +186,23 @@ public class RobotContainer {
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
         if (Toggles.useIntake && Toggles.useShooter) {
-            new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
-
-            new Trigger(() -> joystick.shooter()).onTrue(shoot);
-            new Trigger(() -> joystick.intake()).onTrue(groundPickup);
-            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-            new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
-            new Trigger(() -> joystick.outtake()).onTrue(outtake);
-            new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
+            if (Toggles.useSecondXbox) {
+            new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
+            new Trigger(() -> joystick2.shooter()).onTrue(shoot);
+            new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
+            new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+            new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
+            new Trigger(() -> joystick2.outtake()).onTrue(outtake);
+            new Trigger(() -> joystick2.shooterIntake()).onTrue(shooterIntake);}
+            else {
+                new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
+                new Trigger(() -> joystick.shooter()).onTrue(shoot);
+                new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+                new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
+                new Trigger(() -> joystick.outtake()).onTrue(outtake);
+                new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
+            }
         }
 
         System.out.println("[DONE] configureBindings");
