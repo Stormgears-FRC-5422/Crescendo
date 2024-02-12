@@ -13,7 +13,7 @@ import frc.robot.Constants.Swerve;
 import frc.robot.Constants.Toggles;
 
 import frc.robot.RobotState;
-import frc.robot.commands.Shoot;
+import frc.robot.commands.shoot.Shoot;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.CrescendoField;
@@ -157,7 +157,7 @@ public class AutoCommandFactory {
     public Command threeNoteSpeakerv2() {
         if (Toggles.useShooter) {
             return Commands.sequence(
-                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.SHOOTING)),
+                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.SPEAKER_SHOOTING)),
                 threeNoteSpeakerpt1(),
                 threeNoteSpeakerpt2(),
                 threeNoteSpeakerpt3(),

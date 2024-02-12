@@ -1,13 +1,13 @@
-package frc.robot.commands;
+package frc.robot.commands.shoot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 
-public class ShooterIntake extends Command {
+public class Outtake extends Command {
     private final Shooter s;
     private int counter;
 
-    public ShooterIntake(Shooter s) {
+    public Outtake(Shooter s) {
         this.s = s;
         addRequirements(s);
     }
@@ -15,7 +15,7 @@ public class ShooterIntake extends Command {
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.ShooterStateMachine(Shooter.ShooterStates.SOURCE_PICKUP);
+        s.ShooterStateMachine(Shooter.ShooterStates.OUTTAKE);
         counter = 0;
     }
 
@@ -26,7 +26,7 @@ public class ShooterIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        return counter > 30;
+        return counter > 50;
     }
 
     @Override

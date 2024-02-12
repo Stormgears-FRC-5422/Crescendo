@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.shoot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
@@ -15,7 +15,7 @@ public class AmpShoot extends Command {
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.ShooterStateMachine(Shooter.ShooterStates.AMPSHOOTING);
+        s.ShooterStateMachine(Shooter.ShooterStates.AMP_SHOOTING);
         counter = 0;
     }
 

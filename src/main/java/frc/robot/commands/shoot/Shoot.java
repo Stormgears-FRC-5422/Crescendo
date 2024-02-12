@@ -1,13 +1,13 @@
-package frc.robot.commands;
+package frc.robot.commands.shoot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 
-public class Outtake extends Command {
+public class Shoot extends Command {
     private final Shooter s;
     private int counter;
 
-    public Outtake(Shooter s) {
+    public Shoot(Shooter s) {
         this.s = s;
         addRequirements(s);
     }
@@ -15,7 +15,7 @@ public class Outtake extends Command {
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.ShooterStateMachine(Shooter.ShooterStates.OUTTAKE);
+        s.ShooterStateMachine(Shooter.ShooterStates.SPEAKER_SHOOTING);
         counter = 0;
     }
 
