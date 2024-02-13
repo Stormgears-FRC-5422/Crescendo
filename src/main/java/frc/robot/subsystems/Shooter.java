@@ -11,11 +11,13 @@ import com.revrobotics.SparkLimitSwitch.Type;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+import static frc.robot.subsystems.Shooter.Direction.FORWARD;
+import static frc.robot.subsystems.Shooter.Direction.REVERSE;
+
 public class Shooter extends SubsystemBase {
     public enum ShooterStates {
         BAD,
         IDLE,
-        SOURCE_PICKUP,
         SOURCE_PICKUP_1,
         SOURCE_PICKUP_2,
         GROUND_PICKUP,
@@ -26,6 +28,10 @@ public class Shooter extends SubsystemBase {
         OUTTAKE
     }
 
+    public enum Direction {
+        FORWARD,
+        REVERSE
+    }
     private final CANSparkMax shooterLeadMotor;
     private final CANSparkMax shooterFollowerMotor;
     private final CANSparkMax intakeMotor;
@@ -33,83 +39,76 @@ public class Shooter extends SubsystemBase {
     private SparkLimitSwitch shooterForwardLimitSwitch;
     private SparkLimitSwitch shooterReverseLimitSwitch;
 
-    double scale = 1;
+    double m_shooterMotorSpeed = 0;
+    double m_intakeMotorSpeed = 0;
 
     public Shooter() {
         shooterLeadMotor = new CANSparkMax(Constants.Shooter.leaderID, CANSparkLowLevel.MotorType.kBrushless);
         shooterFollowerMotor = new CANSparkMax(Constants.Shooter.followerID, CANSparkLowLevel.MotorType.kBrushless);
         intakeMotor = new CANSparkMax(Constants.Shooter.intakeID, CANSparkLowLevel.MotorType.kBrushless);
 
-        shooterLeadMotor.disableVoltageCompensation();
-        shooterFollowerMotor.disableVoltageCompensation();
-        intakeMotor.disableVoltageCompensation();
-
         shooterLeadMotor.setInverted(true);
         shooterFollowerMotor.follow(shooterLeadMotor, true);
         intakeMotor.setInverted(true);
 
-        // This does an initial assignment for the limit switches
-        setLimitSwitchTypeAll(Type.kNormallyClosed);
+        shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyClosed);
+        shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
 
-        ShooterStateMachine(ShooterStates.IDLE);
+        setShooterState(ShooterStates.IDLE);
     }
 
-    public void ShooterStateMachine(ShooterStates state) {
+    @Override
+    public void periodic() {
+        shooterLeadMotor.set(m_shooterMotorSpeed);
+        intakeMotor.set(m_intakeMotorSpeed);
+    }
+
+    public void setShooterState(ShooterStates state) {
         switch (state) {
             case IDLE -> {
-                setShooterSpeed(0);
-                setIntakeSpeed(0);
+                setShooterSpeed(FORWARD, 0);
+                setIntakeSpeed(FORWARD, 0);
                 setIdleModeAll(IdleMode.kCoast);
             }
-            case SOURCE_PICKUP -> {
-                setLimitSwitchTypeAll(Type.kNormallyClosed);
-                setEnableLimitSwitchAll(false);
-                setShooterSpeed(-Constants.Shooter.intakeUpperMotorSpeed);
-                setIdleModeAll(IdleMode.kBrake);
-            }
             case SOURCE_PICKUP_1 -> {
-                setEnableLimitSwitchAll(false);
-                setShooterSpeed(-Constants.Shooter.intakeUpperMotorSpeed);
+                setLimitSwitch(REVERSE, false);
+                setShooterSpeed(REVERSE, Constants.Shooter.intakeUpperMotorSpeed);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case SOURCE_PICKUP_2 -> {
-                shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
-                shooterReverseLimitSwitch.enableLimitSwitch(true);
-                setShooterSpeed(-Constants.Shooter.intakeUpperMotorSpeed);
+                setLimitSwitch(REVERSE, true);
+                setShooterSpeed(REVERSE, Constants.Shooter.intakeUpperMotorSpeed);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case GROUND_PICKUP -> {
-                setLimitSwitchTypeAll(Type.kNormallyClosed);
-                shooterForwardLimitSwitch.enableLimitSwitch(true);
-                shooterReverseLimitSwitch.enableLimitSwitch(false);
-                setIntakeSpeed(Constants.Shooter.intakeLowerMotorSpeed);
-                setShooterSpeed(Constants.Shooter.intakeUpperMotorSpeed);
+                setLimitSwitch(FORWARD, true);
+                setIntakeSpeed(FORWARD, Constants.Shooter.intakeLowerMotorSpeed);
+                setShooterSpeed(FORWARD, Constants.Shooter.intakeUpperMotorSpeed);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case SPEAKER_SHOOTING -> {
-                setLimitSwitchTypeAll(Type.kNormallyClosed);
-                setEnableLimitSwitchAll(false);
-                setShooterSpeed(Constants.Shooter.shootMotorSpeed);
+                setLimitSwitch(FORWARD, false);
+                setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
             }
             case AMP_SHOOTING -> {
-                setEnableLimitSwitchAll(false);
-                setShooterSpeed(Constants.Shooter.ampShootMotorSpeed);
+                setLimitSwitch(FORWARD, false);
+                setShooterSpeed(FORWARD, Constants.Shooter.ampShootMotorSpeed);
             }
             case OUTTAKE -> {
-                setEnableLimitSwitchAll(false);
-                setIntakeSpeed(Constants.Shooter.outtakeSpeed);
-                setShooterSpeed(Constants.Shooter.outtakeSpeed);
+                setLimitSwitch(REVERSE, false);
+                setIntakeSpeed(REVERSE, Constants.Shooter.outtakeSpeed);
+                setShooterSpeed(REVERSE, Constants.Shooter.outtakeSpeed);
                 setIdleModeAll(IdleMode.kCoast);
             }
             case STAGED_FOR_SHOOTING -> {
-                setShooterSpeed(0);
-                setIntakeSpeed(0);
+                setShooterSpeed(FORWARD, 0);
+                setIntakeSpeed(FORWARD, 0);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case DIAGNOSTIC -> {
-                shooterForwardLimitSwitch.enableLimitSwitch(false);
-                setShooterSpeed(Constants.Shooter.diagnosticShooterSpeed);
-                setIntakeSpeed(Constants.Shooter.diagnosticIntakeSpeed);
+                setLimitSwitch(FORWARD, false);
+                setShooterSpeed(FORWARD, Constants.Shooter.diagnosticShooterSpeed);
+                setIntakeSpeed(FORWARD, Constants.Shooter.diagnosticIntakeSpeed);
             }
             default -> System.out.println("invalid state");
         }
@@ -121,22 +120,23 @@ public class Shooter extends SubsystemBase {
         intakeMotor.setIdleMode(mode);
     }
 
-    private void setLimitSwitchTypeAll(SparkLimitSwitch.Type type) {
-        shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(type);
-        shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(type);
+    private void setLimitSwitch(Direction d, boolean enabled) {
+        switch (d) {
+            case FORWARD -> {
+                shooterForwardLimitSwitch.enableLimitSwitch(enabled);
+            }
+            case REVERSE -> {
+                shooterReverseLimitSwitch.enableLimitSwitch(enabled);
+            }
+        }
     }
 
-    private void setEnableLimitSwitchAll(boolean set) {
-        shooterForwardLimitSwitch.enableLimitSwitch(set);
-        shooterReverseLimitSwitch.enableLimitSwitch(set);
+    public void setShooterSpeed(Direction d, double speed) {
+        m_shooterMotorSpeed = speed * (d == FORWARD ? 1 : -1);
     }
 
-    public void setShooterSpeed(double speed) {
-        shooterLeadMotor.set(scale * speed);
-    }
-
-    public void setIntakeSpeed(double speed) {
-        intakeMotor.set(scale * speed);
+    public void setIntakeSpeed(Direction d, double speed) {
+        m_intakeMotorSpeed = speed * (d == FORWARD ? 1 : -1);
     }
 
     public double getShooterSpeed() {

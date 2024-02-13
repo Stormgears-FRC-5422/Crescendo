@@ -44,7 +44,6 @@ public class AutoCommandFactory {
     }
 
 
-
     public Command buildChoreoCommand(String trajectoryName) {
         ChoreoTrajectory trajectory = Choreo.getTrajectory(trajectoryName);
         boolean reflectField = !robotState.isAllianceBlue();
@@ -128,7 +127,7 @@ public class AutoCommandFactory {
 //            shooterSubsystem.autoShoot());
 //    }
 
-//    public Command testAuto() {return Commands.sequence(threeNoteSpeakerpt3(),
+    //    public Command testAuto() {return Commands.sequence(threeNoteSpeakerpt3(),
 //        threeNoteSpeakerpt4(),threeNoteSpeakerpt1(),threeNoteSpeakerpt2());}
 //
     public Command testAuto() {
@@ -136,20 +135,19 @@ public class AutoCommandFactory {
     }
 
 
-
     public Command threeNoteSpeaker() {
         if (Toggles.useShooter && Toggles.useIntake) {
             return Commands.sequence(
                 new Shoot(shooter),
-                    new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
                 threeNoteSpeakerpt3(),
-                 threeNoteSpeakerpt4(),
+                threeNoteSpeakerpt4(),
                 new Shoot(shooter),
-                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
                 threeNoteSpeakerpt1(),
-                 threeNoteSpeakerpt2(),
+                threeNoteSpeakerpt2(),
                 new Shoot(shooter),
-                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
                 threeNoteSpeakerpt6(),
                 threeNoteSpeakerpt5(),
                 new Shoot(shooter)
@@ -167,7 +165,7 @@ public class AutoCommandFactory {
     public Command threeNoteSpeakerv2() {
         if (Toggles.useShooter) {
             return Commands.sequence(
-                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.SPEAKER_SHOOTING)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.SPEAKER_SHOOTING)),
                 threeNoteSpeakerpt1(),
                 threeNoteSpeakerpt2(),
                 threeNoteSpeakerpt3(),
