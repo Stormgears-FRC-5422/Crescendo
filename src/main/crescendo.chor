@@ -1468,7 +1468,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": []
         },
-        "3_note_speaker_pt1": {
+        "3_note_speaker.3": {
             "waypoints": [
                 {
                     "x": 1.426,
@@ -1696,7 +1696,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": []
         },
-        "3_note_speaker_pt2": {
+        "3_note_speaker.4": {
             "waypoints": [
                 {
                     "x": 2.912,
@@ -1938,7 +1938,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": []
         },
-        "3_note_speaker_pt5": {
+        "3_note_speaker.6": {
             "waypoints": [
                 {
                     "x": 2.912130355834961,
@@ -2153,7 +2153,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": []
         },
-        "3_note_speaker_pt6": {
+        "3_note_speaker.5": {
             "waypoints": [
                 {
                     "x": 1.426,
@@ -2377,7 +2377,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": []
         },
-        "3_note_speaker_pt3": {
+        "3_note_speaker.1": {
             "waypoints": [
                 {
                     "x": 1.426,
@@ -2565,7 +2565,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": []
         },
-        "3_note_speaker_pt4": {
+        "3_note_speaker.2": {
             "waypoints": [
                 {
                     "x": 2.893200397491455,
