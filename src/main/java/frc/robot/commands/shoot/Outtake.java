@@ -15,7 +15,7 @@ public class Outtake extends Command {
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.ShooterStateMachine(Shooter.ShooterStates.OUTTAKE);
+        s.setShooterState(Shooter.ShooterStates.OUTTAKE);
         counter = 0;
     }
 
@@ -31,7 +31,7 @@ public class Outtake extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        s.ShooterStateMachine(Shooter.ShooterStates.IDLE);
+        s.setShooterState(Shooter.ShooterStates.IDLE);
     }
 }
 

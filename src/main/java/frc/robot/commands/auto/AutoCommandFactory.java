@@ -4,6 +4,7 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,33 +19,33 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.CrescendoField;
 
+import java.util.ArrayList;
+
 public class AutoCommandFactory {
     final RobotState robotState;
     final DrivetrainBase drivetrain;
     final Shooter shooter;
     final Shoot shoot;
-
+    final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter, Shoot shoot) {
+        System.out.println("Traj pt1: " +note_speaker_3.get(0));
         this.shoot = shoot;
         this.drivetrain = drivetrainBase;
         this.shooter = shooter;
         robotState = RobotState.getInstance();
     }
 
-    public Command setPoseToTrajectoryStart(String trajectoryName) {
-        // TODO need a better way of getting trajectory name
-        ChoreoTrajectory trajectory = Choreo.getTrajectory(trajectoryName);
+    public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
         boolean reflectField = !robotState.isAllianceBlue();
         Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), robotState.isAllianceBlue());
 
-        System.out.println("Setting up trajectory " + trajectoryName + " for " + (reflectField ? "Red" : "Blue") + " alliance");
+        System.out.println("Setting up trajectory " + trajectory + " for " + (reflectField ? "Red" : "Blue") + " alliance");
         System.out.println("Starting pose = " + initialPose);
         return Commands.runOnce(() -> drivetrain.resetOdometry(initialPose));
     }
 
-    public Command buildChoreoCommand(String trajectoryName) {
-        ChoreoTrajectory trajectory = Choreo.getTrajectory(trajectoryName);
+    public Command buildChoreoCommand(ChoreoTrajectory trajectory) {
         boolean reflectField = !robotState.isAllianceBlue();
 
         boolean openLoop = Swerve.openLoopAuto;
@@ -65,7 +66,6 @@ public class AutoCommandFactory {
             openLoop ? 0 : Swerve.rotPidKi,
             openLoop ? 0 : Swerve.rotPidKd
         );
-
         return Choreo.choreoSwerveCommand(
             trajectory,
             drivetrain::getPose,
@@ -78,78 +78,55 @@ public class AutoCommandFactory {
         );
     }
 
-    public Command simpleAutoSequence(String name) {
-        return Commands.sequence(setPoseToTrajectoryStart(name), buildChoreoCommand(name));
+    public Command startAutoSequence(ChoreoTrajectory trajectory) {
+        return Commands.sequence(setPoseToTrajectoryStart(trajectory), buildChoreoCommand(trajectory));
+    }
+
+    public Command autoSequence(ChoreoTrajectory trajectory) {
+        return buildChoreoCommand(trajectory);
     }
 
     public Command simple_2m() {
-        return simpleAutoSequence("simple_2m");
+        return startAutoSequence(Choreo.getTrajectory("simple_2m"));
     }
 
     public Command fourNoteAmp() {
-        return simpleAutoSequence("four_note_w_amp");
+        return startAutoSequence(Choreo.getTrajectory("four_note_w_amp"));
     }
 
-    public Command threeNoteSpeakerpt1() {
-        return simpleAutoSequence("3_note_speaker_pt1");
+    public Command threeNoteSpeakerPart(int p) {
+        return Commands.sequence(autoSequence(note_speaker_3.get(p-1)
+        ), new InstantCommand(()-> System.out.println(new Transform2d(note_speaker_3.get(p-1).getFinalPose(), note_speaker_3.get(p-1).getFinalState().getPose()))));
     }
 
-    public Command threeNoteSpeakerpt2() {
-        return simpleAutoSequence("3_note_speaker_pt2");
-    }
-
-    public Command threeNoteSpeakerpt3() {
-        return simpleAutoSequence("3_note_speaker_pt3");
-    }
-
-    public Command threeNoteSpeakerpt4() {
-        return simpleAutoSequence("3_note_speaker_pt4");
-    }
-
-    public Command threeNoteSpeakerpt5() {
-        return simpleAutoSequence("3_note_speaker_pt5");
-    }
-
-    public Command threeNoteSpeakerpt6() {
-        return simpleAutoSequence("3_note_speaker_pt6");
-    }
-
-//    public Command testAuto() {
-//        return  Commands.sequence(shooterSubsystem.autoShoot(),threeNoteSpeakerpt3(),
-//            intakeSubSystem.autoIntake(), threeNoteSpeakerpt4(),
-//            shooterSubsystem.autoShoot(), threeNoteSpeakerpt1(),
-//            intakeSubSystem.autoIntake(),threeNoteSpeakerpt2(),
-//            shooterSubsystem.autoShoot());
-//    }
-
-//    public Command testAuto() {return Commands.sequence(threeNoteSpeakerpt3(),
-//        threeNoteSpeakerpt4(),threeNoteSpeakerpt1(),threeNoteSpeakerpt2());}
-//
     public Command testAuto() {
-        return Commands.sequence(threeNoteSpeakerpt3(), threeNoteSpeakerpt4());
+        return Commands.sequence(threeNoteSpeakerPart(3), threeNoteSpeakerPart(4));
     }
-
-
 
     public Command threeNoteSpeaker() {
         if (Toggles.useShooter && Toggles.useIntake) {
             return Commands.sequence(
                 new Shoot(shooter),
-                    new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
-                threeNoteSpeakerpt3(),
-                 threeNoteSpeakerpt4(),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
+                threeNoteSpeakerPart(3),
+                threeNoteSpeakerPart(4),
+                new InstantCommand(() -> System.out.println(new Transform2d())),
                 new Shoot(shooter),
-                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
-                threeNoteSpeakerpt1(),
-                 threeNoteSpeakerpt2(),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
+                threeNoteSpeakerPart(1),
+                threeNoteSpeakerPart(2),
+                new Shoot(shooter),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
+                threeNoteSpeakerPart(5),
+                threeNoteSpeakerPart(6),
                 new Shoot(shooter)
             );
         } else {
             return Commands.sequence(
-                threeNoteSpeakerpt1(),
-                threeNoteSpeakerpt2(),
-                threeNoteSpeakerpt3(),
-                threeNoteSpeakerpt4()
+                threeNoteSpeakerPart(1),
+                threeNoteSpeakerPart(2),
+                threeNoteSpeakerPart(3),
+                threeNoteSpeakerPart(4)
             );
         }
     }
@@ -157,22 +134,22 @@ public class AutoCommandFactory {
     public Command threeNoteSpeakerv2() {
         if (Toggles.useShooter) {
             return Commands.sequence(
-                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.SPEAKER_SHOOTING)),
-                threeNoteSpeakerpt1(),
-                threeNoteSpeakerpt2(),
-                threeNoteSpeakerpt3(),
-                threeNoteSpeakerpt4(),
-                threeNoteSpeakerpt5(),
-                threeNoteSpeakerpt6()
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.SPEAKER_SHOOTING)),
+                threeNoteSpeakerPart(1),
+                threeNoteSpeakerPart(2),
+                threeNoteSpeakerPart(3),
+                threeNoteSpeakerPart(4),
+                threeNoteSpeakerPart(5),
+                threeNoteSpeakerPart(6)
             );
         } else {
             return Commands.sequence(
-                threeNoteSpeakerpt1(),
-                threeNoteSpeakerpt2(),
-                threeNoteSpeakerpt3(),
-                threeNoteSpeakerpt4(),
-                threeNoteSpeakerpt5(),
-                threeNoteSpeakerpt6()
+                threeNoteSpeakerPart(1),
+                threeNoteSpeakerPart(2),
+                threeNoteSpeakerPart(3),
+                threeNoteSpeakerPart(4),
+                threeNoteSpeakerPart(5),
+                threeNoteSpeakerPart(6)
             );
         }
     }

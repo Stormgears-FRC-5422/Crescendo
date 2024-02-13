@@ -57,6 +57,7 @@ public class RobotContainer {
     private DiagnosticShooterIntake diagnosticShooterIntake;
     private Outtake outtake;
     private ShooterIntake shooterIntake;
+    private  SourceIntake sourceIntake;
 
 
     // **********
@@ -82,12 +83,15 @@ public class RobotContainer {
             System.out.println("Create drive type " + Drive.driveType);
             drivetrain = DrivetrainFactory.getInstance(Drive.driveType);
             if (Toggles.useController) {
+                System.out.println("Making 1st joystick!");
+
                 joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
                 JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
                 drivetrain.setDefaultCommand(driveWithJoystick);
 
             }
             if (Toggles.useSecondXbox) {
+                System.out.println("Making 2nd joystick!");
                 joystick2 = CrescendoJoystickFactory.getInstance(ButtonBoard.joystick2, ButtonBoard.secondJoystickPort);
             }
 
@@ -107,6 +111,7 @@ public class RobotContainer {
             ampShoot = new AmpShoot(shooter);
             outtake = new Outtake(shooter);
             shooterIntake = new ShooterIntake(shooter);
+            sourceIntake = new SourceIntake(shooter);
         }
 
         if (Toggles.useNavX && !Drive.driveType.equals("YagslDrive")) {
@@ -186,15 +191,16 @@ public class RobotContainer {
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
         if (Toggles.useIntake && Toggles.useShooter) {
-            if (Toggles.useSecondXbox) {
-            new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
-            new Trigger(() -> joystick2.shooter()).onTrue(shoot);
-            new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
-            new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-            new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
-            new Trigger(() -> joystick2.outtake()).onTrue(outtake);
-            new Trigger(() -> joystick2.shooterIntake()).onTrue(shooterIntake);}
-            else {
+//            if (Toggles.useSecondXbox) {
+//                new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
+//                new Trigger(() -> joystick2.shooter()).onTrue(shoot);
+//                new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
+//                new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+//                new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
+//                new Trigger(() -> joystick2.outtake()).onTrue(outtake);
+////                new Trigger(() -> joystick2.shooterIntake()).onTrue(shooterIntake);
+//                new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
+//            } else {
                 new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
                 new Trigger(() -> joystick.shooter()).onTrue(shoot);
                 new Trigger(() -> joystick.intake()).onTrue(groundPickup);
@@ -202,7 +208,8 @@ public class RobotContainer {
                 new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
                 new Trigger(() -> joystick.outtake()).onTrue(outtake);
                 new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
-            }
+//                new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+//            }
         }
 
         System.out.println("[DONE] configureBindings");
