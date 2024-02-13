@@ -43,6 +43,8 @@ public class AutoCommandFactory {
         return Commands.runOnce(() -> drivetrain.resetOdometry(initialPose));
     }
 
+
+
     public Command buildChoreoCommand(String trajectoryName) {
         ChoreoTrajectory trajectory = Choreo.getTrajectory(trajectoryName);
         boolean reflectField = !robotState.isAllianceBlue();
@@ -78,40 +80,44 @@ public class AutoCommandFactory {
         );
     }
 
-    public Command simpleAutoSequence(String name) {
+    public Command startAutoSequence(String name) {
         return Commands.sequence(setPoseToTrajectoryStart(name), buildChoreoCommand(name));
     }
 
+    public Command autoSequence(String name) {
+        return buildChoreoCommand(name);
+    }
+
     public Command simple_2m() {
-        return simpleAutoSequence("simple_2m");
+        return startAutoSequence("simple_2m");
     }
 
     public Command fourNoteAmp() {
-        return simpleAutoSequence("four_note_w_amp");
+        return startAutoSequence("four_note_w_amp");
     }
 
     public Command threeNoteSpeakerpt1() {
-        return simpleAutoSequence("3_note_speaker_pt1");
+        return autoSequence("3_note_speaker_pt1");
     }
 
     public Command threeNoteSpeakerpt2() {
-        return simpleAutoSequence("3_note_speaker_pt2");
+        return autoSequence("3_note_speaker_pt2");
     }
 
     public Command threeNoteSpeakerpt3() {
-        return simpleAutoSequence("3_note_speaker_pt3");
+        return startAutoSequence("3_note_speaker_pt3");
     }
 
     public Command threeNoteSpeakerpt4() {
-        return simpleAutoSequence("3_note_speaker_pt4");
+        return autoSequence("3_note_speaker_pt4");
     }
 
     public Command threeNoteSpeakerpt5() {
-        return simpleAutoSequence("3_note_speaker_pt5");
+        return autoSequence("3_note_speaker_pt5");
     }
 
     public Command threeNoteSpeakerpt6() {
-        return simpleAutoSequence("3_note_speaker_pt6");
+        return autoSequence("3_note_speaker_pt6");
     }
 
 //    public Command testAuto() {
@@ -142,6 +148,10 @@ public class AutoCommandFactory {
                 new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
                 threeNoteSpeakerpt1(),
                  threeNoteSpeakerpt2(),
+                new Shoot(shooter),
+                new InstantCommand(()-> shooter.ShooterStateMachine(Shooter.ShooterStates.GROUND_PICKUP)),
+                threeNoteSpeakerpt6(),
+                threeNoteSpeakerpt5(),
                 new Shoot(shooter)
             );
         } else {

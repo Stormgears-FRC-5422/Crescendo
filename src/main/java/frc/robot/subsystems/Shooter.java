@@ -40,9 +40,16 @@ public class Shooter extends SubsystemBase {
         shooterFollowerMotor = new CANSparkMax(Constants.Shooter.followerID, CANSparkLowLevel.MotorType.kBrushless);
         intakeMotor = new CANSparkMax(Constants.Shooter.intakeID, CANSparkLowLevel.MotorType.kBrushless);
 
+        shooterLeadMotor.disableVoltageCompensation();
+        shooterFollowerMotor.disableVoltageCompensation();
+        intakeMotor.disableVoltageCompensation();
+
         shooterLeadMotor.setInverted(true);
         shooterFollowerMotor.follow(shooterLeadMotor, true);
         intakeMotor.setInverted(true);
+
+        // This does an initial assignment for the limit switches
+        setLimitSwitchTypeAll(Type.kNormallyClosed);
 
         ShooterStateMachine(ShooterStates.IDLE);
     }
