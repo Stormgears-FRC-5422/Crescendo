@@ -16,6 +16,8 @@ import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
+import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
@@ -40,6 +42,15 @@ public class YagslDriveTrain extends DrivetrainBase {
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
         swerveDrive.setHeadingCorrection(false);
+
+        // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+        // per https://www.chiefdelphi.com/t/yet-another-generic-swerve-library-yagsl-beta/425148/1280
+        if (SwerveDriveTelemetry.isSimulation) {
+            for (SwerveModule m: swerveDrive.getModules()) {
+                m.getConfiguration().useCosineCompensator = false;
+            }
+        }
+
         swerveDrive.setGyroOffset(swerveDrive.getGyroRotation3d());
         swerveDrive.setGyro(new Rotation3d(0, 0, 3.1415927));
 
