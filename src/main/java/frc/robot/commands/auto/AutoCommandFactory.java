@@ -29,7 +29,7 @@ public class AutoCommandFactory {
     final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter, Shoot shoot) {
-        System.out.println("Traj pt1: " +note_speaker_3.get(0));
+        System.out.println("Traj pt1: " + note_speaker_3.get(0));
         this.shoot = shoot;
         this.drivetrain = drivetrainBase;
         this.shooter = shooter;
@@ -95,8 +95,9 @@ public class AutoCommandFactory {
     }
 
     public Command threeNoteSpeakerPart(int p) {
-        return Commands.sequence(autoSequence(note_speaker_3.get(p-1)
-        ), new InstantCommand(()-> System.out.println(new Transform2d(note_speaker_3.get(p-1).getFinalPose(), note_speaker_3.get(p-1).getFinalState().getPose()))));
+        return Commands.sequence(autoSequence(note_speaker_3.get(p - 1)
+        ), new InstantCommand(() ->
+            System.out.println("Transformation pt" + p + new Transform2d(note_speaker_3.get(p - 1).getFinalPose(), drivetrain.getPose()))));
     }
 
     public Command testAuto() {
@@ -108,6 +109,7 @@ public class AutoCommandFactory {
             return Commands.sequence(
                 new Shoot(shooter),
                 new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
+                setPoseToTrajectoryStart(note_speaker_3.get(2)),
                 threeNoteSpeakerPart(3),
                 threeNoteSpeakerPart(4),
                 new InstantCommand(() -> System.out.println(new Transform2d())),

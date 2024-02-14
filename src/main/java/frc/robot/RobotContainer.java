@@ -207,8 +207,8 @@ public class RobotContainer {
                 new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
                 new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
                 new Trigger(() -> joystick.outtake()).onTrue(outtake);
-                new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
-//                new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+//                new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
+                new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
 //            }
         }
 

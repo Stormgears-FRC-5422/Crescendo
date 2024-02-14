@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -42,6 +43,8 @@ public class Shooter extends SubsystemBase {
     double m_shooterMotorSpeed = 0;
     double m_intakeMotorSpeed = 0;
 
+    SlewRateLimiter shooterSlewRateLimiter = new SlewRateLimiter(3);
+
     public Shooter() {
         shooterLeadMotor = new CANSparkMax(Constants.Shooter.leaderID, CANSparkLowLevel.MotorType.kBrushless);
         shooterFollowerMotor = new CANSparkMax(Constants.Shooter.followerID, CANSparkLowLevel.MotorType.kBrushless);
@@ -51,6 +54,7 @@ public class Shooter extends SubsystemBase {
         shooterFollowerMotor.follow(shooterLeadMotor, true);
         intakeMotor.setInverted(true);
 
+
         shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyClosed);
         shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
 
@@ -59,6 +63,7 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+//        shooterLeadMotor.set(shooterSlewRateLimiter.calculate(m_shooterMotorSpeed));
         shooterLeadMotor.set(m_shooterMotorSpeed);
         intakeMotor.set(m_intakeMotorSpeed);
     }
