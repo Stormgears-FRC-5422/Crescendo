@@ -15,7 +15,7 @@ public class DiagnosticShooterIntake extends Command {
 
     @Override
     public void initialize() {
-        shooter.setShooterState(Shooter.ShooterStates.DIAGNOSTIC);
+        shooter.setShooterState(Shooter.ShooterState.DIAGNOSTIC);
 
     }
 
@@ -26,6 +26,6 @@ public class DiagnosticShooterIntake extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        shooter.setShooterState(Shooter.ShooterStates.IDLE);
+        shooter.setShooterState(Shooter.ShooterState.IDLE);
     }
 }

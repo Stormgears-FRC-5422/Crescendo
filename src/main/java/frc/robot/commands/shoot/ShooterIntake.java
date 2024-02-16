@@ -15,7 +15,7 @@ public class ShooterIntake extends Command {
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.setShooterState(Shooter.ShooterStates.SOURCE_PICKUP_1);
+        s.setShooterState(Shooter.ShooterState.SOURCE_PICKUP_1);
         counter = 0;
     }
 
@@ -31,7 +31,7 @@ public class ShooterIntake extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        s.setShooterState(Shooter.ShooterStates.IDLE);
+        s.setShooterState(Shooter.ShooterState.IDLE);
     }
 }
 

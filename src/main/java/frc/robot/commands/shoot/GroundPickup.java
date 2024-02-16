@@ -14,7 +14,7 @@ public class GroundPickup extends Command {
     @Override
     public void initialize() {
         System.out.println("Ground Pickup command running");
-        s.setShooterState(Shooter.ShooterStates.GROUND_PICKUP);
+        s.setShooterState(Shooter.ShooterState.GROUND_PICKUP);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class GroundPickup extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        s.setShooterState(Shooter.ShooterStates.STAGED_FOR_SHOOTING);
+        s.setShooterState(Shooter.ShooterState.STAGED_FOR_SHOOTING);
         System.out.println("Ending Ground Pickup Command");
     }
 

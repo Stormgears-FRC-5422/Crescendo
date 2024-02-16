@@ -108,17 +108,17 @@ public class AutoCommandFactory {
         if (Toggles.useShooter && Toggles.useIntake) {
             return Commands.sequence(
                 new Shoot(shooter),
-                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
                 setPoseToTrajectoryStart(note_speaker_3.get(2)),
                 threeNoteSpeakerPart(3),
                 threeNoteSpeakerPart(4),
                 new InstantCommand(() -> System.out.println(new Transform2d())),
                 new Shoot(shooter),
-                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
                 threeNoteSpeakerPart(1),
                 threeNoteSpeakerPart(2),
                 new Shoot(shooter),
-                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.GROUND_PICKUP)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
                 threeNoteSpeakerPart(5),
                 threeNoteSpeakerPart(6),
                 new Shoot(shooter)
@@ -136,7 +136,7 @@ public class AutoCommandFactory {
     public Command threeNoteSpeakerv2() {
         if (Toggles.useShooter) {
             return Commands.sequence(
-                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterStates.SPEAKER_SHOOTING)),
+                new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.SPEAKER_SHOOTING)),
                 threeNoteSpeakerPart(1),
                 threeNoteSpeakerPart(2),
                 threeNoteSpeakerPart(3),

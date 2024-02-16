@@ -15,7 +15,7 @@ public class AmpShoot extends Command {
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.setShooterState(Shooter.ShooterStates.AMP_SHOOTING);
+        s.setShooterState(Shooter.ShooterState.AMP_SHOOTING);
         counter = 0;
     }
 
@@ -31,7 +31,7 @@ public class AmpShoot extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        s.setShooterState(Shooter.ShooterStates.IDLE);
+        s.setShooterState(Shooter.ShooterState.IDLE);
     }
 }
 

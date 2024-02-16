@@ -11,12 +11,13 @@ import com.revrobotics.SparkLimitSwitch.Type;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotState;
 
 import static frc.robot.subsystems.Shooter.Direction.FORWARD;
 import static frc.robot.subsystems.Shooter.Direction.REVERSE;
 
 public class Shooter extends SubsystemBase {
-    public enum ShooterStates {
+    public enum ShooterState {
         BAD,
         IDLE,
         SOURCE_PICKUP_1,
@@ -33,12 +34,16 @@ public class Shooter extends SubsystemBase {
         FORWARD,
         REVERSE
     }
+
+    private final RobotState m_robotState;
+
     private final CANSparkMax shooterLeadMotor;
     private final CANSparkMax shooterFollowerMotor;
     private final CANSparkMax intakeMotor;
 
     private SparkLimitSwitch shooterForwardLimitSwitch;
     private SparkLimitSwitch shooterReverseLimitSwitch;
+
 
     double m_shooterMotorSpeed = 0;
     double m_intakeMotorSpeed = 0;
@@ -58,7 +63,8 @@ public class Shooter extends SubsystemBase {
         shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyClosed);
         shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
 
-        setShooterState(ShooterStates.IDLE);
+        m_robotState = RobotState.getInstance();
+        setShooterState(ShooterState.IDLE);
     }
 
     @Override
@@ -68,7 +74,9 @@ public class Shooter extends SubsystemBase {
         intakeMotor.set(m_intakeMotorSpeed);
     }
 
-    public void setShooterState(ShooterStates state) {
+    public void setShooterState(ShooterState state) {
+        m_robotState.setShooterState(state);
+
         switch (state) {
             case IDLE -> {
                 setShooterSpeed(FORWARD, 0);

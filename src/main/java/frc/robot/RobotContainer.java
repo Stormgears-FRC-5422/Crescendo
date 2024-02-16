@@ -22,6 +22,7 @@ import frc.robot.commands.shoot.*;
 import frc.robot.joysticks.*;
 import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.StatusLights;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -41,6 +42,7 @@ public class RobotContainer {
     // **********
     // SubSystems
     private DrivetrainBase drivetrain;
+    private StatusLights statusLights;
     private NavX navX;
     private Shooter shooter;
 
@@ -56,8 +58,7 @@ public class RobotContainer {
     private GroundPickup groundPickup;
     private DiagnosticShooterIntake diagnosticShooterIntake;
     private Outtake outtake;
-    private ShooterIntake shooterIntake;
-    private  SourceIntake sourceIntake;
+    private SourceIntake sourceIntake;
 
 
     // **********
@@ -110,7 +111,6 @@ public class RobotContainer {
             groundPickup = new GroundPickup(shooter);
             ampShoot = new AmpShoot(shooter);
             outtake = new Outtake(shooter);
-            shooterIntake = new ShooterIntake(shooter);
             sourceIntake = new SourceIntake(shooter);
         }
 
@@ -119,7 +119,9 @@ public class RobotContainer {
             navX = new NavX();
         }
 
-        // Configure the trigger bindings
+        if (Toggles.useStatusLights) {
+            statusLights = new StatusLights();
+        }
 
         autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, shoot);
         if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
@@ -151,6 +153,8 @@ public class RobotContainer {
             };
 
         }
+
+        // Configure the trigger bindings
         configureBindings();
 
         System.out.println("[DONE] RobotContainer");

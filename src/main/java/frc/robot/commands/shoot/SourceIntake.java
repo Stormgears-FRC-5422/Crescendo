@@ -22,18 +22,18 @@ public class SourceIntake extends Command {
     public void execute() {
         switch (step) {
             case 0: // At the top of the shooter. Begin to run in reverse
-                s.setShooterState(Shooter.ShooterStates.SOURCE_PICKUP_1);
+                s.setShooterState(Shooter.ShooterState.SOURCE_PICKUP_1);
                 step = 1;
                 break;
             case 1: // Wait for sensor to trigger
                 if (s.isUpperSensorTriggered()) {
-                    s.setShooterState(Shooter.ShooterStates.SOURCE_PICKUP_2);
+                    s.setShooterState(Shooter.ShooterState.SOURCE_PICKUP_2);
                     step = 2;
                 }
                 break;
             case 2: // Wait for sensor to clear
                 if (!s.isUpperSensorTriggered()) {
-                    s.setShooterState(Shooter.ShooterStates.GROUND_PICKUP);
+                    s.setShooterState(Shooter.ShooterState.GROUND_PICKUP);
                     step = 3;
                 }
                 break;
@@ -54,9 +54,9 @@ public class SourceIntake extends Command {
     @Override
     public void end(boolean interrupted) {
         if (interrupted || step == -1) {
-            s.setShooterState(Shooter.ShooterStates.BAD);
+            s.setShooterState(Shooter.ShooterState.BAD);
         } else {
-            s.setShooterState(Shooter.ShooterStates.STAGED_FOR_SHOOTING);
+            s.setShooterState(Shooter.ShooterState.STAGED_FOR_SHOOTING);
         }
     }
 }
