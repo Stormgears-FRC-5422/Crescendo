@@ -98,54 +98,54 @@ public class StatusLights extends SubsystemBase {
 
         switch (m_shooterState) {
             case IDLE -> {
-                m_ledLightStrip.setLEDColor(RING_TOP.number, WHITE_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_TOP.number, WHITE_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_BOTTOM.number, WHITE_COLOR);
+                setRingColor(RING_TOP, WHITE_COLOR);
+                setRingColor(RING_MIDDLE_TOP, WHITE_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR);
             }
             case STAGED_FOR_SHOOTING -> {
-                m_ledLightStrip.setLEDColor(RING_TOP.number, ORANGE_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_TOP.number, ORANGE_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_BOTTOM.number, ORANGE_COLOR);
+                setRingColor(RING_TOP, ORANGE_COLOR);
+                setRingColor(RING_MIDDLE_TOP, ORANGE_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, ORANGE_COLOR);
             }
             case GROUND_PICKUP -> {
-                m_ledLightStrip.setLEDColor(RING_TOP.number, WHITE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, WHITE_COLOR, ORANGE_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_BOTTOM.number, ORANGE_COLOR);
+                setRingColor(RING_TOP, WHITE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, WHITE_COLOR, ORANGE_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, ORANGE_COLOR);
             }
             case SOURCE_PICKUP_1, SOURCE_PICKUP_2 -> {
-                m_ledLightStrip.setLEDColor(RING_TOP.number, ORANGE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, WHITE_COLOR, ORANGE_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_BOTTOM.number, WHITE_COLOR);
+                setRingColor(RING_TOP, ORANGE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, WHITE_COLOR, ORANGE_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR);
             }
             case SPEAKER_SHOOTING -> {
-                m_ledLightStrip.setLEDColor(RING_TOP.number, GREEN_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, WHITE_COLOR, GREEN_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_BOTTOM.number, WHITE_COLOR);
+                setRingColor(RING_TOP, GREEN_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, WHITE_COLOR, GREEN_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR);
             }
             case AMP_SHOOTING -> {
-                m_ledLightStrip.setLEDColor(RING_TOP.number, WHITE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, WHITE_COLOR, GREEN_COLOR);
-                m_ledLightStrip.setLEDColor(RING_MIDDLE_BOTTOM.number, GREEN_COLOR);
+                setRingColor(RING_TOP, WHITE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, WHITE_COLOR, GREEN_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, GREEN_COLOR);
             }
             case DIAGNOSTIC -> {
-                m_ledLightStrip.setAlternatingLEDColor(RING_TOP.number, WHITE_COLOR, RED_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, RED_COLOR, BLUE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_BOTTOM.number, BLUE_COLOR, WHITE_COLOR);
+                setAlternatingRingColor(RING_TOP, WHITE_COLOR, RED_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, RED_COLOR, BLUE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_BOTTOM, BLUE_COLOR, WHITE_COLOR);
             }
             case OUTTAKE -> {
-                m_ledLightStrip.setAlternatingLEDColor(RING_TOP.number, ORANGE_COLOR, GREEN_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, GREEN_COLOR, ORANGE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_BOTTOM.number, ORANGE_COLOR, GREEN_COLOR);
+                setAlternatingRingColor(RING_TOP, ORANGE_COLOR, GREEN_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, GREEN_COLOR, ORANGE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_BOTTOM, ORANGE_COLOR, GREEN_COLOR);
             }
             case BAD -> {
-                m_ledLightStrip.setAlternatingLEDColor(RING_TOP.number, WHITE_COLOR, ORANGE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, ORANGE_COLOR, WHITE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_BOTTOM.number, WHITE_COLOR, ORANGE_COLOR);
+                setAlternatingRingColor(RING_TOP, WHITE_COLOR, ORANGE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, ORANGE_COLOR, WHITE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR, ORANGE_COLOR);
             }
             default -> {
-                m_ledLightStrip.setAlternatingLEDColor(RING_TOP.number, WHITE_COLOR, NO_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_TOP.number, NO_COLOR, WHITE_COLOR);
-                m_ledLightStrip.setAlternatingLEDColor(RING_MIDDLE_BOTTOM.number, WHITE_COLOR, NO_COLOR);
+                setAlternatingRingColor(RING_TOP, WHITE_COLOR, NO_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_TOP, NO_COLOR, WHITE_COLOR);
+                setAlternatingRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR, NO_COLOR);
             }
         }
     }
@@ -154,5 +154,14 @@ public class StatusLights extends SubsystemBase {
         m_ledColorRequested = true;
         m_ledLightStrip.setLEDColor(RING_BOTTOM.number, m_allianceIsBlue ? BLUE_COLOR : RED_COLOR);
     }
+
+    private void setRingColor(Segment s, Color8Bit c) {
+        m_ledLightStrip.setLEDColor(s.number, c);
+    }
+
+    private void setAlternatingRingColor(Segment s, Color8Bit c1, Color8Bit c2) {
+        m_ledLightStrip.setAlternatingLEDColor(s.number, c1, c2);
+    }
+
 
 }
