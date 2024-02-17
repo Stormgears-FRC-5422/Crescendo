@@ -31,7 +31,11 @@ public class VisionCommand extends Command {
     }
 
     public void align(){
+        double horizontalAngle = visionSubsystem.getHorizontalAngle();
+        double verticalAngle = visionSubsystem.getVerticalAngle();
 
+
+        
     }
 
 }
