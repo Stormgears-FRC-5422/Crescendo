@@ -91,7 +91,6 @@ public class StatusLights extends SubsystemBase {
         for (Segment s : segments) {
             m_ledLightStrip.addSegment(s.numberOfLEDs, s.lightType);
         }
-        m_ledLightStrip.setUp(Constants.Lights.port);
     }
 
     private void setShooterLights() {
