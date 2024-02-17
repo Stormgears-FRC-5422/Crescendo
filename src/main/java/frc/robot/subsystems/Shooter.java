@@ -12,6 +12,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
+import frc.utils.vision.NoteVisualizer;
 
 import static frc.robot.subsystems.Shooter.Direction.FORWARD;
 import static frc.robot.subsystems.Shooter.Direction.REVERSE;
@@ -102,10 +103,12 @@ public class Shooter extends SubsystemBase {
             case SPEAKER_SHOOTING -> {
                 setLimitSwitch(FORWARD, false);
                 setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
+                NoteVisualizer.shoot();
             }
             case AMP_SHOOTING -> {
                 setLimitSwitch(FORWARD, false);
                 setShooterSpeed(FORWARD, Constants.Shooter.ampShootMotorSpeed);
+                NoteVisualizer.shoot();
             }
             case OUTTAKE -> {
                 setLimitSwitch(REVERSE, false);

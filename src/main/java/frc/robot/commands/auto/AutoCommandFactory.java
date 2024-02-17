@@ -95,9 +95,12 @@ public class AutoCommandFactory {
     }
 
     public Command threeNoteSpeakerPart(int p) {
-        return Commands.sequence(autoSequence(note_speaker_3.get(p - 1)
-        ), new InstantCommand(() ->
-            System.out.println("Transformation pt" + p + new Transform2d(note_speaker_3.get(p - 1).getFinalPose(), drivetrain.getPose()))));
+        return Commands.sequence(autoSequence(note_speaker_3.get(p - 1)),
+            new InstantCommand(() ->
+            System.out.println("Transformation pt" + p + new Transform2d(note_speaker_3.get(p - 1).getFinalPose(), drivetrain.getPose()))),
+        new InstantCommand(() ->
+            System.out.println("Vision Transformation pt" + p + new Transform2d( drivetrain.getPose(), robotState.getVisionPose()))));
+
     }
 
     public Command testAuto() {
