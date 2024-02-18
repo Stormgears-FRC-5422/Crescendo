@@ -108,5 +108,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     public abstract void resetGyro();
 
+    public abstract void setGyroOffset();
+
 }
 

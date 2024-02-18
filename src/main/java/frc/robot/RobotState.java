@@ -15,6 +15,7 @@ public class RobotState extends SubsystemBase {
     private Shooter.ShooterState shooterState;
     private Field2d field2d;
     private Pose2d visionPose = new Pose2d();
+    private Pose2d autoInitPose = new Pose2d();
 
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
@@ -67,6 +68,15 @@ public class RobotState extends SubsystemBase {
     public Pose2d getVisionPose() {
         return visionPose;
     }
+
+    public void setAutoInitPose(Pose2d pose){
+        autoInitPose = pose;
+    }
+
+    public Pose2d getAutoInitPose(){
+        return  autoInitPose;
+    }
+
 
 
 }

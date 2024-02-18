@@ -66,4 +66,8 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
 
     public void resetGyro(){}
 
+    @Override
+    public void setGyroOffset() {
+
+    }
 }

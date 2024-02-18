@@ -41,6 +41,8 @@ public class AutoCommandFactory {
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
         boolean reflectField = !robotState.isAllianceBlue();
         Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), robotState.isAllianceBlue());
+        robotState.setAutoInitPose(initialPose);
+        drivetrain.setGyroOffset();
 
         System.out.println("Setting up trajectory " + trajectory + " for " + (reflectField ? "Red" : "Blue") + " alliance");
         System.out.println("Starting pose = " + initialPose);

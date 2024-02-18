@@ -71,4 +71,9 @@ public class MecanumDrivetrain extends DrivetrainBase{
     }
 
     public void resetGyro(){}
+
+    @Override
+    public void setGyroOffset() {
+
+    }
 }

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
+import frc.robot.RobotState;
 import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -51,8 +52,8 @@ public class YagslDriveTrain extends DrivetrainBase {
             }
         }
 
-        swerveDrive.setGyroOffset(swerveDrive.getGyroRotation3d());
-        swerveDrive.setGyro(new Rotation3d(0, 0, -0.766));
+        swerveDrive.setGyroOffset(new Rotation3d(0,0,(Math.toRadians(Constants.NavX.navXOffsetDegrees)-RobotState.getInstance().getAutoInitPose().getRotation().getDegrees())));
+        swerveDrive.setGyro(new Rotation3d(0, 0, Math.toRadians(Constants.NavX.navXOffsetDegrees)));
 
         SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
             case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
@@ -88,6 +89,12 @@ public class YagslDriveTrain extends DrivetrainBase {
         Pose2d pose = swerveDrive.getPose();
         swerveDrive.zeroGyro();
         swerveDrive.resetOdometry(new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)));
+    }
+
+    @Override
+    public void setGyroOffset() {
+        swerveDrive.setGyroOffset(new Rotation3d(0,0,
+            (Math.toRadians(Constants.NavX.navXOffsetDegrees-RobotState.getInstance().getAutoInitPose().getRotation().getDegrees()))));
     }
 
     @Override
