@@ -25,14 +25,14 @@ public class SwerveDriveTrain extends DrivetrainBase {
     public static final double m_maxMotorVoltage = Drive.maxMotorVoltage;
     CANcoder[] m_encoders = new CANcoder[4];
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
-            // Front left
-            new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
-            // Front right
-            new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, -Drive.drivetrainTrackwidthMeters / 2.0),
-            // Back left
-            new Translation2d(-Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
-            // Back right
-            new Translation2d(-Drive.drivetrainWheelbaseMeters / 2.0, -Drive.drivetrainTrackwidthMeters / 2.0)
+        // Front left
+        new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
+        // Front right
+        new Translation2d(Drive.drivetrainWheelbaseMeters / 2.0, -Drive.drivetrainTrackwidthMeters / 2.0),
+        // Back left
+        new Translation2d(-Drive.drivetrainWheelbaseMeters / 2.0, Drive.drivetrainTrackwidthMeters / 2.0),
+        // Back right
+        new Translation2d(-Drive.drivetrainWheelbaseMeters / 2.0, -Drive.drivetrainTrackwidthMeters / 2.0)
     );
 
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
@@ -52,10 +52,10 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
 //        divide by 60 for rps instead of rpm
         double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
-                moduleConfiguration.getDriveReduction() *
-                moduleConfiguration.getWheelDiameter() * Math.PI;
+            moduleConfiguration.getDriveReduction() *
+            moduleConfiguration.getWheelDiameter() * Math.PI;
         double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
-                Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
+            Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
 
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
 
@@ -92,14 +92,14 @@ public class SwerveDriveTrain extends DrivetrainBase {
     }
 
     public void buildDriveShuffleBoard(SwerveModule swerveModule, CANcoder can) {
-        int deviceID = ((CANSparkMax)swerveModule.getDriveMotor()).getDeviceId();
-        tab.addNumber("CANAbsAngle_" + deviceID, ()-> Math.toDegrees(can.getPosition().getValueAsDouble()));
+        int deviceID = ((CANSparkMax) swerveModule.getDriveMotor()).getDeviceId();
+        tab.addNumber("CANAbsAngle_" + deviceID, () -> Math.toDegrees(can.getPosition().getValueAsDouble()));
         tab.addNumber("AbsAngle" + deviceID, () -> Math.toDegrees(swerveModule.getSteerEncoder().getAbsoluteAngle()));
 
     }
 
     private void setSwerveModuleVoltageAndSteerAngle(SwerveModule swerveModule, SwerveModuleState moduleState, CANcoder can) {
-        int deviceID = ((CANSparkMax)swerveModule.getDriveMotor()).getDeviceId();
+        int deviceID = ((CANSparkMax) swerveModule.getDriveMotor()).getDeviceId();
         swerveModule.set(m_maxMotorVoltage * moduleState.speedMetersPerSecond / m_maxVelocityMetersPerSecond, moduleState.angle.getRadians());
         LoggerWrapper.recordOutput("Drive/DeviceId" + deviceID, deviceID);
         LoggerWrapper.recordOutput("Drive/Distance" + deviceID, swerveModule.getDriveDistance());
@@ -121,26 +121,26 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
     private SwerveModule buildSwerveModule(ShuffleboardLayout moduleLayout, int driveId, int steerId, int encoderId, double offset) {
         return new MkSwerveModuleBuilder()
-                .withLayout(moduleLayout)
-                .withGearRatio(SdsModuleConfigurations.MK4_L2)
-                .withDriveMotor(MotorType.NEO, driveId)
-                .withSteerMotor(MotorType.NEO, steerId)
-                .withSteerEncoderPort(encoderId)
-                .withSteerOffset(-Math.toRadians(offset))
-                .build();
+            .withLayout(moduleLayout)
+            .withGearRatio(SdsModuleConfigurations.MK4_L2)
+            .withDriveMotor(MotorType.NEO, driveId)
+            .withSteerMotor(MotorType.NEO, steerId)
+            .withSteerEncoderPort(encoderId)
+            .withSteerOffset(-Math.toRadians(offset))
+            .build();
     }
 
     private ShuffleboardLayout getShuffleboardLayout(String title, int width, int height, int colIndex, int rowIndex) {
         return tab.getLayout(title, BuiltInLayouts.kList)
-                .withSize(width, height)
-                .withPosition(colIndex, rowIndex);
+            .withSize(width, height)
+            .withPosition(colIndex, rowIndex);
     }
 
     void checkStatus(StatusCode statusCode, String operation) {
         if (statusCode.isWarning()) {
-            System.out.printf("Warning on operation %s : %s" , operation , statusCode.getName());
+            System.out.printf("Warning on operation %s : %s", operation, statusCode.getName());
         } else if (statusCode.isError()) {
-            System.out.printf("Error on operation %s : %s" , operation , statusCode.getName());
+            System.out.printf("Error on operation %s : %s", operation, statusCode.getName());
         } // else OK - do nothing
     }
 
@@ -148,10 +148,10 @@ public class SwerveDriveTrain extends DrivetrainBase {
 
         System.out.println("Initializing Encoders");
         try (
-                CANcoder fl = new CANcoder(Drive.frontLeftEncoderID);
-                CANcoder fr = new CANcoder(Drive.frontRightEncoderID);
-                CANcoder bl = new CANcoder(Drive.backLeftEncoderID);
-                CANcoder br = new CANcoder(Drive.backRightEncoderID);
+            CANcoder fl = new CANcoder(Drive.frontLeftEncoderID);
+            CANcoder fr = new CANcoder(Drive.frontRightEncoderID);
+            CANcoder bl = new CANcoder(Drive.backLeftEncoderID);
+            CANcoder br = new CANcoder(Drive.backRightEncoderID);
         ) {
             m_encoders[0] = fl;
             m_encoders[1] = fr;
@@ -187,5 +187,7 @@ public class SwerveDriveTrain extends DrivetrainBase {
     public void resetOdometry(Pose2d pose) {
     }
 
+    public void resetGyro() {
+    }
 }
 

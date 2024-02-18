@@ -9,21 +9,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Toggles;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.JoyStickDrive;
-import frc.robot.commands.ShooterCommand;
-import frc.robot.commands.auto.AutoCommands;
-import frc.robot.joysticks.CrescendoJoystick;
-import frc.robot.joysticks.CrescendoJoystickFactory;
-import frc.robot.joysticks.IllegalJoystickTypeException;
-import frc.robot.subsystems.IntakeSubSystem;
+import frc.robot.Constants.Choreo;
+import frc.robot.commands.*;
+import frc.robot.commands.auto.AutoCommandFactory;
+import frc.robot.commands.shoot.*;
+import frc.robot.joysticks.*;
 import frc.robot.subsystems.NavX;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.StatusLights;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -42,23 +41,24 @@ public class RobotContainer {
 
     // **********
     // SubSystems
-    private ShooterSubsystem shooter;
-    private ShooterCommand shooterCommand;
+    private DrivetrainBase drivetrain;
+    private StatusLights statusLights;
+    private NavX navX;
+    private Shooter shooter;
 
-    private IntakeSubSystem intake;
-    private IntakeCommand intakeCommand;
-
-
-    // **********
-    DrivetrainBase drivetrain;
-    NavX navX;
 
     // **********
     // Commands
     // **********
-    AutoCommands autoCommands;
-
-    private final LoggedDashboardChooser<Command> autoChooser;
+    private LoggedDashboardChooser<Command> autoChooser;
+    private AutoCommandFactory autoCommandFactory;
+    private Command m_noChooserCommand;
+    private Shoot shoot;
+    private AmpShoot ampShoot;
+    private GroundPickup groundPickup;
+    private DiagnosticShooterIntake diagnosticShooterIntake;
+    private Outtake outtake;
+    private SourceIntake sourceIntake;
 
 
     // **********
@@ -66,7 +66,11 @@ public class RobotContainer {
     // **********
     final RobotState robotState;
 
+    // **********
+    // Control
+    // **********
     CrescendoJoystick joystick;
+    CrescendoJoystick joystick2;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -80,10 +84,16 @@ public class RobotContainer {
             System.out.println("Create drive type " + Drive.driveType);
             drivetrain = DrivetrainFactory.getInstance(Drive.driveType);
             if (Toggles.useController) {
+                System.out.println("Making 1st joystick!");
+
                 joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
                 JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
                 drivetrain.setDefaultCommand(driveWithJoystick);
 
+            }
+            if (Toggles.useSecondXbox) {
+                System.out.println("Making 2nd joystick!");
+                joystick2 = CrescendoJoystickFactory.getInstance(ButtonBoard.joystick2, ButtonBoard.secondJoystickPort);
             }
 
             // TODO - for now.  We have to start somewhere.
@@ -94,16 +104,14 @@ public class RobotContainer {
             drivetrain.resetOdometry(initialPose);
         }
 
-        if (Toggles.useShooter) {
-            shooter = new ShooterSubsystem();
-            shooterCommand = new ShooterCommand(shooter, joystick);
-            shooter.setDefaultCommand(shooterCommand);
-        }
-
-        if (Toggles.useIntake) {
-            intake = new IntakeSubSystem();
-            intakeCommand = new IntakeCommand(intake, joystick);
-            intake.setDefaultCommand(intakeCommand);
+        if (Toggles.useShooter && Toggles.useIntake) {
+            shooter = new Shooter();
+            shoot = new Shoot(shooter);
+            diagnosticShooterIntake = new DiagnosticShooterIntake(shooter);
+            groundPickup = new GroundPickup(shooter);
+            ampShoot = new AmpShoot(shooter);
+            outtake = new Outtake(shooter);
+            sourceIntake = new SourceIntake(shooter);
         }
 
         if (Toggles.useNavX && !Drive.driveType.equals("YagslDrive")) {
@@ -111,27 +119,51 @@ public class RobotContainer {
             navX = new NavX();
         }
 
+        if (Toggles.useStatusLights) {
+            statusLights = new StatusLights();
+        }
+
+        autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, shoot);
+        if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
+            // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
+            // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
+            // so we can add things to this list without messing with the code.
+            // This gets tricky if the commands might vary based on subsystem availability
+            System.out.println("Using AutoChooser");
+            autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+            autoChooser.addOption("simple_2m", autoCommandFactory.simple_2m());
+            autoChooser.addOption("four_note_w_amp", autoCommandFactory.fourNoteAmp());
+            autoChooser.addOption("testAuto", autoCommandFactory.testAuto());
+            if (Toggles.useShooter && Toggles.useIntake) {
+                autoChooser.addOption("3_note_speaker", autoCommandFactory.threeNoteSpeaker());
+            }
+            if (Toggles.useShooter) {
+                autoChooser.addOption("3_note_speaker_v2", autoCommandFactory.threeNoteSpeakerv2());
+            }
+            autoChooser.addDefaultOption("simple_2m", autoCommandFactory.simple_2m());
+        } else {
+            System.out.println("NoChooser Command set to " + Choreo.path);
+            m_noChooserCommand = switch (Choreo.path.toLowerCase()) {
+                case "simple_2m" -> autoCommandFactory.simple_2m();
+                case "four_note_w_amp" -> autoCommandFactory.fourNoteAmp();
+                case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
+                case "3_note_speaker_v2" -> autoCommandFactory.threeNoteSpeakerv2();
+                case "testauto" -> autoCommandFactory.testAuto();
+                case "farside" -> autoCommandFactory.farSide();
+                case "3_note_speaker_v3" -> autoCommandFactory.threeNoteSpeakerv3();
+                default -> autoCommandFactory.simple_2m();
+            };
+
+        }
+
         // Configure the trigger bindings
         configureBindings();
 
-
-
         System.out.println("[DONE] RobotContainer");
-
-//      TODO need to add place for this
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-
-        autoCommands = new AutoCommands(drivetrain);
-//         need a better way of doing this-don't want to have to write this out everytime
-        autoChooser.addOption("test_2m", autoCommands.test2m());
-        autoChooser.addOption("4noteAmp", autoCommands.fourNoteAmp());
-        autoChooser.addDefaultOption("test_2m", autoCommands.test2m());
-
-
     }
 
     public void setAlliance() {
-        // TODO We don't always get a clear alliance from the driver station call. Assume Blue...
+        // TODO We don't always get a clear alliance from the driver station call. Assume ButtonBoard.defaultAlliance
         DriverStation.refreshData();
 
         Optional<Alliance> tmpAlliance = DriverStation.getAlliance();
@@ -142,7 +174,11 @@ public class RobotContainer {
             alliance = tmpAlliance.get();
         } else {
             System.out.print("Alliance is NOT reported. Defaulting to ");
-            alliance = Alliance.Blue;
+            alliance = switch (ButtonBoard.defaultAlliance.toLowerCase()) {
+                case "blue" -> Alliance.Blue;
+                case "red" -> Alliance.Red;
+                default -> Alliance.Blue;
+            };
         }
 
         robotState.setAlliance(alliance);
@@ -160,14 +196,38 @@ public class RobotContainer {
      */
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
+        if (Toggles.useIntake && Toggles.useShooter) {
+//            if (Toggles.useSecondXbox) {
+//                new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
+//                new Trigger(() -> joystick2.shooter()).onTrue(shoot);
+//                new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
+//                new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+//                new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
+//                new Trigger(() -> joystick2.outtake()).onTrue(outtake);
+////                new Trigger(() -> joystick2.shooterIntake()).onTrue(shooterIntake);
+//                new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
+//            } else {
+                new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
+                new Trigger(() -> joystick.shooter()).onTrue(shoot);
+                new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+                new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
+                new Trigger(() -> joystick.outtake()).onTrue(outtake);
+//                new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
+                new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+//            }
+        }
 
         System.out.println("[DONE] configureBindings");
-
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
+            System.out.println("AutoChooser command: " + autoChooser.get());
+            return autoChooser.get();
+        } else {
+            return m_noChooserCommand;
+        }
     }
-
 
 }

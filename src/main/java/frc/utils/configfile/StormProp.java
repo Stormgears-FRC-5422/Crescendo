@@ -1,6 +1,7 @@
 package frc.utils.configfile;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.io.File;
@@ -12,8 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 
 public class StormProp {
-  // Maybe rename this file to something better
-  private static final String path =
+    // Maybe rename this file to something better
+    private static final String path =
       Filesystem.getDeployDirectory().getPath(); // "/home/lvuser/deploy";
     private static final String name = "config.properties";
     private static final String backUP = "config_backup.properties";
@@ -30,8 +31,10 @@ public class StormProp {
     private static final HashMap<String, String> m_string_map = new HashMap<>();
     private static Properties properties;
     private static Properties overrideProperties;
+    private static Properties simProperties;
     private static boolean initialized = false;
-    private static boolean overrideInit = false;
+    private static boolean overrideInitialized = false;
+    private static boolean simInitialized = false;
     private static boolean debug = false;
 
 
@@ -65,7 +68,7 @@ public class StormProp {
             }
         }
         initialized = true;
-        if (!overrideInit) {
+        if (!overrideInitialized) {
             overrideInit();
         }
 
@@ -73,7 +76,10 @@ public class StormProp {
     }
 
     public static void overrideInit() {
-        String overrideName = properties.getProperty("override");
+        String overrideName = RobotBase.isSimulation()
+            ? properties.getProperty("simOverride")
+            : properties.getProperty("override");
+
         overrideName = removeCast(overrideName);
 
         if ( overrideName.equalsIgnoreCase("auto")) {
@@ -118,31 +124,55 @@ public class StormProp {
             }
         }
 
-        overrideInit = true;
+        overrideInitialized = true;
     }
+
+    public static void simInit() {
+        simProperties = new Properties();
+
+        // Ignore the sim overrides file unless we are in simulation!
+        if (!RobotBase.isSimulation()) {
+            simInitialized = true;
+            return;
+        }
+
+        String simName = properties.getProperty("simOverrideOverride");
+        simName = removeCast(simName);
+
+        System.out.println("Using simulation override file " + simName);
+        File simConfigFile = new File(path, simName);
+
+        FileInputStream SimOverrideInputStream = null;
+        try {
+            SimOverrideInputStream = new FileInputStream(simConfigFile);
+            simProperties.load(SimOverrideInputStream);
+        } catch (IOException e) {
+            System.out.println("!!! No simulation override file detected !!!");
+        }
+        if (SimOverrideInputStream != null) {
+            try {
+                SimOverrideInputStream.close();
+            } catch (IOException e) {
+                System.out.println("Error coming from simulation override config. This should not run");
+            }
+        }
+
+        simInitialized = true;
+    }
+
     private static String removeCast(String value) {
-        String val = value.substring(value.indexOf(")") + 1).trim();
-        return val;
+        return value.substring(value.indexOf(")") + 1).trim();
     }
     private static String getPropString(String key) {
-        String val = "";
-        if (!initialized) {
-            init();
-        }
-        if (!overrideInit) {
-            overrideInit();
-        }
-        if (!overrideProperties.containsKey(key) && !properties.containsKey(key)) {
-            return null;
-        } else if (overrideProperties.containsKey(key)) {
-            val=overrideProperties.getProperty(key);
-        } else {
-            val=properties.getProperty(key);
-        }
+        if (!initialized) init();
+        if (!overrideInitialized) overrideInit();
+        if (!simInitialized) simInit();
 
-        return removeCast(val);
+        if (simProperties.containsKey(key)) return(removeCast(simProperties.getProperty(key)));
+        if (overrideProperties.containsKey(key)) return(removeCast(overrideProperties.getProperty(key)));
+        if (properties.containsKey(key)) return(removeCast(properties.getProperty(key)));
 
-
+        return "";
     }
 
     public static String getString(String key, String defaultVal) {
@@ -269,7 +299,7 @@ public class StormProp {
         if (!initialized) {
             init();
         }
-        if (!overrideInit) {
+        if (!overrideInitialized) {
             overrideInit();
         }
         String[] Blacklist = {"robotName", "hasNavX", "rearRightTalonId", "rearLeftTalonId", "frontRightTalonId", "frontLeftTalonId", "wheelRadius", "navXconnection"};

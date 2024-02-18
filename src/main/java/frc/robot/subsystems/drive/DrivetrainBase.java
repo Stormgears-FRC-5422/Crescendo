@@ -106,6 +106,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
         return new Pose2d();
     }
 
+    public abstract void resetGyro();
 
 }
 

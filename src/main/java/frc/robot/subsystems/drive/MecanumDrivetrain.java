@@ -69,4 +69,6 @@ public class MecanumDrivetrain extends DrivetrainBase{
 
     public void resetOdometry(Pose2d pose) {
     }
+
+    public void resetGyro(){}
 }

@@ -37,12 +37,12 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
 
         // Initialize to known states
         for (CANSparkMax m : m_driveArray) {
-            m.setInverted(false);
+            m.setInverted(true);
             m.setIdleMode(CANSparkBase.IdleMode.kCoast);
         }
 
         for (CANSparkMax m : m_steerArray) {
-            m.setInverted(false);
+            m.setInverted(true);
             m.setIdleMode(CANSparkBase.IdleMode.kCoast);
         }
     }
@@ -63,5 +63,7 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
 
     public void resetOdometry(Pose2d pose) {
     }
+
+    public void resetGyro(){}
 
 }

@@ -17,4 +17,9 @@ public abstract class CrescendoJoystick {
     public abstract boolean shooterAmp();
 
     public abstract boolean intake();
+
+    public abstract boolean zeroGyro();
+
+    public abstract boolean diagnosticShooterIntake();
+    public abstract boolean outtake();
 }

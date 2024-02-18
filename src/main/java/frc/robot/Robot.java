@@ -191,7 +191,10 @@ public class Robot extends LoggedRobot {
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
+            System.out.println("Auto Command set");
             m_autonomousCommand.schedule();
+        } else {
+            System.out.println("Auto Command NULL");
         }
     }
 
