@@ -51,19 +51,21 @@ public class StatusLights extends SubsystemBase {
         setShooterLights();
         setAllianceLights();
 //        setDriveLights();
+        System.out.println("Status Lights initializing ");
     }
 
     public void periodic() {
+//        System.out.println("Ligths running");
         // don't bother setting the lights again unless they have changed.
         if (m_shooterState != m_robotState.getShooterState()) {
             m_shooterState = m_robotState.getShooterState();
             setShooterLights();
         }
 
-        if ( m_allianceIsBlue == m_robotState.isAllianceBlue()) {
-            m_allianceIsBlue = m_robotState.isAllianceBlue();
+//        if ( m_allianceIsBlue == m_robotState.isAllianceBlue()) {
+//            m_allianceIsBlue = m_robotState.isAllianceBlue();
             setAllianceLights();
-        }
+//        }
 
         if (m_ledColorRequested) {
             m_ledLightStrip.setLEDData();
@@ -71,6 +73,7 @@ public class StatusLights extends SubsystemBase {
     }
 
     public void initializeLights() {
+        System.out.println("init lights function");
         List<Segment> segments = new ArrayList<>();
 
         // These need to be added in the correct order. First string is closest to the roborio
@@ -92,6 +95,7 @@ public class StatusLights extends SubsystemBase {
             m_ledLightStrip.addSegment(s.numberOfLEDs, s.lightType);
         }
         m_ledLightStrip.setUp(Constants.Lights.port);
+        m_ledColorRequested = true;
     }
 
     private void setShooterLights() {

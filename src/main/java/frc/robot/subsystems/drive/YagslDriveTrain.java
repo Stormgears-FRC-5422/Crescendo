@@ -52,7 +52,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         }
 
         swerveDrive.setGyroOffset(swerveDrive.getGyroRotation3d());
-        swerveDrive.setGyro(new Rotation3d(0, 0, 3.1415927));
+        swerveDrive.setGyro(new Rotation3d(0, 0, -0.766));
 
         SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
             case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;

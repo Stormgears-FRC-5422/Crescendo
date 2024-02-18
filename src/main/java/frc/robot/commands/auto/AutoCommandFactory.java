@@ -27,6 +27,8 @@ public class AutoCommandFactory {
     final Shooter shooter;
     final Shoot shoot;
     final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
+    final ArrayList<ChoreoTrajectory> far_side = Choreo.getTrajectoryGroup("far_side");
+
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter, Shoot shoot) {
         System.out.println("Traj pt1: " + note_speaker_3.get(0));
@@ -87,7 +89,12 @@ public class AutoCommandFactory {
     }
 
     public Command simple_2m() {
-        return startAutoSequence(Choreo.getTrajectory("simple_2m"));
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(Choreo.getTrajectory("simple_2m")),
+            autoSequence(Choreo.getTrajectory("new2")),
+        new Shoot(shooter));
     }
 
     public Command fourNoteAmp() {
@@ -100,6 +107,22 @@ public class AutoCommandFactory {
             System.out.println("Transformation pt" + p + new Transform2d(note_speaker_3.get(p - 1).getFinalPose(), drivetrain.getPose()))),
         new InstantCommand(() ->
             System.out.println("Vision Transformation pt" + p + new Transform2d( drivetrain.getPose(), robotState.getVisionPose()))));
+
+    }
+
+    public Command farSidePart(int p) {
+        return autoSequence(far_side.get(p - 1));
+
+    }
+
+    public Command farSide() {
+        return Commands.sequence(new Shoot(shooter),
+//            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            setPoseToTrajectoryStart(far_side.get(0)),
+            farSidePart(1)
+//            farSidePart(2),
+//            new Shoot(shooter)
+            );
 
     }
 
@@ -134,6 +157,20 @@ public class AutoCommandFactory {
                 threeNoteSpeakerPart(4)
             );
         }
+    }
+
+    public Command threeNoteSpeakerv3(){
+        return Commands.sequence(new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            setPoseToTrajectoryStart(note_speaker_3.get(2)),
+            threeNoteSpeakerPart(1),
+            threeNoteSpeakerPart(2),
+            new InstantCommand(() -> System.out.println(new Transform2d())),
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            threeNoteSpeakerPart(5),
+            threeNoteSpeakerPart(6),
+            new Shoot(shooter));
     }
 
     public Command threeNoteSpeakerv2() {

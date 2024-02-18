@@ -149,6 +149,8 @@ public class RobotContainer {
                 case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
                 case "3_note_speaker_v2" -> autoCommandFactory.threeNoteSpeakerv2();
                 case "testauto" -> autoCommandFactory.testAuto();
+                case "farside" -> autoCommandFactory.farSide();
+                case "3_note_speaker_v3" -> autoCommandFactory.threeNoteSpeakerv3();
                 default -> autoCommandFactory.simple_2m();
             };
 
