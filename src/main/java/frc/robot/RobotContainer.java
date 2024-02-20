@@ -23,6 +23,7 @@ import frc.robot.joysticks.*;
 import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.StatusLights;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -45,6 +46,7 @@ public class RobotContainer {
     private StatusLights statusLights;
     private NavX navX;
     private Shooter shooter;
+    private VisionSubsystem visionSubsystem;
 
 
     // **********
@@ -79,6 +81,10 @@ public class RobotContainer {
         System.out.println("[Init] RobotContainer");
         robotState = RobotState.getInstance();
         setAlliance();
+
+        if (Toggles.useVision) {
+            visionSubsystem = new VisionSubsystem();
+        }
 
         if (Toggles.useDrive) {
             System.out.println("Create drive type " + Drive.driveType);
@@ -197,16 +203,17 @@ public class RobotContainer {
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
         if (Toggles.useIntake && Toggles.useShooter) {
-//            if (Toggles.useSecondXbox) {
-//                new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
-//                new Trigger(() -> joystick2.shooter()).onTrue(shoot);
-//                new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
-//                new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-//                new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
-//                new Trigger(() -> joystick2.outtake()).onTrue(outtake);
-////                new Trigger(() -> joystick2.shooterIntake()).onTrue(shooterIntake);
-//                new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
-//            } else {
+            if (Toggles.useSecondXbox) {
+                System.out.println("Configure Second Joystick");
+                new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
+                new Trigger(() -> joystick2.shooter()).onTrue(shoot);
+                new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
+                new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+                new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
+                new Trigger(() -> joystick2.outtake()).onTrue(outtake);
+//                new Trigger(() -> joystick2.shooterIntake()).onTrue(shooterIntake);
+                new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
+            }
                 new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
                 new Trigger(() -> joystick.shooter()).onTrue(shoot);
                 new Trigger(() -> joystick.intake()).onTrue(groundPickup);
@@ -215,7 +222,7 @@ public class RobotContainer {
                 new Trigger(() -> joystick.outtake()).onTrue(outtake);
 //                new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
                 new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
-//            }
+
         }
 
         System.out.println("[DONE] configureBindings");

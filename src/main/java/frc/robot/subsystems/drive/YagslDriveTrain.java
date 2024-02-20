@@ -52,7 +52,7 @@ public class YagslDriveTrain extends DrivetrainBase {
             }
         }
 
-        swerveDrive.setGyroOffset(new Rotation3d(0,0,(Math.toRadians(Constants.NavX.navXOffsetDegrees)-RobotState.getInstance().getAutoInitPose().getRotation().getDegrees())));
+        swerveDrive.setGyroOffset(new Rotation3d(0,0,(Math.toRadians(Constants.NavX.navXOffsetDegrees)+RobotState.getInstance().getAutoInitPose().getRotation().getDegrees())));
         swerveDrive.setGyro(new Rotation3d(0, 0, Math.toRadians(Constants.NavX.navXOffsetDegrees)));
 
         SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
@@ -66,6 +66,9 @@ public class YagslDriveTrain extends DrivetrainBase {
         tab.addNumber("PoseX", () -> getPose().getX());
         tab.addNumber("ChassisSpeed", () -> m_chassisSpeeds.vxMetersPerSecond);
         tab.addNumber("YagslChassisiSpeeds", () -> getCurrentChassisSpeeds().vxMetersPerSecond);
+        tab.addNumber("Vision X pose", () -> RobotState.getInstance().getVisionPose().getX());
+        tab.addNumber("Vision Y Pose", () -> RobotState.getInstance().getVisionPose().getY());
+        tab.addNumber("VIsion Rotation Pose", () -> RobotState.getInstance().getVisionPose().getRotation().getDegrees());
 
         //        needs to get moved just for testing
 //      coold not figure out how to add pose through logger--- this allows us to use 3d field!!!
@@ -94,7 +97,7 @@ public class YagslDriveTrain extends DrivetrainBase {
     @Override
     public void setGyroOffset() {
         swerveDrive.setGyroOffset(new Rotation3d(0,0,
-            (Math.toRadians(Constants.NavX.navXOffsetDegrees-RobotState.getInstance().getAutoInitPose().getRotation().getDegrees()))));
+            (Math.toRadians(Constants.NavX.navXOffsetDegrees+RobotState.getInstance().getAutoInitPose().getRotation().getDegrees()))));
     }
 
     @Override

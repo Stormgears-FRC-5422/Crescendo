@@ -23,7 +23,14 @@ public class GroundPickup extends Command {
 
     @Override
     public boolean isFinished() {
+//        System.out.println("isFinished ran");
         return s.isUpperSensorTriggered();
+    }
+
+    @Override
+    public InterruptionBehavior getInterruptionBehavior() {
+        System.out.println("Groind Pickup Interuppted");
+        return super.getInterruptionBehavior();
     }
 
     @Override

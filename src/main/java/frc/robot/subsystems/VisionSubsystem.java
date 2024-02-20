@@ -32,11 +32,7 @@ public class VisionSubsystem extends SubsystemBase {
     double GOAL_HEIGHT = 60.0;
 
     public VisionSubsystem() {
-        if (this.alliance == Alliance.Blue) {
-            botpose = tableInstance.getEntry("botpose_wpiblue");
-        } else {
-            botpose = tableInstance.getEntry("botpose_wpired");
-        }
+
         initialized = true;
     }
 
@@ -125,6 +121,12 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         tableInstance = NetworkTableInstance.getDefault().getTable("limelight");
 
+        if (this.alliance == Alliance.Blue) {
+            botpose = tableInstance.getEntry("botpose_wpiblue");
+        } else {
+            botpose = tableInstance.getEntry("botpose_wpired");
+        }
+
         tTarget = tableInstance.getEntry("tv");
         txEntry = tableInstance.getEntry("tx");
         tyEntry = tableInstance.getEntry("ty");
@@ -145,6 +147,8 @@ public class VisionSubsystem extends SubsystemBase {
             LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])).getY());
 
         RobotState.getInstance().setVisionPose(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])));
+
+//        System.out.println(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])));
 
 
         double[] pose = tableInstance.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);

@@ -91,12 +91,13 @@ public class AutoCommandFactory {
     }
 
     public Command simple_2m() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(Choreo.getTrajectory("simple_2m")),
-            autoSequence(Choreo.getTrajectory("new2")),
-        new Shoot(shooter));
+//        return Commands.sequence(
+//            new Shoot(shooter),
+//            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+//            startAutoSequence(Choreo.getTrajectory("simple_2m")),
+//            autoSequence(Choreo.getTrajectory("new2")),
+//        new Shoot(shooter));
+        return startAutoSequence(Choreo.getTrajectory("simple_2m"));
     }
 
     public Command fourNoteAmp() {
