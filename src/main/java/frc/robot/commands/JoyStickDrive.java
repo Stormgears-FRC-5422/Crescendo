@@ -20,12 +20,16 @@ public class JoyStickDrive extends Command {
     private final BooleanSupplier robotRelativeSupplier;
     private final BooleanSupplier turboSupplier;
 
+    private RobotState m_state;
+    private boolean m_finish = true;
     private boolean m_flipJoystick = false;
 
     public JoyStickDrive(DrivetrainBase drivetrain,
                          CrescendoJoystick joystick) {
         addRequirements(drivetrain);
         this.drivetrain = drivetrain;
+
+        m_state = RobotState.getInstance();
 
         txSupplier = joystick::getWpiX;
         tySupplier = joystick::getWpiY;
@@ -40,9 +44,23 @@ public class JoyStickDrive extends Command {
     @Override
     public void initialize() {
         System.out.println("Starting Joystick Drive");
-        m_flipJoystick = ButtonBoard.flipJoystickForRed && !RobotState.getInstance().isAllianceBlue();
+
+        if (m_state.isAllianceMissing()) {
+            System.out.println("Alliance is not set. Exiting command");
+            m_finish = true;
+        }
+
+        m_flipJoystick = ButtonBoard.flipJoystickForRed && m_state.isAllianceRed();
         System.out.println("Joystick is " + (m_flipJoystick ? "" : "NOT")+ " flipped for alliance");
+
+        m_finish = false;
     }
+
+    @Override
+    public boolean isFinished() {
+        return m_finish;
+    }
+
     @Override
     public void end(boolean interrupted) {
         System.out.println("Ending Joystick Drive. Interrupted = " + interrupted);
@@ -63,6 +81,8 @@ public class JoyStickDrive extends Command {
         double x = txSupplier.getAsDouble();
         double y = tySupplier.getAsDouble();
         double omega = omegaSupplier.getAsDouble();
+
+        //System.out.println("X: " + x + " Y: " + y + "Omega: " + omega);
 
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
         // But only for field relative driving. Robot relative driving is always the same

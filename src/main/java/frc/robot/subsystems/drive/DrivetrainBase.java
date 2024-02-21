@@ -7,8 +7,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Drive;
@@ -63,7 +61,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
         m_fieldRelative = fieldRelative;
 
         if (fieldRelative) {
-            Rotation2d rotation = RobotState.getInstance().getCurrentGyroData();
+            Rotation2d rotation = m_state.getHeading();
             m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
         } else {
             m_chassisSpeeds = speeds;
@@ -100,15 +98,17 @@ public abstract class DrivetrainBase extends SubsystemBase {
         return m_chassisSpeeds;
     }
 
-    public abstract void resetOdometry(Pose2d pose2d);
-
     public Pose2d getPose(){
         return new Pose2d();
     }
 
-    public abstract void resetGyro();
+    // Teach the drive that the current orientation is facing the opposite end of the field
+    // this function is ideally alliance aware, and manages the pose and gyro as needed
+    public void resetOrientation() {
+    }
 
-    public abstract void setGyroOffset();
+    public void declarePoseIsNow(Pose2d pose) {
+    }
 
 }
 

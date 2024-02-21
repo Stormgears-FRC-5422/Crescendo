@@ -4,12 +4,10 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
@@ -18,13 +16,11 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
-import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import frc.robot.Constants.Swerve;
 
@@ -52,8 +48,8 @@ public class YagslDriveTrain extends DrivetrainBase {
             }
         }
 
-        swerveDrive.setGyroOffset(new Rotation3d(0,0,(Math.toRadians(Constants.NavX.navXOffsetDegrees)+RobotState.getInstance().getAutoInitPose().getRotation().getDegrees())));
-        swerveDrive.setGyro(new Rotation3d(0, 0, Math.toRadians(Constants.NavX.navXOffsetDegrees)));
+        // Before we know anything else, just assume forward is 0.
+        swerveDrive.setGyro(new Rotation3d(0, 0, 0));
 
         SwerveDriveTelemetry.verbosity = switch (Swerve.verbosity.toLowerCase()) {
             case "high" -> SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
@@ -83,21 +79,63 @@ public class YagslDriveTrain extends DrivetrainBase {
 //        System.out.println(swerveDrive.getModules()[0].);
     }
 
-    public void resetOdometry(Pose2d pose) {
-        System.out.println("resetting pose to = " + pose);
-        swerveDrive.resetOdometry(pose);
-    }
 
-    public void resetGyro() {
-        Pose2d pose = swerveDrive.getPose();
-        swerveDrive.zeroGyro();
-        swerveDrive.resetOdometry(new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)));
-    }
+
+// The internal YAGSL implementation of zeroGyro
+//    /**
+//     * Resets the gyro angle to zero and resets odometry to the same position, but facing toward 0.
+//     */
+//    public void zeroGyro() {
+//        // Resets the real gyro or the angle accumulator, depending on whether the robot is being
+//        // simulated
+//        if (SwerveDriveTelemetry.isSimulation) {
+//            simIMU.setAngle(0);
+//        } else {
+//            setGyroOffset(imu.getRawRotation3d());
+//        }
+//        imuReadingCache.update();
+//        swerveController.lastAngleScalar = 0;
+//        lastHeadingRadians = 0;
+//        resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
+//    }
 
     @Override
-    public void setGyroOffset() {
-        swerveDrive.setGyroOffset(new Rotation3d(0,0,
-            (Math.toRadians(Constants.NavX.navXOffsetDegrees+RobotState.getInstance().getAutoInitPose().getRotation().getDegrees()))));
+    public void resetOrientation() {
+        Pose2d oldPose = getPose();
+
+        // Note that this behavior defaults to blue if alliance is missing.
+        Rotation2d newRotation = m_state.isAllianceRed()
+            ? new Rotation2d(-1,0)
+            : new Rotation2d(1,0);
+
+        Pose2d newPose = new Pose2d(oldPose.getX(), oldPose.getY(), newRotation);
+
+        declarePoseIsNow(newPose);
+    }
+
+    public void declarePoseIsNow(Pose2d newPose) {
+        // These *MUST* be done in this order or odometry will be wrong.
+        setGyro(newPose.getRotation());
+        resetOdometry(newPose);
+        m_state.setPose(newPose);
+    }
+
+    /**
+     * Resets the gyro angle to zero and resets odometry to the same position, but facing toward 0.
+     * This is independent of odometry - you probably don't want to call this
+     */
+    private void setGyro(Rotation2d angle) {
+        // TODO - for now, keep navXOffsetDegrees = 0. Need to better understand the interplay between
+        // the physical offset details of the gyro and pose. Should be just an offset, but too many things
+        // are connected together to be sure which are invariant.
+        System.out.println("resetting gyro to rotation = " + angle.getDegrees() + " degrees");
+        swerveDrive.setGyro(new Rotation3d(0, 0,
+            angle.getRadians() + 0));
+    }
+
+    private void resetOdometry(Pose2d pose) {
+        System.out.println("resetting odometry to pose = " + pose);
+        swerveDrive.resetOdometry(pose);
     }
 
     @Override
@@ -118,19 +156,16 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
-
         publisher.set(swerveDrive.getPose());
-//        System.out.println("Field Relative: " + m_localFieldRelative);
+        m_state.setPose(swerveDrive.getPose());
+
         if (m_localFieldRelative) {
-//            System.out.println("yaw: " + swerveDrive.getYaw());
             swerveDrive.driveFieldOriented(m_chassisSpeeds);
         } else {
             swerveDrive.drive(m_chassisSpeeds);
         }
 
-        // We can't use the navX directly, so we need to update the angle here
-//        m_state.setGyroData(swerveDrive.getOdometryHeading());
-        m_state.setGyroData(swerveDrive.getYaw());
-        m_state.setPose(getPose());
+//        m_state.setGyroData(swerveDrive.getYaw());
+//        m_state.setPose(getPose());
     }
 }

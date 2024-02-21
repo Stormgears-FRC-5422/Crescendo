@@ -5,12 +5,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
-import frc.robot.subsystems.drive.DrivetrainBase;
-import frc.robot.subsystems.drive.DrivetrainBase.*;
 
 import static frc.robot.Constants.navXConnection;
 
@@ -45,7 +42,7 @@ public class NavX extends SubsystemBase {
     @Override
     public void periodic() {
         if (!Constants.Drive.driveType.equals("YagslDrive")) {
-            RobotState.getInstance().setGyroData(getAbsoluteRotation);
+            RobotState.getInstance().setHeading(getAbsoluteRotation);
         }
 //        System.out.println("NavX Yaw: " + getYaw());
     }

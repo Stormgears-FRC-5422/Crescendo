@@ -3,6 +3,7 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.Drive;
 
 public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
@@ -59,15 +60,5 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
         for (CANSparkMax m : m_steerArray) {
             m.set(steerSpeed);
         }
-    }
-
-    public void resetOdometry(Pose2d pose) {
-    }
-
-    public void resetGyro(){}
-
-    @Override
-    public void setGyroOffset() {
-
     }
 }

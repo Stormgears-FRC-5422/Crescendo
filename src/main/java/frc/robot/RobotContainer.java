@@ -38,8 +38,6 @@ import java.util.Optional;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
-
     // **********
     // SubSystems
     private DrivetrainBase drivetrain;
@@ -80,7 +78,11 @@ public class RobotContainer {
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         System.out.println("[Init] RobotContainer");
         robotState = RobotState.getInstance();
-        setAlliance();
+
+        // start somewhere
+        Pose2d initialPose = new Pose2d(ButtonBoard.initPoseX, ButtonBoard.initPoseY,
+            Rotation2d.fromDegrees(ButtonBoard.initPoseDegrees));
+        robotState.setPose(initialPose);
 
         if (Toggles.useVision) {
             visionSubsystem = new VisionSubsystem();
@@ -95,19 +97,11 @@ public class RobotContainer {
                 joystick = CrescendoJoystickFactory.getInstance(ButtonBoard.driveJoystick, ButtonBoard.driveJoystickPort);
                 JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
                 drivetrain.setDefaultCommand(driveWithJoystick);
-
             }
             if (Toggles.useSecondXbox) {
                 System.out.println("Making 2nd joystick!");
                 joystick2 = CrescendoJoystickFactory.getInstance(ButtonBoard.joystick2, ButtonBoard.secondJoystickPort);
             }
-
-            // TODO - for now.  We have to start somewhere.
-            Pose2d initialPose = new Pose2d(ButtonBoard.initPoseX, ButtonBoard.initPoseY,
-                Rotation2d.fromDegrees(ButtonBoard.initPoseDegrees));
-
-            initialPose = CrescendoField.remapPose(initialPose, robotState.isAllianceBlue());
-            drivetrain.resetOdometry(initialPose);
         }
 
         if (Toggles.useShooter && Toggles.useIntake) {
@@ -129,37 +123,39 @@ public class RobotContainer {
             statusLights = new StatusLights();
         }
 
-        autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, shoot);
-        if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
-            // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
-            // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
-            // so we can add things to this list without messing with the code.
-            // This gets tricky if the commands might vary based on subsystem availability
-            System.out.println("Using AutoChooser");
-            autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-            autoChooser.addOption("simple_2m", autoCommandFactory.simple_2m());
-            autoChooser.addOption("four_note_w_amp", autoCommandFactory.fourNoteAmp());
-            autoChooser.addOption("testAuto", autoCommandFactory.testAuto());
-            if (Toggles.useShooter && Toggles.useIntake) {
-                autoChooser.addOption("3_note_speaker", autoCommandFactory.threeNoteSpeaker());
+        if (Toggles.useDrive) {
+            autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, shoot);
+            if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
+                // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
+                // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
+                // so we can add things to this list without messing with the code.
+                // This gets tricky if the commands might vary based on subsystem availability
+                System.out.println("Using AutoChooser");
+                autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+                autoChooser.addOption("simple_2m", autoCommandFactory.simple_2m());
+                autoChooser.addOption("four_note_w_amp", autoCommandFactory.fourNoteAmp());
+                autoChooser.addOption("testAuto", autoCommandFactory.testAuto());
+                if (Toggles.useShooter && Toggles.useIntake) {
+                    autoChooser.addOption("3_note_speaker", autoCommandFactory.threeNoteSpeaker());
+                }
+                if (Toggles.useShooter) {
+                    autoChooser.addOption("3_note_speaker_v2", autoCommandFactory.threeNoteSpeakerv2());
+                }
+                autoChooser.addDefaultOption("simple_2m", autoCommandFactory.simple_2m());
+            } else {
+                System.out.println("NoChooser Command set to " + Choreo.path);
+                m_noChooserCommand = switch (Choreo.path.toLowerCase()) {
+                    case "simple_2m" -> autoCommandFactory.simple_2m();
+                    case "four_note_w_amp" -> autoCommandFactory.fourNoteAmp();
+                    case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
+                    case "3_note_speaker_v2" -> autoCommandFactory.threeNoteSpeakerv2();
+                    case "testauto" -> autoCommandFactory.testAuto();
+                    case "farside" -> autoCommandFactory.farSide();
+                    case "3_note_speaker_v3" -> autoCommandFactory.threeNoteSpeakerv3();
+                    default -> autoCommandFactory.startAutoSequence(
+                        Choreo.path.isBlank() ? "simple_2m" : Choreo.path);
+                };
             }
-            if (Toggles.useShooter) {
-                autoChooser.addOption("3_note_speaker_v2", autoCommandFactory.threeNoteSpeakerv2());
-            }
-            autoChooser.addDefaultOption("simple_2m", autoCommandFactory.simple_2m());
-        } else {
-            System.out.println("NoChooser Command set to " + Choreo.path);
-            m_noChooserCommand = switch (Choreo.path.toLowerCase()) {
-                case "simple_2m" -> autoCommandFactory.simple_2m();
-                case "four_note_w_amp" -> autoCommandFactory.fourNoteAmp();
-                case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
-                case "3_note_speaker_v2" -> autoCommandFactory.threeNoteSpeakerv2();
-                case "testauto" -> autoCommandFactory.testAuto();
-                case "farside" -> autoCommandFactory.farSide();
-                case "3_note_speaker_v3" -> autoCommandFactory.threeNoteSpeakerv3();
-                default -> autoCommandFactory.simple_2m();
-            };
-
         }
 
         // Configure the trigger bindings
@@ -168,27 +164,29 @@ public class RobotContainer {
         System.out.println("[DONE] RobotContainer");
     }
 
-    public void setAlliance() {
-        // TODO We don't always get a clear alliance from the driver station call. Assume ButtonBoard.defaultAlliance
+    public void updateAlliance() {
         DriverStation.refreshData();
+        Optional<Alliance> alliance = DriverStation.getAlliance();
 
-        Optional<Alliance> tmpAlliance = DriverStation.getAlliance();
-        Alliance alliance;
-
-        if (tmpAlliance.isPresent()) {
+        if (alliance.isPresent()) {
             System.out.print("Alliance is reported as ");
-            alliance = tmpAlliance.get();
+            System.out.println(alliance.get() == Alliance.Blue ? "Blue" : "Red");
+            robotState.setAlliance(alliance.get() == Alliance.Blue ? RobotState.StateAlliance.BLUE : RobotState.StateAlliance.RED);
         } else {
-            System.out.print("Alliance is NOT reported. Defaulting to ");
-            alliance = switch (ButtonBoard.defaultAlliance.toLowerCase()) {
-                case "blue" -> Alliance.Blue;
-                case "red" -> Alliance.Red;
-                default -> Alliance.Blue;
-            };
+            System.out.print("Alliance is NOT yet reported. Keeping unset");
+            robotState.setAlliance(RobotState.StateAlliance.MISSING);
         }
+    }
 
-        robotState.setAlliance(alliance);
-        System.out.println(alliance == Alliance.Blue ? "Blue" : "Red");
+    public void resetInitialPose() {
+        if (robotState.isAllianceMissing()) return;
+
+        Pose2d initialPose = new Pose2d(ButtonBoard.initPoseX, ButtonBoard.initPoseY,
+            Rotation2d.fromDegrees(ButtonBoard.initPoseDegrees));
+
+        initialPose = CrescendoField.remapPose(initialPose, robotState.getAlliance());
+
+        drivetrain.declarePoseIsNow(initialPose);
     }
 
     /**
@@ -203,26 +201,24 @@ public class RobotContainer {
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
         if (Toggles.useIntake && Toggles.useShooter) {
+            new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+            new Trigger(() -> joystick.shooter()).onTrue(shoot);
+            new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+            new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
+            new Trigger(() -> joystick.outtake()).onTrue(outtake);
+            new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+
             if (Toggles.useSecondXbox) {
                 System.out.println("Configure Second Joystick");
-                new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
+                new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
                 new Trigger(() -> joystick2.shooter()).onTrue(shoot);
                 new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
                 new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
                 new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
                 new Trigger(() -> joystick2.outtake()).onTrue(outtake);
-//                new Trigger(() -> joystick2.shooterIntake()).onTrue(shooterIntake);
                 new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
             }
-                new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
-                new Trigger(() -> joystick.shooter()).onTrue(shoot);
-                new Trigger(() -> joystick.intake()).onTrue(groundPickup);
-                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-                new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
-                new Trigger(() -> joystick.outtake()).onTrue(outtake);
-//                new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
-                new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
-
         }
 
         System.out.println("[DONE] configureBindings");

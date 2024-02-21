@@ -4,16 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.joysticks.IllegalJoystickTypeException;
-import frc.robot.subsystems.drive.DrivetrainBase;
-import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.robot.subsystems.drive.SwerveDiagnosticDriveTrain;
-import frc.robot.subsystems.drive.YagslDriveTrain;
 import frc.utils.Alert;
 import frc.utils.Alert.AlertType;
 import frc.utils.LoggerWrapper;
@@ -167,7 +161,8 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void disabledInit() {
-        m_robotContainer.setAlliance();
+        System.out.println("DisabledInit");
+        m_robotContainer.updateAlliance();
     }
 
     @Override
@@ -186,7 +181,7 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         // schedule the autonomous command (example)
         System.out.println("AutoInit");
-        m_robotContainer.setAlliance();
+        m_robotContainer.updateAlliance();
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -222,7 +217,8 @@ public class Robot extends LoggedRobot {
             m_autonomousCommand.cancel();
         }
 
-        m_robotContainer.setAlliance();
+        m_robotContainer.updateAlliance();
+        m_robotContainer.resetInitialPose();
     }
 
     /**
@@ -240,7 +236,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void testInit() {
         System.out.println("TestInit");
-        m_robotContainer.setAlliance();
+        m_robotContainer.updateAlliance();
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
     }
@@ -264,7 +260,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationInit() {
         System.out.println("SimulationInit");
-        m_robotContainer.setAlliance();
+        m_robotContainer.updateAlliance();
     }
 
     /**

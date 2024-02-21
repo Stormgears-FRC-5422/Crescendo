@@ -12,12 +12,12 @@ public class CrescendoField {
     public final static double FIELD_LENGTH = Units.feetToMeters(54) + Units.inchesToMeters(3.25);
     public final static double FIELD_WIDTH = Units.feetToMeters(26) + Units.inchesToMeters(3.5);
 
-    public static Pose2d remapPose(Pose2d pose2d, boolean blueAlliance) {
+    public static Pose2d remapPose(Pose2d pose2d, RobotState.StateAlliance alliance) {
         // We want to make sure that both of these code paths return an entirely new object
-        if (blueAlliance)
-            return new Pose2d(pose2d.getX(), pose2d.getY(), new Rotation2d(pose2d.getRotation().getRadians()));
-        else
-            return mirrorPose(pose2d);
+        return switch(alliance) {
+            case BLUE, MISSING -> new Pose2d(pose2d.getX(), pose2d.getY(), new Rotation2d(pose2d.getRotation().getRadians()));
+            case RED -> mirrorPose(pose2d);
+        };
     }
 
     private static double mirrorX(double x) {

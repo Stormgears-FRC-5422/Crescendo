@@ -2,10 +2,10 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
-import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 
 
@@ -67,13 +67,4 @@ public class MecanumDrivetrain extends DrivetrainBase{
         m_backRightTalon.setVoltage(MAX_VOLTAGE * wheelSpeeds.rearRightMetersPerSecond / m_maxVelocityMetersPerSecond);
     }
 
-    public void resetOdometry(Pose2d pose) {
-    }
-
-    public void resetGyro(){}
-
-    @Override
-    public void setGyroOffset() {
-
-    }
 }

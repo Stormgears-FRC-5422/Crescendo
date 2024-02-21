@@ -22,7 +22,7 @@ import frc.robot.CrescendoField;
 import java.util.ArrayList;
 
 public class AutoCommandFactory {
-    final RobotState robotState;
+    final RobotState m_state;
     final DrivetrainBase drivetrain;
     final Shooter shooter;
     final Shoot shoot;
@@ -35,23 +35,21 @@ public class AutoCommandFactory {
         this.shoot = shoot;
         this.drivetrain = drivetrainBase;
         this.shooter = shooter;
-        robotState = RobotState.getInstance();
+        m_state = RobotState.getInstance();
     }
 
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
-        boolean reflectField = !robotState.isAllianceBlue();
-        Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), robotState.isAllianceBlue());
-        robotState.setAutoInitPose(initialPose);
-        drivetrain.setGyroOffset();
+        return Commands.runOnce(() -> {
+            // TODO - ultimately we want this initial pose to come from vision
+            Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), m_state.getAlliance());
+            System.out.println("Setting up trajectory " + trajectory + " for " + m_state.getAlliance() + " alliance");
+            System.out.println("Asserting starting pose = " + initialPose);
 
-        System.out.println("Setting up trajectory " + trajectory + " for " + (reflectField ? "Red" : "Blue") + " alliance");
-        System.out.println("Starting pose = " + initialPose);
-        return Commands.runOnce(() -> drivetrain.resetOdometry(initialPose));
+            drivetrain.declarePoseIsNow(initialPose);
+        });
     }
 
     public Command buildChoreoCommand(ChoreoTrajectory trajectory) {
-        boolean reflectField = !robotState.isAllianceBlue();
-
         boolean openLoop = Swerve.openLoopAuto;
 
         System.out.println("Control is " + (openLoop ? "open loop" : "pid controlled"));
@@ -70,6 +68,7 @@ public class AutoCommandFactory {
             openLoop ? 0 : Swerve.rotPidKi,
             openLoop ? 0 : Swerve.rotPidKd
         );
+
         return Choreo.choreoSwerveCommand(
             trajectory,
             drivetrain::getPose,
@@ -77,9 +76,13 @@ public class AutoCommandFactory {
             yController,
             rotationController,
             (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
-            () -> reflectField,
+            m_state::isAllianceRed,
             drivetrain
         );
+    }
+
+    public Command startAutoSequence(String trajectoryName) {
+        return startAutoSequence(Choreo.getTrajectory(trajectoryName));
     }
 
     public Command startAutoSequence(ChoreoTrajectory trajectory) {
@@ -109,7 +112,7 @@ public class AutoCommandFactory {
             new InstantCommand(() ->
             System.out.println("Transformation pt" + p + new Transform2d(note_speaker_3.get(p - 1).getFinalPose(), drivetrain.getPose()))),
         new InstantCommand(() ->
-            System.out.println("Vision Transformation pt" + p + new Transform2d( drivetrain.getPose(), robotState.getVisionPose()))));
+            System.out.println("Vision Transformation pt" + p + new Transform2d( drivetrain.getPose(), m_state.getVisionPose()))));
 
     }
 

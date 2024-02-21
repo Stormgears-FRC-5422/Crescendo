@@ -2,20 +2,18 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Shooter;
 
 public class RobotState extends SubsystemBase {
+    public static enum StateAlliance {
+        RED, BLUE, MISSING
+    }
     private static RobotState m_instance;
-    private Alliance m_alliance = Alliance.Blue;
-    private Rotation2d currentGyroData = new Rotation2d();
+    private StateAlliance m_alliance = StateAlliance.MISSING;
     private Pose2d currentPose = new Pose2d();
-    private Shooter.ShooterState shooterState;
-    private Field2d field2d;
+    private Shooter.ShooterState shooterState = Shooter.ShooterState.IDLE;
     private Pose2d visionPose = new Pose2d();
-    private Pose2d autoInitPose = new Pose2d();
 
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
@@ -24,22 +22,29 @@ public class RobotState extends SubsystemBase {
         return m_instance;
     }
 
-    public void setAlliance(Alliance alliance) {
-        System.out.println("setAlliance to " + (alliance == Alliance.Blue ? "Blue" : "Red"));
+    public void setAlliance(StateAlliance alliance) {
         m_alliance = alliance;
     }
 
+    public StateAlliance getAlliance() {
+        return m_alliance;
+    }
+
     public boolean isAllianceBlue() {
-        return m_alliance == Alliance.Blue;
+        return m_alliance == StateAlliance.BLUE;
+    }
+    public boolean isAllianceRed() {
+        return m_alliance == StateAlliance.RED;
+    }
+    public boolean isAllianceMissing() {
+        return m_alliance == StateAlliance.MISSING;
     }
 
-    public void setGyroData(Rotation2d angle) {
-        currentGyroData = angle;
+    public void setHeading(Rotation2d angle) {
+        currentPose = new Pose2d(currentPose.getX(), currentPose.getY(), new Rotation2d(angle.getRadians()));
     }
 
-    public Rotation2d getCurrentGyroData() {
-        return currentGyroData;
-    }
+    public Rotation2d getHeading() { return currentPose.getRotation(); }
 
     public void setPose(Pose2d pose) {
         // Make a copy, not a reference to the same object!
@@ -58,7 +63,6 @@ public class RobotState extends SubsystemBase {
         shooterState = s;
     }
 
-
     public void setVisionPose(Pose2d pose) {
         if (pose != null) {
             visionPose = pose;
@@ -68,15 +72,6 @@ public class RobotState extends SubsystemBase {
     public Pose2d getVisionPose() {
         return visionPose;
     }
-
-    public void setAutoInitPose(Pose2d pose){
-        autoInitPose = pose;
-    }
-
-    public Pose2d getAutoInitPose(){
-        return  autoInitPose;
-    }
-
 
 
 }

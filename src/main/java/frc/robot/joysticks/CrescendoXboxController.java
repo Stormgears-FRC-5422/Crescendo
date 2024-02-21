@@ -50,7 +50,8 @@ public class CrescendoXboxController extends CrescendoJoystick {
     }
 
     public boolean zeroGyro() {
-        return controller.getRightBumperIsPressed() && controller.getBackIsPressed();
+//        return controller.getRightBumperIsPressed() && controller.getBackIsPressed();
+        return controller.getRightBumperIsPressed();
     }
 
     @Override
