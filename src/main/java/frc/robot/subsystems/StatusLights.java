@@ -34,7 +34,7 @@ public class StatusLights extends SubsystemBase {
     public static final Color8Bit RED_COLOR = new Color8Bit(200, 0, 0);
     public static final Color8Bit GREEN_COLOR = new Color8Bit(0, 200, 0);
     public static final Color8Bit BLUE_COLOR = new Color8Bit(0, 0, 200);
-    public static final Color8Bit ORANGE_COLOR = new Color8Bit(200, 129, 0);
+    public static final Color8Bit ORANGE_COLOR = new Color8Bit(200, 25, 0);
     public static final Color8Bit WHITE_COLOR = new Color8Bit(66, 66, 66);
     public static final Color8Bit NO_COLOR = new Color8Bit(0, 0, 0);
 
@@ -47,9 +47,12 @@ public class StatusLights extends SubsystemBase {
     boolean m_ledColorRequested;
 
     public StatusLights() {
+        m_iteration = 0;
         m_robotState = RobotState.getInstance();
+
         m_shooterState = m_robotState.getShooterState();
-        m_ledOffset = Integer.MIN_VALUE;
+        m_alliance = m_robotState.getAlliance();
+        m_ledOffset = getCompassOffset();
 
         initializeLights();
         setShooterLights();
@@ -65,13 +68,12 @@ public class StatusLights extends SubsystemBase {
         // frequent
         ++m_iteration;
 
+        //System.out.println("alliance: " + alliance + ", m_alliance" + m_alliance);
+
         if (offset != m_ledOffset || alliance != m_alliance) {
             m_ledOffset = offset;
             m_alliance = alliance;
-
-            if (m_iteration % Constants.Lights.compassUpdateInterval == 0) {
-                setCompass();
-            }
+            setCompass();
         }
 
         if (m_shooterState != m_robotState.getShooterState()) {
@@ -116,8 +118,8 @@ public class StatusLights extends SubsystemBase {
         switch (m_shooterState) {
             case IDLE -> {
                 setRingColor(RING_TOP, WHITE_COLOR);
-                setRingColor(RING_MIDDLE_TOP, WHITE_COLOR);
-                setRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR);
+                setRingColor(RING_MIDDLE_TOP, NO_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, NO_COLOR);
             }
             case STAGED_FOR_SHOOTING -> {
                 setRingColor(RING_TOP, ORANGE_COLOR);

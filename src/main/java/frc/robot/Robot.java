@@ -36,6 +36,7 @@ public class Robot extends LoggedRobot {
 
     private RobotContainer m_robotContainer;
     private RobotState m_state;
+    private int m_iteration = 0;
 
     private static final double canErrorTimeThreshold = 0.5; // Seconds to disable alert
     private static final double lowBatteryVoltage = 10.0;
@@ -172,6 +173,9 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
+        if (++m_iteration % 25 == 0) {
+            m_robotContainer.updateAlliance();
+        }
     }
 
     @Override

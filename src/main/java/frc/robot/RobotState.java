@@ -32,6 +32,11 @@ public class RobotState extends SubsystemBase {
     }
 
     public void setAlliance(StateAlliance alliance) {
+        if (m_alliance != alliance) {
+            System.out.println("**********");
+            System.out.println("Alliance is now reported as " + alliance + ", was " + m_alliance);
+            System.out.println("**********");
+        }
         m_alliance = alliance;
     }
 

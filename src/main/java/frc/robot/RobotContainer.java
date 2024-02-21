@@ -169,11 +169,8 @@ public class RobotContainer {
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
         if (alliance.isPresent()) {
-            System.out.print("Alliance is reported as ");
-            System.out.println(alliance.get() == Alliance.Blue ? "Blue" : "Red");
             robotState.setAlliance(alliance.get() == Alliance.Blue ? RobotState.StateAlliance.BLUE : RobotState.StateAlliance.RED);
         } else {
-            System.out.print("Alliance is NOT yet reported. Keeping unset");
             robotState.setAlliance(RobotState.StateAlliance.MISSING);
         }
     }
