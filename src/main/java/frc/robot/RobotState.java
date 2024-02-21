@@ -6,14 +6,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Shooter;
 
 public class RobotState extends SubsystemBase {
-    public static enum StateAlliance {
+    public enum StateAlliance {
         RED, BLUE, MISSING
     }
+
+    public enum StatePeriod {
+        NONE, DISABLED, AUTONOMOUS, TELEOP, TEST
+    }
+
     private static RobotState m_instance;
     private StateAlliance m_alliance = StateAlliance.MISSING;
     private Pose2d currentPose = new Pose2d();
     private Shooter.ShooterState shooterState = Shooter.ShooterState.IDLE;
     private Pose2d visionPose = new Pose2d();
+
+    private StatePeriod m_period = StatePeriod.NONE;
+    private boolean m_didAuto = false;
+    private boolean m_didTeleop = false;
 
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
@@ -24,6 +33,27 @@ public class RobotState extends SubsystemBase {
 
     public void setAlliance(StateAlliance alliance) {
         m_alliance = alliance;
+    }
+
+    public void setPeriod(StatePeriod period) {
+        m_period = period;
+
+        switch (period) {
+            case AUTONOMOUS -> m_didAuto = true;
+            case TELEOP -> m_didTeleop = true;
+        }
+    }
+
+    public StatePeriod getPeriod() {
+        return m_period;
+    }
+
+    public boolean getDidAuto() {
+        return m_didAuto;
+    }
+
+    public boolean getDidTeleop() {
+        return m_didTeleop;
     }
 
     public StateAlliance getAlliance() {

@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.utils.Alert;
 import frc.utils.Alert.AlertType;
 import frc.utils.LoggerWrapper;
+import frc.robot.RobotState.StatePeriod;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -33,6 +35,7 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+    private RobotState m_state;
 
     private static final double canErrorTimeThreshold = 0.5; // Seconds to disable alert
     private static final double lowBatteryVoltage = 10.0;
@@ -92,6 +95,7 @@ public class Robot extends LoggedRobot {
         // autonomous chooser on the dashboard.
         try {
             m_robotContainer = new RobotContainer();
+            m_state = RobotState.getInstance();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -162,6 +166,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         System.out.println("DisabledInit");
+        m_state.setPeriod(StatePeriod.DISABLED);
         m_robotContainer.updateAlliance();
     }
 
@@ -181,6 +186,7 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         // schedule the autonomous command (example)
         System.out.println("AutoInit");
+        m_state.setPeriod(StatePeriod.AUTONOMOUS);
         m_robotContainer.updateAlliance();
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
@@ -218,7 +224,10 @@ public class Robot extends LoggedRobot {
         }
 
         m_robotContainer.updateAlliance();
-        m_robotContainer.resetInitialPose();
+        m_state.setPeriod(StatePeriod.TELEOP);
+        if (!m_state.getDidAuto()) { // If we did auto, leave the robot where it is.
+            m_robotContainer.resetInitialPose();
+        }
     }
 
     /**
@@ -236,9 +245,11 @@ public class Robot extends LoggedRobot {
     @Override
     public void testInit() {
         System.out.println("TestInit");
-        m_robotContainer.updateAlliance();
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
+
+        m_robotContainer.updateAlliance();
+        m_state.setPeriod(StatePeriod.TEST);
     }
 
     /**
