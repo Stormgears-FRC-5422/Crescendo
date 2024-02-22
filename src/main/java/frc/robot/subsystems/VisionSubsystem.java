@@ -121,11 +121,8 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         tableInstance = NetworkTableInstance.getDefault().getTable("limelight");
 
-        if (this.alliance == Alliance.Blue) {
             botpose = tableInstance.getEntry("botpose_wpiblue");
-        } else {
-            botpose = tableInstance.getEntry("botpose_wpired");
-        }
+
 
         tTarget = tableInstance.getEntry("tv");
         txEntry = tableInstance.getEntry("tx");
@@ -146,9 +143,10 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Vision Pose Y",
             LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])).getY());
 
-        RobotState.getInstance().setVisionPose(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])));
+        RobotState.getInstance().setVisionPose(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])), hasTargets());
 
-//        System.out.println(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])));
+//        System.out.println(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])));
+//        System.out.println(hasTargets());
 
 
         double[] pose = tableInstance.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
