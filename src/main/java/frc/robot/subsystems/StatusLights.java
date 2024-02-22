@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -8,9 +9,9 @@ import frc.robot.RobotState.StateAlliance;
 import frc.utils.lights.LEDLightStrip;
 import frc.utils.lights.LightType;
 
-import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class StatusLights extends SubsystemBase {
     private static class Segment {
@@ -31,12 +32,12 @@ public class StatusLights extends SubsystemBase {
     private int m_ledOffset;
     private int m_iteration;
 
-    public static final Color8Bit RED_COLOR = new Color8Bit(200, 0, 0);
-    public static final Color8Bit GREEN_COLOR = new Color8Bit(0, 200, 0);
-    public static final Color8Bit BLUE_COLOR = new Color8Bit(0, 0, 200);
-    public static final Color8Bit ORANGE_COLOR = new Color8Bit(200, 25, 0);
-    public static final Color8Bit WHITE_COLOR = new Color8Bit(66, 66, 66);
-    public static final Color8Bit NO_COLOR = new Color8Bit(0, 0, 0);
+    public final Color8Bit RED_COLOR;
+    public final Color8Bit GREEN_COLOR;
+    public final Color8Bit BLUE_COLOR;
+    public final Color8Bit ORANGE_COLOR;
+    public final Color8Bit WHITE_COLOR;
+    public final Color8Bit NO_COLOR = new Color8Bit(0,0,0);
 
     private Segment RING_TOP;
     private Segment RING_BOTTOM;
@@ -54,10 +55,22 @@ public class StatusLights extends SubsystemBase {
         m_alliance = m_robotState.getAlliance();
         m_ledOffset = getCompassOffset();
 
+        RED_COLOR = scaleColor(new Color8Bit(255, 0, 0), Constants.Lights.brightness);
+        GREEN_COLOR = scaleColor(new Color8Bit(0, 255, 0), Constants.Lights.brightness);
+        BLUE_COLOR = scaleColor(new Color8Bit(0, 0, 255), Constants.Lights.brightness);
+        ORANGE_COLOR = scaleColor(new Color8Bit(255, 32, 0), Constants.Lights.brightness);
+        WHITE_COLOR = scaleColor(new Color8Bit(84, 84, 84), Constants.Lights.brightness);
+
         initializeLights();
         setShooterLights();
         setCompass();
         System.out.println("Status Lights initializing ");
+    }
+
+    private static Color8Bit scaleColor(Color8Bit c, double s) {
+        return new Color8Bit(MathUtil.clamp((int) (s * c.red), 0, 255),
+                             MathUtil.clamp((int) (s * c.green), 0, 255),
+                             MathUtil.clamp((int) (s * c.blue), 0, 255));
     }
 
     public void periodic() {
