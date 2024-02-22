@@ -1,5 +1,9 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -18,6 +22,7 @@ public class StatusLights extends SubsystemBase {
         final LightType lightType;
         final int numberOfLEDs;
         final int number;
+
         Segment(int numberOfLEDs, LightType lightType) {
             this.lightType = lightType;
             this.numberOfLEDs = numberOfLEDs;
@@ -30,6 +35,7 @@ public class StatusLights extends SubsystemBase {
     private StateAlliance m_alliance;
     private int m_ledOffset;
     private int m_iteration;
+    private Pose2d cameraTestPose = new Pose2d(15.0423, 5.467, Rotation2d.fromDegrees(0));
 
     public static final Color8Bit RED_COLOR = new Color8Bit(200, 0, 0);
     public static final Color8Bit GREEN_COLOR = new Color8Bit(0, 200, 0);
@@ -60,7 +66,32 @@ public class StatusLights extends SubsystemBase {
         System.out.println("Status Lights initializing ");
     }
 
+    public void cameraAccuracy() {
+        Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
+//        System.out.println(poseError);
+//        System.out.println("Translation: " + poseError);
+//        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
+        if (m_robotState.isVisionPoseValid()) {
+            if (poseError.getX() < 1 && poseError.getY() < 1) {
+                setRingColor(RING_TOP, GREEN_COLOR);
+            } else {
+                setRingColor(RING_TOP, RED_COLOR);
+            }
+
+            if (poseError.getRotation().getDegrees() < 10 && poseError.getRotation().getDegrees() > -10) {
+                setRingColor(RING_MIDDLE_TOP, GREEN_COLOR);
+            } else {
+                setRingColor(RING_MIDDLE_TOP, RED_COLOR);
+            }
+        } else {
+            setRingColor(RING_TOP, RED_COLOR);
+            setRingColor(RING_MIDDLE_TOP, RED_COLOR);
+        }
+    }
+
     public void periodic() {
+
+        cameraAccuracy();
         StateAlliance alliance = m_robotState.getAlliance();
         int offset = getCompassOffset();
 
@@ -117,9 +148,9 @@ public class StatusLights extends SubsystemBase {
 
         switch (m_shooterState) {
             case IDLE -> {
-                setRingColor(RING_TOP, WHITE_COLOR);
-                setRingColor(RING_MIDDLE_TOP, NO_COLOR);
-                setRingColor(RING_MIDDLE_BOTTOM, NO_COLOR);
+//                setRingColor(RING_TOP, WHITE_COLOR);
+//                setRingColor(RING_MIDDLE_TOP, NO_COLOR);
+                setRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR);
             }
             case STAGED_FOR_SHOOTING -> {
                 setRingColor(RING_TOP, ORANGE_COLOR);
@@ -175,7 +206,7 @@ public class StatusLights extends SubsystemBase {
             case RED -> m_ledLightStrip.setLEDColor(RING_BOTTOM.number, RED_COLOR);
             case BLUE -> m_ledLightStrip.setLEDColor(RING_BOTTOM.number, BLUE_COLOR);
             default -> m_ledLightStrip.setAlternatingLEDColor(RING_BOTTOM.number, BLUE_COLOR, RED_COLOR);
-       }
+        }
     }
 
     private void setRingColor(Segment s, Color8Bit c) {
@@ -192,7 +223,7 @@ public class StatusLights extends SubsystemBase {
         double degreesPerLight = 360.0 / Constants.Lights.oneRingLength;
 
         return (Constants.Lights.invertCompass ? -1 : 1) *
-               (int) (Math.round(m_robotState.getHeading().getDegrees() / degreesPerLight));
+            (int) (Math.round(m_robotState.getHeading().getDegrees() / degreesPerLight));
     }
 
     private void setCompass() {

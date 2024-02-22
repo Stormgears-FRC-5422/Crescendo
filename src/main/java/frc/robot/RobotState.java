@@ -23,6 +23,8 @@ public class RobotState extends SubsystemBase {
     private StatePeriod m_period = StatePeriod.NONE;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
+    private int count =0;
+    private boolean isPoseValid = false;
 
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
@@ -98,10 +100,24 @@ public class RobotState extends SubsystemBase {
         shooterState = s;
     }
 
-    public void setVisionPose(Pose2d pose) {
+    public boolean isVisionPoseValid() {
+
+        count = (isPoseValid) ? count++ : 0;
+//        System.out.println(count);
+        if (count>=5) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    public void setVisionPose(Pose2d pose,boolean valid) {
         if (pose != null) {
             visionPose = pose;
         }
+        isPoseValid = valid;
     }
 
     public Pose2d getVisionPose() {
