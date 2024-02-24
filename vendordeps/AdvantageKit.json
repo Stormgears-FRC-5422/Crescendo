@@ -10,24 +10,24 @@
         {
             "groupId": "org.littletonrobotics.akit.junction",
             "artifactId": "wpilib-shim",
-            "version": "3.1.0"
+            "version": "3.2.0"
         },
         {
             "groupId": "org.littletonrobotics.akit.junction",
             "artifactId": "junction-core",
-            "version": "3.1.0"
+            "version": "3.2.0"
         },
         {
             "groupId": "org.littletonrobotics.akit.conduit",
             "artifactId": "conduit-api",
-            "version": "3.1.0"
+            "version": "3.2.0"
         }
     ],
     "jniDependencies": [
         {
             "groupId": "org.littletonrobotics.akit.conduit",
             "artifactId": "conduit-wpilibio",
-            "version": "3.1.0",
+            "version": "3.2.0",
             "skipInvalidPlatforms": false,
             "isJar": false,
             "validPlatforms": [
