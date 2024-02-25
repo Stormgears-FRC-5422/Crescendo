@@ -31,6 +31,8 @@ public class VisionSubsystem extends SubsystemBase {
     double LIMELIGHT_HEIGHT = 20.0;
     double GOAL_HEIGHT = 60.0;
 
+    double[] botpose_targetspace;
+
     public VisionSubsystem() {
         if (this.alliance == Alliance.Blue) {
             botpose = tableInstance.getEntry("botpose_wpiblue");
@@ -38,16 +40,34 @@ public class VisionSubsystem extends SubsystemBase {
             botpose = tableInstance.getEntry("botpose_wpired");
         }
         initialized = true;
+        botpose_targetspace = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose_targetspace").getDoubleArray(new double[6]);
+    }
+
+    //gets the horizontal distance to the april tag (in meters)
+    public double getHorizDistToApriltag(){
+        return botpose_targetspace[2];
+    }
+
+    //gets the vertical distance to the april tag (in meters)
+    public double getVertDistToApriltag(){
+        return botpose_targetspace[1];
     }
 
     public double getDistance() {
-        ty = tableInstance.getEntry("ty").getDouble(0.0);
-        tx = tableInstance.getEntry("tx").getDouble(0.0);
-        double degrees = MOUNT_ANGLE_DEGREES + ty;
-        double radians = Math.toRadians(degrees);
-        return ((GOAL_HEIGHT - LIMELIGHT_HEIGHT) / Math.tan(radians)) / Math.cos(tx);
+//        ty = tableInstance.getEntry("ty").getDouble(0.0);
+//        tx = tableInstance.getEntry("tx").getDouble(0.0);
+//        double degrees = MOUNT_ANGLE_DEGREES + ty;
+//        double radians = Math.toRadians(degrees);
+//        return ((GOAL_HEIGHT - LIMELIGHT_HEIGHT) / Math.tan(radians)) / Math.cos(tx);
+        return Math.sqrt(Math.pow(getHorizDistToApriltag(), 2) + Math.pow(getVertDistToApriltag(),2));
     }
+    //gets the horizontal distance from the april tag in meters ex. how much to the left or right of the apriltag
+    //if the output is negative --> robot is to the left of the tag
+    //if the output is positive --> robot is to the right of the tag
 
+    public double getHorizOffsetFromAprilTag(){
+        return botpose_targetspace[0];
+    }
     public double getVerticalAngle() {
         return ty;
     }
