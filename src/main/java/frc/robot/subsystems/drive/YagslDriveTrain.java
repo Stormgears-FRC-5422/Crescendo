@@ -156,6 +156,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
+//        System.out.println("Gyro Roationt: " + swerveDrive.getYaw());
         publisher.set(swerveDrive.getPose());
         m_state.setPose(swerveDrive.getPose());
 

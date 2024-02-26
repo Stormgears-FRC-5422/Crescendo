@@ -18,7 +18,7 @@ public class JoyStickDrive extends Command {
     private final DoubleSupplier tySupplier;
     private final DoubleSupplier omegaSupplier;
     private final BooleanSupplier robotRelativeSupplier;
-    private final BooleanSupplier turboSupplier;
+    private final DoubleSupplier turboSupplier;
 
     private RobotState m_state;
     private boolean m_finish = true;
@@ -69,10 +69,10 @@ public class JoyStickDrive extends Command {
     @Override
     public void execute() {
         // TODO - do we really want to check this every iteration?
-        if (!turboSupplier.getAsBoolean()) {
+        if (turboSupplier.getAsDouble()<=0.2) {
             drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
         } else {
-            drivetrain.setDriveSpeedScale(Drive.driveSpeedScale);
+            drivetrain.setDriveSpeedScale(turboSupplier.getAsDouble());
         }
 
         ChassisSpeeds speeds;

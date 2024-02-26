@@ -26,7 +26,7 @@ public class Shoot extends Command {
 
     @Override
     public boolean isFinished() {
-        return counter > 50;
+        return counter > 40;
     }
 
     @Override
