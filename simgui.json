@@ -2,6 +2,15 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Pre Round/Auto Selector/Amp?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Far Left?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Far Middle Left?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Far Middle Right?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Far Middle?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Far Right?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Middle?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Source?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Starting Position?": "String Chooser",
       "/SmartDashboard/Auto Choices": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/navX-Sensor[4]": "Gyro"

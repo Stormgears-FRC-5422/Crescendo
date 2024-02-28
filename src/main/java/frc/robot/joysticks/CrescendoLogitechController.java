@@ -25,8 +25,8 @@ public class CrescendoLogitechController extends CrescendoJoystick {
         return controller.getRawButton(11);
     }
 
-    public boolean getTurbo() {
-        return controller.getRawButton(2);
+    public double getTurbo() {
+        return 1;
     }
 
 

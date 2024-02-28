@@ -25,8 +25,8 @@ public class CrescendoXboxController extends CrescendoJoystick {
         return controller.getLeftTrigger() > 0.2;
     }
 
-    public boolean getTurbo() {
-        return controller.getRightTrigger() > 0.2;
+    public double getTurbo() {
+        return controller.getRightTrigger();
     }
 
     @Override

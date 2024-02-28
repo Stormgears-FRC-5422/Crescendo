@@ -9,7 +9,7 @@ public abstract class CrescendoJoystick {
 
     public abstract boolean getRobotRelative();
 
-    public abstract boolean getTurbo();
+    public abstract double getTurbo();
 
     public abstract boolean shooter();
 

@@ -52,6 +52,7 @@ public class RobotContainer {
     // **********
     private LoggedDashboardChooser<Command> autoChooser;
     private AutoCommandFactory autoCommandFactory;
+    private AutoCommandFactory.AutoSelector autoSelector;
     private Command m_noChooserCommand;
     private Shoot shoot;
     private AmpShoot ampShoot;
@@ -124,7 +125,8 @@ public class RobotContainer {
         }
 
         if (Toggles.useDrive) {
-            autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, shoot);
+            autoCommandFactory = new AutoCommandFactory(drivetrain, shooter);
+            autoSelector = new AutoCommandFactory.AutoSelector(drivetrain, shooter);
             if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
                 // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
                 // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
@@ -150,7 +152,7 @@ public class RobotContainer {
                     case "3_note_speaker" -> autoCommandFactory.threeNoteSpeaker();
                     case "3_note_speaker_v2" -> autoCommandFactory.threeNoteSpeakerv2();
                     case "testauto" -> autoCommandFactory.testAuto();
-                    case "farside" -> autoCommandFactory.farSide();
+//                    case "farside" -> autoCommandFactory.farSide();
                     case "3_note_speaker_v3" -> autoCommandFactory.threeNoteSpeakerv3();
                     default -> autoCommandFactory.startAutoSequence(
                         Choreo.path.isBlank() ? "simple_2m" : Choreo.path);
@@ -222,7 +224,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
+        if (Toggles.useAutoSelector) {
+            return autoSelector.buildAuto();
+        } else if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
             System.out.println("AutoChooser command: " + autoChooser.get());
             return autoChooser.get();
         } else {

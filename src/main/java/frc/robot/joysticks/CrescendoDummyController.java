@@ -1,7 +1,5 @@
 package frc.robot.joysticks;
 
-import frc.utils.joysticks.StormXboxController;
-
 public class CrescendoDummyController extends CrescendoJoystick {
     CrescendoDummyController(int port) {
 
@@ -21,7 +19,7 @@ public class CrescendoDummyController extends CrescendoJoystick {
 
     public boolean getRobotRelative() { return false; }
 
-    public boolean getTurbo() { return false; }
+    public double getTurbo() { return 0; }
 
     @Override
     public boolean shooter() {
