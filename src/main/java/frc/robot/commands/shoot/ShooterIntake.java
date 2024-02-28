@@ -1,9 +1,10 @@
 package frc.robot.commands.shoot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Shooter;
 
-public class ShooterIntake extends Command {
+public class ShooterIntake extends StormCommand {
     private final Shooter s;
     private int counter;
 
@@ -14,7 +15,7 @@ public class ShooterIntake extends Command {
 
     @Override
     public void initialize() {
-        System.out.println("Shooter command running");
+        super.initialize();
         s.setShooterState(Shooter.ShooterState.SOURCE_PICKUP_1);
         counter = 0;
     }
@@ -32,6 +33,7 @@ public class ShooterIntake extends Command {
     @Override
     public void end(boolean interrupted) {
         s.setShooterState(Shooter.ShooterState.IDLE);
+        super.end(interrupted);
     }
 }
 

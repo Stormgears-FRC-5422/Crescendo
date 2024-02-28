@@ -1,9 +1,10 @@
 package frc.robot.commands.shoot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Shooter;
 
-public class GroundPickup extends Command {
+public class GroundPickup extends StormCommand {
     private final Shooter s;
 
     public GroundPickup(Shooter s) {
@@ -13,30 +14,24 @@ public class GroundPickup extends Command {
 
     @Override
     public void initialize() {
-        System.out.println("Ground Pickup command running");
+        super.initialize();
         s.setShooterState(Shooter.ShooterState.GROUND_PICKUP);
     }
 
     @Override
-    public void execute() {
-    }
-
-    @Override
     public boolean isFinished() {
-//        System.out.println("isFinished ran");
-        return s.isUpperSensorTriggered();
-    }
-
-    @Override
-    public InterruptionBehavior getInterruptionBehavior() {
-        System.out.println("Groind Pickup Interuppted");
-        return super.getInterruptionBehavior();
+        if (s.isUpperSensorTriggered()) {
+            this.log("upper sensor triggered. isFinished = true");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public void end(boolean interrupted) {
         s.setShooterState(Shooter.ShooterState.STAGED_FOR_SHOOTING);
-        System.out.println("Ending Ground Pickup Command");
+        super.end(interrupted);
     }
 
 }

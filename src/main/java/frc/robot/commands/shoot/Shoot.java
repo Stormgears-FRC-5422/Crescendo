@@ -1,9 +1,11 @@
 package frc.robot.commands.shoot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Shooter;
 
-public class Shoot extends Command {
+public class Shoot extends StormCommand {
     private final Shooter s;
     private int counter;
 
@@ -14,7 +16,7 @@ public class Shoot extends Command {
 
     @Override
     public void initialize() {
-        System.out.println("Shooter command running");
+        super.initialize();
         s.setShooterState(Shooter.ShooterState.SPEAKER_SHOOTING);
         counter = 0;
     }
@@ -26,12 +28,13 @@ public class Shoot extends Command {
 
     @Override
     public boolean isFinished() {
-        return counter > 50;
+        return counter > Constants.Shooter.shootForIterations;
     }
 
     @Override
     public void end(boolean interrupted) {
         s.setShooterState(Shooter.ShooterState.IDLE);
+        super.end(interrupted);
     }
 }
 

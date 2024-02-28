@@ -12,7 +12,7 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-public class JoyStickDrive extends Command {
+public class JoyStickDrive extends StormCommand {
     private DrivetrainBase drivetrain;
     private final DoubleSupplier txSupplier;
     private final DoubleSupplier tySupplier;
@@ -43,15 +43,15 @@ public class JoyStickDrive extends Command {
 
     @Override
     public void initialize() {
-        System.out.println("Starting Joystick Drive");
+        super.initialize();
 
         if (m_state.isAllianceMissing()) {
-            System.out.println("Alliance is not set. Exiting command");
+            this.log("Alliance is not set. Exiting command");
             m_finish = true;
         }
 
         m_flipJoystick = ButtonBoard.flipJoystickForRed && m_state.isAllianceRed();
-        System.out.println("Joystick is " + (m_flipJoystick ? "" : "NOT")+ " flipped for alliance");
+        this.log("Joystick is " + (m_flipJoystick ? "" : "NOT")+ " flipped for alliance");
 
         m_finish = false;
     }
@@ -63,7 +63,7 @@ public class JoyStickDrive extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Ending Joystick Drive. Interrupted = " + interrupted);
+        super.end(interrupted);
     }
 
     @Override
