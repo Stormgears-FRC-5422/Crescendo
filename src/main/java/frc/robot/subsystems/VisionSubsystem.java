@@ -136,14 +136,14 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("tx", tx);
         SmartDashboard.putNumber("ty", ty);
 
-        SmartDashboard.putNumber("Vision Pose Rotation",
-            LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])).getRotation().getDegrees());
+/*        SmartDashboard.putNumber("Vision Pose Rotation",
+            LimelightHelpers.getBotPose2d(botpose.getDoubleArray(new double[7])).getRotation().getDegrees());
         SmartDashboard.putNumber("Vision Pose X",
             LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])).getX());
         SmartDashboard.putNumber("Vision Pose Y",
             LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])).getY());
 
-        RobotState.getInstance().setVisionPose(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])), hasTargets());
+        RobotState.getInstance().setVisionPose(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])), hasTargets());*/
 
 //        System.out.println(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])));
 //        System.out.println(hasTargets());
