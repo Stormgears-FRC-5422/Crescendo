@@ -203,10 +203,14 @@ public class RobotContainer {
             new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
             new Trigger(() -> joystick.shooter()).onTrue(shoot);
             new Trigger(() -> joystick.intake()).onTrue(groundPickup);
-            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-            new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
-            new Trigger(() -> joystick.outtake()).onTrue(outtake);
-            new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+//            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+//            new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
+//            new Trigger(() -> joystick.outtake()).onTrue(outtake);
+//            new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand());
+            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand());
+            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getQuasForwardCommand());
+            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand());
 
             if (Toggles.useSecondXbox) {
                 System.out.println("Configure Second Joystick");

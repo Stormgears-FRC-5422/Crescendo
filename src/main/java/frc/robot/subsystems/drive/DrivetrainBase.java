@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
@@ -110,5 +111,24 @@ public abstract class DrivetrainBase extends SubsystemBase {
     public void declarePoseIsNow(Pose2d pose) {
     }
 
+    public Command getQuasForwardCommand(){
+        return new Command() {
+        };
+    }
+
+    public Command getQuasBackwardCommand(){
+        return new Command() {
+        };
+    }
+
+    public Command getDynamicForwardCommand(){
+        return new Command() {
+        };
+    }
+
+    public Command getDynamicBackwardCommand(){
+        return new Command() {
+        };
+    }
 }
 

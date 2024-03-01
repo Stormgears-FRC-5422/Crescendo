@@ -7,7 +7,11 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
@@ -15,7 +19,9 @@ import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
+import swervelib.motors.SwerveMotor;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
@@ -23,6 +29,9 @@ import java.io.File;
 import java.io.IOException;
 
 import frc.robot.Constants.Swerve;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 public class YagslDriveTrain extends DrivetrainBase {
     private final SwerveDrive swerveDrive;
@@ -34,16 +43,40 @@ public class YagslDriveTrain extends DrivetrainBase {
     double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
         Math.hypot(Drive.drivetrainTrackwidthMeters / 2.0, Drive.drivetrainWheelbaseMeters / 2.0);
 
+    SwerveModule[] swerveModule;
+
+
+    SysIdRoutine sysIdRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(
+            null, null, null, // Use default config
+            (state) -> Logger.recordOutput("SysIdTestState", state.toString())
+        ),
+        new SysIdRoutine.Mechanism(
+            (voltage) -> setVoltage(voltage.in(Volts)),
+            null, // No log consumer, since data is recorded by AdvantageKit
+            this
+        )
+    );
+
+
     YagslDriveTrain() throws IOException {
+
+        Command quasForward = sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward);
+        Command quasBackward = sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse);
+        Command dynamicForward = sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward);
+        Command dynamicBackward = sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse);
+
+
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
         swerveDrive.setHeadingCorrection(false);
+        swerveModule = swerveDrive.getModules();
 
         // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         // per https://www.chiefdelphi.com/t/yet-another-generic-swerve-library-yagsl-beta/425148/1280
         if (SwerveDriveTelemetry.isSimulation) {
-            for (SwerveModule m: swerveDrive.getModules()) {
+            for (SwerveModule m : swerveDrive.getModules()) {
                 m.getConfiguration().useCosineCompensator = false;
             }
         }
@@ -73,12 +106,10 @@ public class YagslDriveTrain extends DrivetrainBase {
         Logger.recordOutput("MyPose", swerveDrive.getPose());
 
 
-
 //        System.out.println("Current module positions:");
 //        System.out.println(Arrays.toString(swerveDrive.getModulePositions()));
 //        System.out.println(swerveDrive.getModules()[0].);
     }
-
 
 
 // The internal YAGSL implementation of zeroGyro
@@ -99,14 +130,20 @@ public class YagslDriveTrain extends DrivetrainBase {
 //        resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
 //    }
 
+    public void setVoltage(double v) {
+        for (SwerveModule module : swerveModule) {
+            module.getDriveMotor().setVoltage(v);
+        }
+    }
+
     @Override
     public void resetOrientation() {
         Pose2d oldPose = getPose();
 
         // Note that this behavior defaults to blue if alliance is missing.
         Rotation2d newRotation = m_state.isAllianceRed()
-            ? new Rotation2d(-1,0)
-            : new Rotation2d(1,0);
+            ? new Rotation2d(-1, 0)
+            : new Rotation2d(1, 0);
 
         Pose2d newPose = new Pose2d(oldPose.getX(), oldPose.getY(), newRotation);
 
@@ -154,6 +191,22 @@ public class YagslDriveTrain extends DrivetrainBase {
         m_localFieldRelative = fieldRelative;
     }
 
+    public Command getQuasForwardCommand() {
+        return sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward);
+    }
+
+    public Command getQuasBackwardCommand() {
+        return sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse);
+    }
+
+    public Command getDynamicForwardCommand() {
+        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward);
+    }
+
+    public Command getDynamicBackwardCommand() {
+        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse);
+    }
+
     @Override
     public void periodic() {
 //        System.out.println("Gyro Roationt: " + swerveDrive.getYaw());
@@ -169,4 +222,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 //        m_state.setGyroData(swerveDrive.getYaw());
 //        m_state.setPose(getPose());
     }
+
+
+
 }
