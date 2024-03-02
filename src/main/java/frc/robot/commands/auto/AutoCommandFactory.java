@@ -29,12 +29,18 @@ public class AutoCommandFactory {
     final DrivetrainBase drivetrain;
     final Shooter shooter;
     final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
-    //    final ArrayList<ChoreoTrajectory> far_side = Choreo.getTrajectoryGroup("far_side");
+    final ArrayList<ChoreoTrajectory> middle_far_amp = Choreo.getTrajectoryGroup("middle_far_amp");
+    final ArrayList<ChoreoTrajectory> middle_far_middle_amp = Choreo.getTrajectoryGroup("middle_far_middle_amp");
+    final ArrayList<ChoreoTrajectory> middle_far_middle = Choreo.getTrajectoryGroup("middle_far_middle");
+    final ArrayList<ChoreoTrajectory> middle_far_middle_source = Choreo.getTrajectoryGroup("middle_far_middle_source");
+
+
     final ArrayList<ChoreoTrajectory> amp_side_amp = Choreo.getTrajectoryGroup("amp_side_amp");
     final ArrayList<ChoreoTrajectory> amp_side_middle = Choreo.getTrajectoryGroup("amp_side_middle");
     final ArrayList<ChoreoTrajectory> amp_side_source = Choreo.getTrajectoryGroup("amp_side_source");
     final ArrayList<ChoreoTrajectory> far_amp_side_left = Choreo.getTrajectoryGroup("far_amp_side_left");
     final ArrayList<ChoreoTrajectory> far_amp_middle_left = Choreo.getTrajectoryGroup("far_amp_middle_left");
+    final ArrayList<ChoreoTrajectory> far_amp_middle = Choreo.getTrajectoryGroup("far_amp_middle");
 
     final ArrayList<ChoreoTrajectory> source_side_source = Choreo.getTrajectoryGroup("source_side_source");
     final ArrayList<ChoreoTrajectory> source_side_middle = Choreo.getTrajectoryGroup("source_side_middle");
@@ -157,6 +163,15 @@ public class AutoCommandFactory {
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
             startAutoSequence(far_amp_middle_left.get(0)),
             autoSequence(far_amp_middle_left.get(1)),
+            new Shoot(shooter));
+    }
+
+    public Command ampSideFarMiddle() {
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(far_amp_middle.get(0)),
+            autoSequence(far_amp_middle.get(1)),
             new Shoot(shooter));
     }
 
@@ -295,6 +310,41 @@ public class AutoCommandFactory {
         }
     }
 
+    public Command middleFarAmp(){
+        return Commands.sequence(
+        new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(middle_far_amp.get(0)),
+            autoSequence(middle_far_amp.get(1)),
+            new Shoot(shooter));
+    }
+
+    public Command middleFarMiddleAmp(){
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(middle_far_middle_amp.get(0)),
+            autoSequence(middle_far_middle_amp.get(1)),
+            new Shoot(shooter));
+    }
+
+    public Command middleFarMiddle(){
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(middle_far_middle.get(0)),
+            autoSequence(middle_far_middle.get(1)),
+            new Shoot(shooter));
+    }
+    public Command middleFarMiddleSource(){
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(middle_far_middle_source.get(0)),
+            autoSequence(middle_far_middle_source.get(1)),
+            new Shoot(shooter));
+    }
+
     public Command threeNoteSpeakerv3() {
         return Commands.sequence(new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
@@ -341,11 +391,11 @@ public class AutoCommandFactory {
         private SendableChooser<Boolean> ampNote = new SendableChooser<>();
         private SendableChooser<Boolean> middleNote = new SendableChooser<>();
         private SendableChooser<Boolean> sourceNote = new SendableChooser<>();
-        private SendableChooser<Boolean> farLeft = new SendableChooser<>();
-        private SendableChooser<Boolean> farMiddleLeft = new SendableChooser<>();
+        private SendableChooser<Boolean> ampFar = new SendableChooser<>();
+        private SendableChooser<Boolean> ampMiddleFar = new SendableChooser<>();
         private SendableChooser<Boolean> farMiddle = new SendableChooser<>();
-        private SendableChooser<Boolean> farMiddleRight = new SendableChooser<>();
-        private SendableChooser<Boolean> farRight = new SendableChooser<>();
+        private SendableChooser<Boolean> sourceFar = new SendableChooser<>();
+        private SendableChooser<Boolean> sourceMiddleFar = new SendableChooser<>();
 
         public AutoSelector(DrivetrainBase drivetrainBase, Shooter shooter) {
 
@@ -369,20 +419,20 @@ public class AutoCommandFactory {
             sourceNote.setDefaultOption("No", false);
             sourceNote.addOption("Yes", true);
 
-            farLeft.setDefaultOption("No", false);
-            farLeft.addOption("Yes", true);
+            ampFar.setDefaultOption("No", false);
+            ampFar.addOption("Yes", true);
 
-            farMiddleLeft.setDefaultOption("No", false);
-            farMiddleLeft.addOption("Yes", true);
+            ampMiddleFar.setDefaultOption("No", false);
+            ampMiddleFar.addOption("Yes", true);
 
             farMiddle.setDefaultOption("No", false);
             farMiddle.addOption("Yes", true);
 
-            farMiddleRight.setDefaultOption("No", false);
-            farMiddleRight.addOption("Yes", true);
+            sourceMiddleFar.setDefaultOption("No", false);
+            sourceMiddleFar.addOption("Yes", true);
 
-            farRight.setDefaultOption("No", false);
-            farRight.addOption("Yes", true);
+            sourceFar.setDefaultOption("No", false);
+            sourceFar.addOption("Yes", true);
 
             ShuffleboardConstants.getInstance().autoSelectionLayout
                 .add("Starting Position?", startingPosition).withPosition(0, 0);
@@ -393,15 +443,15 @@ public class AutoCommandFactory {
             ShuffleboardConstants.getInstance().autoSelectionLayout
                 .add("Source?", sourceNote).withPosition(1, 3);
             ShuffleboardConstants.getInstance().autoSelectionLayout
-                .add("Far Left?", farLeft).withPosition(2, 1);
+                .add("Amp Far?", ampFar).withPosition(2, 1);
             ShuffleboardConstants.getInstance().autoSelectionLayout
-                .add("Far Middle Left?", farMiddleLeft).withPosition(2, 2);
+                .add("Amp Middle Far?", ampMiddleFar).withPosition(2, 2);
             ShuffleboardConstants.getInstance().autoSelectionLayout
                 .add("Far Middle?", farMiddle).withPosition(2, 3);
             ShuffleboardConstants.getInstance().autoSelectionLayout
-                .add("Far Middle Right?", farMiddleRight).withPosition(2, 4);
+                .add("Source Middle Far?", sourceMiddleFar).withPosition(2, 4);
             ShuffleboardConstants.getInstance().autoSelectionLayout
-                .add("Far Right?", farRight).withPosition(2, 5);
+                .add("Source Far?", sourceFar).withPosition(2, 5);
 
         }
 
@@ -416,13 +466,15 @@ public class AutoCommandFactory {
                 }
                 if (sourceNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.ampSideSourceNote());
-
                 }
-                if (farLeft.getSelected()) {
+                if (ampFar.getSelected()) {
                     fullRoutine.add(autoCommandFactory.ampSideFarLeft());
                 }
-                if (farMiddleLeft.getSelected()) {
+                if (ampMiddleFar.getSelected()) {
                     fullRoutine.add(autoCommandFactory.ampSideFarMiddleLeft());
+                }
+                if (farMiddle.getSelected()) {
+                    fullRoutine.add(autoCommandFactory.ampSideFarMiddle());
                 }
             } else if (startingPos[startingPosition.getSelected()].equals("middle")) {
                 if (ampNote.getSelected()) {
@@ -433,6 +485,18 @@ public class AutoCommandFactory {
                 }
                 if (middleNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.middleSideSourceNote());
+                }
+                if (ampFar.getSelected()) {
+                    fullRoutine.add(autoCommandFactory.middleFarAmp());
+                }
+                if (ampMiddleFar.getSelected()) {
+                    fullRoutine.add(autoCommandFactory.middleFarMiddleAmp());
+                }
+                if (farMiddle.getSelected()) {
+                    fullRoutine.add(autoCommandFactory.middleFarMiddle());
+                }
+                if (sourceMiddleFar.getSelected()){
+                    fullRoutine.add(autoCommandFactory.middleFarMiddleSource());
                 }
             } else {
                 if (sourceNote.getSelected()) {
@@ -445,10 +509,10 @@ public class AutoCommandFactory {
                 if (ampNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.sourceSideAmpNote());
                 }
-                if (farRight.getSelected()) {
+                if (sourceFar.getSelected()) {
                     fullRoutine.add(autoCommandFactory.sourceSideFarRight());
                 }
-                if (farMiddleRight.getSelected()) {
+                if (sourceMiddleFar.getSelected()) {
                     fullRoutine.add(autoCommandFactory.sourceSideFarMiddleRight());
                 }
             }

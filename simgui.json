@@ -2,6 +2,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Pre Round/Auto Selector/Amp Far?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Amp Middle Far?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Amp?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Far Left?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Far Middle Left?": "String Chooser",
@@ -9,6 +11,8 @@
       "/Shuffleboard/Pre Round/Auto Selector/Far Middle?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Far Right?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Middle?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Source Far?": "String Chooser",
+      "/Shuffleboard/Pre Round/Auto Selector/Source Middle Far?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Source?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Starting Position?": "String Chooser",
       "/SmartDashboard/Auto Choices": "String Chooser",
