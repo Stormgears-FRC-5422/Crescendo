@@ -19,6 +19,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -74,7 +75,14 @@ public class Robot extends LoggedRobot {
             }
 
             if (isReal()) {
-                LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder)); // Log to a USB stick ("/U/logs")
+                File file = new File(Constants.logFolder1);
+                if(file.exists()) {
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder1)); // Log to a USB stick ("/U/logs")
+                } else {
+                    file = new File(Constants.logFolder2);
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder1)); // Log to a USB stick ("/U/logs")
+                }
+
                 LoggerWrapper.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
                 LoggerWrapper.enablePowerDistributionLogging();
             } else if (!isSimulation()) {
