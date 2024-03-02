@@ -22,4 +22,5 @@ public abstract class CrescendoJoystick {
 
     public abstract boolean diagnosticShooterIntake();
     public abstract boolean outtake();
+    public abstract boolean zeroWheels();
 }

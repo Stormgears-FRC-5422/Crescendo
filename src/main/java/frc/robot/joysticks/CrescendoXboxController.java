@@ -63,4 +63,9 @@ public class CrescendoXboxController extends CrescendoJoystick {
     public boolean outtake() {
         return controller.getUpArrowPressed();
     }
+
+    @Override
+    public boolean zeroWheels() {
+        return controller.getLeftBumperIsPressed();
+    }
 }

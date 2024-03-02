@@ -130,5 +130,9 @@ public abstract class DrivetrainBase extends SubsystemBase {
         return new Command() {
         };
     }
+
+    public void centerWheels(){
+
+    }
 }
 

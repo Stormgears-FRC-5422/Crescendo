@@ -29,6 +29,10 @@ public class CrescendoLogitechController extends CrescendoJoystick {
         return 1;
     }
 
+    @Override
+    public boolean zeroWheels() {
+        return false;
+    }
 
     @Override
     public boolean shooter() {

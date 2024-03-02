@@ -11,6 +11,8 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
@@ -75,11 +77,11 @@ public class YagslDriveTrain extends DrivetrainBase {
 
         // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         // per https://www.chiefdelphi.com/t/yet-another-generic-swerve-library-yagsl-beta/425148/1280
-        if (SwerveDriveTelemetry.isSimulation) {
+//        if (SwerveDriveTelemetry.isSimulation) {
             for (SwerveModule m : swerveDrive.getModules()) {
                 m.getConfiguration().useCosineCompensator = false;
             }
-        }
+//        }
 
         // Before we know anything else, just assume forward is 0.
         swerveDrive.setGyro(new Rotation3d(0, 0, 0));
@@ -192,19 +194,25 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     public Command getQuasForwardCommand() {
-        return sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward);
+        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward));
     }
 
     public Command getQuasBackwardCommand() {
-        return sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse);
+        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse));
+
     }
 
     public Command getDynamicForwardCommand() {
-        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward);
+        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward));
     }
 
     public Command getDynamicBackwardCommand() {
-        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse);
+        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse));
+    }
+
+    @Override
+    public void centerWheels() {
+        SwerveDriveTest.centerModules(swerveDrive);
     }
 
     @Override

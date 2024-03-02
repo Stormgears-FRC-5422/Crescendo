@@ -5,6 +5,11 @@ public class CrescendoDummyController extends CrescendoJoystick {
 
     }
 
+    @Override
+    public boolean zeroWheels() {
+        return false;
+    }
+
     public double getWpiX() {
         return 0;
     }
