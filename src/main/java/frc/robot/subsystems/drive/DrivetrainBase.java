@@ -131,7 +131,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
         };
     }
 
-    public void centerWheels(){
+    public void zeroWheels(){
 
     }
 }

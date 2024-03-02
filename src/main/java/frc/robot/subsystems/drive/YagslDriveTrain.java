@@ -47,7 +47,6 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     SwerveModule[] swerveModule;
 
-
     SysIdRoutine sysIdRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(
             null, null, null, // Use default config
@@ -63,12 +62,6 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     YagslDriveTrain() throws IOException {
 
-        Command quasForward = sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward);
-        Command quasBackward = sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse);
-        Command dynamicForward = sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward);
-        Command dynamicBackward = sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse);
-
-
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
@@ -78,9 +71,9 @@ public class YagslDriveTrain extends DrivetrainBase {
         // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         // per https://www.chiefdelphi.com/t/yet-another-generic-swerve-library-yagsl-beta/425148/1280
 //        if (SwerveDriveTelemetry.isSimulation) {
-            for (SwerveModule m : swerveDrive.getModules()) {
-                m.getConfiguration().useCosineCompensator = false;
-            }
+        for (SwerveModule m : swerveDrive.getModules()) {
+            m.getConfiguration().useCosineCompensator = false;
+        }
 //        }
 
         // Before we know anything else, just assume forward is 0.
@@ -111,6 +104,11 @@ public class YagslDriveTrain extends DrivetrainBase {
 //        System.out.println("Current module positions:");
 //        System.out.println(Arrays.toString(swerveDrive.getModulePositions()));
 //        System.out.println(swerveDrive.getModules()[0].);
+
+        Logger.recordOutput("Position", swerveDrive.getPose());
+        Logger.recordOutput("Velocity", swerveDrive.getRobotVelocity());
+        Logger.recordOutput("Volts", getVoltage());
+
     }
 
 
@@ -136,6 +134,10 @@ public class YagslDriveTrain extends DrivetrainBase {
         for (SwerveModule module : swerveModule) {
             module.getDriveMotor().setVoltage(v);
         }
+    }
+
+    public double getVoltage() {
+        return swerveModule[0].getDriveMotor().getVoltage();
     }
 
     @Override
@@ -194,25 +196,27 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     public Command getQuasForwardCommand() {
-        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward));
+        return Commands.sequence(new InstantCommand(this::zeroWheels), sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward));
     }
 
     public Command getQuasBackwardCommand() {
-        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse));
+        return Commands.sequence(new InstantCommand(this::zeroWheels), sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse));
 
     }
 
     public Command getDynamicForwardCommand() {
-        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward));
+        return Commands.sequence(new InstantCommand(this::zeroWheels), sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward));
     }
 
     public Command getDynamicBackwardCommand() {
-        return Commands.sequence(new InstantCommand(this::centerWheels),sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse));
+        return Commands.sequence(new InstantCommand(this::zeroWheels), sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse));
     }
 
     @Override
-    public void centerWheels() {
-        SwerveDriveTest.centerModules(swerveDrive);
+    public void zeroWheels() {
+        for (SwerveModule sm : swerveModule) {
+            sm.setAngle(0);
+        }
     }
 
     @Override
@@ -230,7 +234,6 @@ public class YagslDriveTrain extends DrivetrainBase {
 //        m_state.setGyroData(swerveDrive.getYaw());
 //        m_state.setPose(getPose());
     }
-
 
 
 }

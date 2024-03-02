@@ -20,6 +20,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -75,12 +76,13 @@ public class Robot extends LoggedRobot {
             }
 
             if (isReal()) {
-                File file = new File(Constants.logFolder1);
-                if(file.exists()) {
+
+                if(LogfileChecker(Constants.logFolder1)) {
                     LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder1)); // Log to a USB stick ("/U/logs")
+                } else if (LogfileChecker((Constants.logFolder2))) {
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder2)); // Log to a USB stick ("/U/logs")
                 } else {
-                    file = new File(Constants.logFolder2);
-                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder1)); // Log to a USB stick ("/U/logs")
+                    System.out.println("No Log file Chosen!");
                 }
 
                 LoggerWrapper.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
@@ -109,6 +111,19 @@ public class Robot extends LoggedRobot {
             throw new RuntimeException(e);
         }
         System.out.println("[DONE] Robot");
+    }
+
+    private boolean LogfileChecker(String file) {
+        File testFile = new File(file+"/hello.txt");
+        boolean check;
+        try {
+            testFile.createNewFile();
+            check = true;
+            testFile.delete();
+        } catch (Exception e) {
+            check = false;
+        }
+        return check;
     }
 
     /**
