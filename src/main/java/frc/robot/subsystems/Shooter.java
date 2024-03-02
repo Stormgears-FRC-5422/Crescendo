@@ -73,6 +73,7 @@ public class Shooter extends SubsystemBase {
 //        shooterLeadMotor.set(shooterSlewRateLimiter.calculate(m_shooterMotorSpeed));
         shooterLeadMotor.set(m_shooterMotorSpeed);
         intakeMotor.set(m_intakeMotorSpeed);
+        m_robotState.setUpperSensorTriggered(isUpperSensorTriggered());
     }
 
     public void setShooterState(ShooterState state) {

@@ -104,7 +104,13 @@ public class StatusLights extends SubsystemBase {
 
     public void periodic() {
 
-        cameraAccuracy();
+        if (m_robotState.isUpperSensorTriggered()) {
+            setRingColor(RING_MIDDLE_TOP, ORANGE_COLOR);
+        } else {
+            setRingColor(RING_MIDDLE_TOP, NO_COLOR);
+        }
+
+         //cameraAccuracy();
         StateAlliance alliance = m_robotState.getAlliance();
         int offset = getCompassOffset();
 
@@ -161,8 +167,8 @@ public class StatusLights extends SubsystemBase {
 
         switch (m_shooterState) {
             case IDLE -> {
-//                setRingColor(RING_TOP, WHITE_COLOR);
-//                setRingColor(RING_MIDDLE_TOP, NO_COLOR);
+                setRingColor(RING_TOP, WHITE_COLOR);
+                //setRingColor(RING_MIDDLE_TOP, NO_COLOR);
                 setRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR);
             }
             case STAGED_FOR_SHOOTING -> {

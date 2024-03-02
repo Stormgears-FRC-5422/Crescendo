@@ -33,6 +33,16 @@ public class RobotState extends SubsystemBase {
         return m_instance;
     }
 
+    boolean m_isUpperSensorTriggered;
+
+    public void setUpperSensorTriggered(boolean triggered) {
+        m_isUpperSensorTriggered = triggered;
+    }
+
+    public boolean isUpperSensorTriggered() {
+        return m_isUpperSensorTriggered;
+    }
+
     public void setAlliance(StateAlliance alliance) {
         if (m_alliance != alliance) {
             System.out.println("**********");
