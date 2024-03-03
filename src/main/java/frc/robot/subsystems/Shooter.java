@@ -60,7 +60,6 @@ public class Shooter extends SubsystemBase {
         shooterFollowerMotor.follow(shooterLeadMotor, true);
         intakeMotor.setInverted(true);
 
-
         shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyClosed);
         shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
 
