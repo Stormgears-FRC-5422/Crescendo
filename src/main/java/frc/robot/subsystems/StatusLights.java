@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -15,7 +16,6 @@ import frc.utils.lights.LightType;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class StatusLights extends SubsystemBase {
     private static class Segment {
@@ -34,7 +34,6 @@ public class StatusLights extends SubsystemBase {
     private final RobotState m_robotState;
     private Shooter.ShooterState m_shooterState;
     private StateAlliance m_alliance;
-    private int m_ledOffset;
     private int m_iteration;
     private Pose2d cameraTestPose = new Pose2d(15.0423, 5.467, Rotation2d.fromDegrees(0));
 
@@ -50,6 +49,7 @@ public class StatusLights extends SubsystemBase {
     private Segment RING_MIDDLE_TOP;
     private Segment RING_MIDDLE_BOTTOM;
 
+    private Color8Bit[] compassRing;
     private LEDLightStrip m_ledLightStrip;
     boolean m_ledColorRequested;
 
@@ -59,7 +59,6 @@ public class StatusLights extends SubsystemBase {
 
         m_shooterState = m_robotState.getShooterState();
         m_alliance = m_robotState.getAlliance();
-        m_ledOffset = getCompassOffset();
 
         RED_COLOR = scaleColor(new Color8Bit(255, 0, 0), Constants.Lights.brightness);
         GREEN_COLOR = scaleColor(new Color8Bit(0, 255, 0), Constants.Lights.brightness);
@@ -67,42 +66,25 @@ public class StatusLights extends SubsystemBase {
         ORANGE_COLOR = scaleColor(new Color8Bit(255, 32, 0), Constants.Lights.brightness);
         WHITE_COLOR = scaleColor(new Color8Bit(84, 84, 84), Constants.Lights.brightness);
 
+        compassRing = new Color8Bit[Constants.Lights.oneRingLength];
+
         initializeLights();
         setShooterLights();
-        setCompass();
+        makeCompassArray();
         System.out.println("Status Lights initializing ");
     }
 
-    private static Color8Bit scaleColor(Color8Bit c, double s) {
-        return new Color8Bit(MathUtil.clamp((int) (s * c.red), 0, 255),
-                             MathUtil.clamp((int) (s * c.green), 0, 255),
-                             MathUtil.clamp((int) (s * c.blue), 0, 255));
-    }
-
-    public void cameraAccuracy() {
-        Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
-//        System.out.println(poseError);
-//        System.out.println("Translation: " + poseError);
-//        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
-        if (m_robotState.isVisionPoseValid()) {
-            if (poseError.getX() < 1 && poseError.getY() < 1) {
-                setRingColor(RING_TOP, GREEN_COLOR);
-            } else {
-                setRingColor(RING_TOP, RED_COLOR);
-            }
-
-            if (poseError.getRotation().getDegrees() < 10 && poseError.getRotation().getDegrees() > -10) {
-                setRingColor(RING_MIDDLE_TOP, GREEN_COLOR);
-            } else {
-                setRingColor(RING_MIDDLE_TOP, RED_COLOR);
-            }
-        } else {
-            setRingColor(RING_TOP, RED_COLOR);
-            setRingColor(RING_MIDDLE_TOP, RED_COLOR);
-        }
-    }
-
     public void periodic() {
+        // Lights may be expensive to check, and some updates can come too fast.
+        // Keep a counter to make updates less frequent
+        ++m_iteration;
+
+        StateAlliance alliance = m_robotState.getAlliance();
+        if (alliance != m_alliance) {
+            m_alliance = alliance;
+            makeCompassArray();
+        }
+        setSegmentFromColorArray(RING_BOTTOM, compassRing, m_robotState.getHeading());
 
         if (m_robotState.isUpperSensorTriggered()) {
             setRingColor(RING_MIDDLE_TOP, ORANGE_COLOR);
@@ -110,21 +92,7 @@ public class StatusLights extends SubsystemBase {
             setRingColor(RING_MIDDLE_TOP, NO_COLOR);
         }
 
-         //cameraAccuracy();
-        StateAlliance alliance = m_robotState.getAlliance();
-        int offset = getCompassOffset();
-
-        // Lights are expensive to check, and some updates can come too fast. Keep a counter to make updates less
-        // frequent
-        ++m_iteration;
-
-        //System.out.println("alliance: " + alliance + ", m_alliance" + m_alliance);
-
-        if (offset != m_ledOffset || alliance != m_alliance) {
-            m_ledOffset = offset;
-            m_alliance = alliance;
-            setCompass();
-        }
+        //cameraAccuracy();
 
         if (m_shooterState != m_robotState.getShooterState()) {
             m_shooterState = m_robotState.getShooterState();
@@ -160,6 +128,29 @@ public class StatusLights extends SubsystemBase {
         }
         m_ledLightStrip.setUp(Constants.Lights.port);
         m_ledColorRequested = true;
+    }
+
+    public void cameraAccuracy() {
+        Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
+//        System.out.println(poseError);
+//        System.out.println("Translation: " + poseError);
+//        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
+        if (m_robotState.isVisionPoseValid()) {
+            if (poseError.getX() < 1 && poseError.getY() < 1) {
+                setRingColor(RING_TOP, GREEN_COLOR);
+            } else {
+                setRingColor(RING_TOP, RED_COLOR);
+            }
+
+            if (poseError.getRotation().getDegrees() < 10 && poseError.getRotation().getDegrees() > -10) {
+                setRingColor(RING_MIDDLE_TOP, GREEN_COLOR);
+            } else {
+                setRingColor(RING_MIDDLE_TOP, RED_COLOR);
+            }
+        } else {
+            setRingColor(RING_TOP, RED_COLOR);
+            setRingColor(RING_MIDDLE_TOP, RED_COLOR);
+        }
     }
 
     private void setShooterLights() {
@@ -219,13 +210,30 @@ public class StatusLights extends SubsystemBase {
         }
     }
 
-    private void setAllianceLights() {
-        m_ledColorRequested = true;
-        switch (m_alliance) {
-            case RED -> m_ledLightStrip.setLEDColor(RING_BOTTOM.number, RED_COLOR);
-            case BLUE -> m_ledLightStrip.setLEDColor(RING_BOTTOM.number, BLUE_COLOR);
-            default -> m_ledLightStrip.setAlternatingLEDColor(RING_BOTTOM.number, BLUE_COLOR, RED_COLOR);
+    private static Color8Bit scaleColor(Color8Bit c, double s) {
+        return new Color8Bit(MathUtil.clamp((int) (s * c.red), 0, 255),
+            MathUtil.clamp((int) (s * c.green), 0, 255),
+            MathUtil.clamp((int) (s * c.blue), 0, 255));
+    }
+
+    private void makeCompassArray() {
+        for (int i = 0; i < Constants.Lights.oneRingLength; i++) {
+            compassRing[i] = switch (m_alliance) {
+                case RED -> RED_COLOR;
+                case BLUE -> BLUE_COLOR;
+                default -> (i % 2 == 0) ? BLUE_COLOR : RED_COLOR;
+            };
         }
+
+        Color8Bit pointerColor = switch (m_alliance) {
+            case RED -> BLUE_COLOR;
+            case BLUE -> RED_COLOR;
+            default -> WHITE_COLOR;
+        };
+
+        compassRing[0] = pointerColor;
+        compassRing[Constants.Lights.backLEDOffset1] = pointerColor;
+        compassRing[Constants.Lights.backLEDOffset2] = pointerColor;
     }
 
     private void setRingColor(Segment s, Color8Bit c) {
@@ -236,36 +244,25 @@ public class StatusLights extends SubsystemBase {
         m_ledLightStrip.setAlternatingLEDColor(s.number, c1, c2);
     }
 
-    private int getCompassOffset() {
-        // How far around the circle are we heading? Which led is that, offset from the front?
-        // If the lights are wound clockwise or counterclockwise we need to change which way we go
-        double degreesPerLight = 360.0 / Constants.Lights.oneRingLength;
+    private void setSegmentFromColorArray(Segment s, Color8Bit[] colors, Rotation2d r) {
+        int n = Constants.Lights.oneRingLength; // Total LEDs in one ring
+        boolean invertRing = Constants.Lights.invertRingRotation; // True if the ring is inverted
+        int angleShift = (int)Math.round(n * (r.getDegrees() / 360.0));
 
-        return (Constants.Lights.invertCompass ? -1 : 1) *
-            (int) (Math.round(m_robotState.getHeading().getDegrees() / degreesPerLight));
-    }
+        // Pre-calculate shift based on inversion
+        int shift = invertRing ? (n - angleShift) % n : angleShift % n;
 
-    private void setCompass() {
-        // Start by setting the whole alliance ring
-        setAllianceLights();
+        for (int i = 0; i < n; i++) {
+            // Apply inversion to the index
+            int indexAfterInversion = invertRing ? (n - 1 - i) : i;
 
-        // note that offsets might be positive or negative
-        int ledNumber1 = (m_ledOffset + Constants.Lights.forwardLED + Constants.Lights.oneRingLength)
-            % Constants.Lights.oneRingLength;
-        int ledNumber2 = (m_ledOffset + Constants.Lights.backLEDOffset1 + Constants.Lights.forwardLED + Constants.Lights.oneRingLength)
-            % Constants.Lights.oneRingLength;
-        int ledNumber3 = (m_ledOffset + Constants.Lights.backLEDOffset2 + Constants.Lights.forwardLED + Constants.Lights.oneRingLength)
-            % Constants.Lights.oneRingLength;
+            int newIndex = (indexAfterInversion + shift - Constants.Lights.forwardLEDIndex) % n;
+            if (newIndex < 0) {
+                newIndex += n; // Ensure newIndex is positive
+            }
+            m_ledLightStrip.setLEDColor(s.number, newIndex, colors[i]);
+        }
 
-        Color8Bit pointerColor = switch (m_alliance) {
-            case RED -> BLUE_COLOR;
-            case BLUE -> RED_COLOR;
-            default -> WHITE_COLOR;
-        };
-
-        m_ledLightStrip.setLEDColor(RING_BOTTOM.number, ledNumber1, pointerColor);
-        m_ledLightStrip.setLEDColor(RING_BOTTOM.number, ledNumber2, pointerColor);
-        m_ledLightStrip.setLEDColor(RING_BOTTOM.number, ledNumber3, pointerColor);
         m_ledColorRequested = true;
     }
 
