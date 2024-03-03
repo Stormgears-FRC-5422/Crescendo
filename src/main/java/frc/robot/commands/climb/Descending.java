@@ -1,24 +1,25 @@
-package frc.robot.commands;
+package frc.robot.commands.climb;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
 
-public class Climbing extends StormCommand{
+public class Descending extends StormCommand {
     Climber mClimber;
-    
-    public Climbing(Climber c){
+
+    public Descending(Climber c){
         mClimber = c;
     }
 
     @Override
     public void initialize() {
 
-        
+
     }
     public void execute(){
-        if(!mClimber.isTooFarForward()){
-            mClimber.Climb();
+        if(!mClimber.isTooFarBack()){
+            mClimber.Descend();
         }
         else{
             mClimber.Stop();
@@ -26,13 +27,13 @@ public class Climbing extends StormCommand{
     }
 
 
-    
 
 
 
 
 
 
-    
-    
+
+
+
 }

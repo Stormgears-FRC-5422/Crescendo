@@ -1,12 +1,13 @@
-package frc.robot.commands;
+package frc.robot.commands.climb;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
 
-public class EmergencyStop extends StormCommand{
+public class EmergencyStop extends StormCommand {
     Climber mClimber;
-    
+
     public EmergencyStop(Climber c){
         mClimber = c;
     }
@@ -14,7 +15,7 @@ public class EmergencyStop extends StormCommand{
     @Override
     public void initialize() {
 
-        
+
     }
     public void execute(){
         mClimber.Stop();

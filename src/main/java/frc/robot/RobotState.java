@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
 
 public class RobotState extends SubsystemBase {
@@ -18,13 +19,16 @@ public class RobotState extends SubsystemBase {
     private StateAlliance m_alliance = StateAlliance.MISSING;
     private Pose2d currentPose = new Pose2d();
     private Shooter.ShooterState shooterState = Shooter.ShooterState.IDLE;
+    private Climber.ClimberState climberState = Climber.ClimberState.IDLE;
     private Pose2d visionPose = new Pose2d();
 
     private StatePeriod m_period = StatePeriod.NONE;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
-    private int count =0;
+    private int count = 0;
     private boolean isPoseValid = false;
+    boolean m_isUpperSensorTriggered;
+
 
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
@@ -32,8 +36,6 @@ public class RobotState extends SubsystemBase {
         m_instance = new RobotState();
         return m_instance;
     }
-
-    boolean m_isUpperSensorTriggered;
 
     public void setUpperSensorTriggered(boolean triggered) {
         m_isUpperSensorTriggered = triggered;
@@ -109,6 +111,15 @@ public class RobotState extends SubsystemBase {
     public void setShooterState(Shooter.ShooterState s) {
         shooterState = s;
     }
+
+    public Climber.ClimberState getClimberState() {
+        return climberState;
+    }
+
+    public void setClimberState(Climber.ClimberState s) {
+        climberState = s;
+    }
+
 
     public boolean isVisionPoseValid() {
 
