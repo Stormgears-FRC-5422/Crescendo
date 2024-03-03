@@ -18,6 +18,10 @@ public class EmergencyStop extends StormCommand {
 
     }
     public void execute(){
-        mClimber.Stop();
+        mClimber.stop();
+
+    }
+    public boolean isFinished(){
+        return(mClimber.isIdle());
     }
 }

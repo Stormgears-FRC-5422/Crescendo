@@ -8,23 +8,17 @@ import com.revrobotics.SparkLimitSwitch.Type;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.SparkMax;
 import frc.robot.RobotState;
-import frc.utils.motorcontrol.LimitSwitch;
-import frc.utils.vision.NoteVisualizer;
-
-import static frc.robot.subsystems.Shooter.Direction.FORWARD;
-import static frc.robot.subsystems.Shooter.Direction.REVERSE;
 
 
 public class Climber extends SubsystemBase {
     public enum ClimberState {
-        BAD,
-        IDLE,
-        CLIMBING,
-        DESCENDING,
-        HOMING,
-        HANGING
+        BAD,     //There is an error
+        IDLE,    //When it is still and nothing is running(not necessarily at home position)
+        CLIMBING, //When it is climbing onto the chain
+        HOMING,  //When it is moving back to home
+        HANGING, //It is on the chain
+        HOME     //It is at the home position
     }
 
     private final CANSparkMax climberLeadMotor;
@@ -70,13 +64,14 @@ public class Climber extends SubsystemBase {
             case CLIMBING -> {
                 m_climberMotorSpeed = Constants.Climber.climbSpeed;
             }
-            case DESCENDING -> {
-                m_climberMotorSpeed = -Constants.Climber.descendSpeed;
-            }
+            
             case HOMING -> {
                 m_climberMotorSpeed = -Constants.Climber.homeSpeed;
             }
             case HANGING -> { // Separate from idle since we might need to do something else here like hold
+                m_climberMotorSpeed = 0;
+            }
+            case HOME -> {//when it is actually home and done moving
                 m_climberMotorSpeed = 0;
             }
             default -> System.out.println("invalid Climber state");
@@ -91,8 +86,11 @@ public class Climber extends SubsystemBase {
         return climberZeroLimitSwitch.isPressed();
     }
 
-    public void Stop(){
+    public void stop(){
         setClimberState(ClimberState.IDLE);
+    }
+    public boolean isIdle(){
+        return(m_robotState.getClimberState()==ClimberState.IDLE);
     }
 
 }
