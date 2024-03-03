@@ -18,6 +18,9 @@ import frc.robot.Constants.Toggles;
 import frc.robot.Constants.Choreo;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.AutoCommandFactory;
+import frc.robot.commands.climb.Climbing;
+import frc.robot.commands.climb.EmergencyStop;
+import frc.robot.commands.climb.Home;
 import frc.robot.commands.shoot.*;
 import frc.robot.joysticks.*;
 import frc.robot.subsystems.NavX;
@@ -27,8 +30,8 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
+import frc.robot.subsystems.Climber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import java.util.Optional;
 
 /**
@@ -45,6 +48,8 @@ public class RobotContainer {
     private NavX navX;
     private Shooter shooter;
     private VisionSubsystem visionSubsystem;
+    private Climber climber;
+    
 
 
     // **********
@@ -60,7 +65,10 @@ public class RobotContainer {
     private DiagnosticShooterIntake diagnosticShooterIntake;
     private Outtake outtake;
     private SourceIntake sourceIntake;
-
+    private Climbing climbing;
+    private Home home;
+    private EmergencyStop emergencyStop;
+    
 
     // **********
     // Fields
@@ -158,6 +166,14 @@ public class RobotContainer {
                         Choreo.path.isBlank() ? "simple_2m" : Choreo.path);
                 };
             }
+
+        if(Toggles.useClimber){
+            climber = new Climber();
+            climbing = new Climbing(climber);
+            home = new Home(climber);
+            emergencyStop = new EmergencyStop(climber);
+            
+            }
         }
 
         // Configure the trigger bindings
@@ -218,7 +234,14 @@ public class RobotContainer {
             new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
             new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()-> drivetrain.zeroWheels()));
 
-            if (Toggles.useSecondXbox) {
+        if (Toggles.useClimber){
+            new Trigger(()-> joystick.climb()).onTrue(climbing);
+            new Trigger(() ->joystick.home()).onTrue(home);
+            new Trigger(() ->joystick.climberEmergencyStop()).onTrue(emergencyStop);
+        }
+            
+
+            if(Toggles.useSecondXbox){
                 System.out.println("Configure Second Joystick");
                 new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
                 new Trigger(() -> joystick2.shooter()).onTrue(shoot);
