@@ -217,10 +217,10 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useSysId) {
-            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand());
-            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand());
-            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand());
-            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand());
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
+            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
+            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
+            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
             new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()-> drivetrain.zeroWheels()));
         }
 

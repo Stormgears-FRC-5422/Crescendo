@@ -60,8 +60,9 @@ public class Shooter extends SubsystemBase {
         shooterFollowerMotor.follow(shooterLeadMotor, true);
         intakeMotor.setInverted(true);
 
-        shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyClosed);
-        shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
+
+        shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+        shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyClosed);
 
         m_robotState = RobotState.getInstance();
         setShooterState(ShooterState.IDLE);
@@ -103,6 +104,7 @@ public class Shooter extends SubsystemBase {
             case SPEAKER_SHOOTING -> {
                 setLimitSwitch(FORWARD, false);
                 setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
+                setIntakeSpeed(FORWARD, Constants.Shooter.intakeMotorSpeed);
                 NoteVisualizer.shoot();
             }
             case AMP_SHOOTING -> {
