@@ -4,8 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -50,8 +48,15 @@ public class StatusLights extends SubsystemBase {
     private Segment RING_MIDDLE_BOTTOM;
 
     private Color8Bit[] compassRing;
+    private Color8Bit[] visionXRing;
+    private Color8Bit[] visionYRing;
+    private Color8Bit[] visionRotationRing;
+
     private LEDLightStrip m_ledLightStrip;
     boolean m_ledColorRequested;
+
+    private int ringLength;
+    private int halfRingLength;
 
     public StatusLights() {
         m_iteration = 0;
@@ -66,7 +71,13 @@ public class StatusLights extends SubsystemBase {
         ORANGE_COLOR = scaleColor(new Color8Bit(255, 32, 0), Constants.Lights.brightness);
         WHITE_COLOR = scaleColor(new Color8Bit(84, 84, 84), Constants.Lights.brightness);
 
-        compassRing = new Color8Bit[Constants.Lights.oneRingLength];
+        ringLength = Constants.Lights.oneRingLength;
+        halfRingLength = Constants.Lights.oneRingLength / 2;
+
+        compassRing = new Color8Bit[ringLength];
+        visionXRing = new Color8Bit[ringLength];
+        visionYRing = new Color8Bit[ringLength];
+        visionRotationRing = new Color8Bit[ringLength];
 
         initializeLights();
         setShooterLights();
@@ -92,7 +103,11 @@ public class StatusLights extends SubsystemBase {
             setRingColor(RING_MIDDLE_TOP, NO_COLOR);
         }
 
-        //cameraAccuracy();
+        // TODO - we need to decide when we want to display these.
+        // assuming just during pre-game alignment for now
+        if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
+            cameraAccuracy();
+        }
 
         if (m_shooterState != m_robotState.getShooterState()) {
             m_shooterState = m_robotState.getShooterState();
@@ -131,25 +146,64 @@ public class StatusLights extends SubsystemBase {
     }
 
     public void cameraAccuracy() {
-        Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
-//        System.out.println(poseError);
-//        System.out.println("Translation: " + poseError);
-//        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
         if (m_robotState.isVisionPoseValid()) {
-            if (poseError.getX() < 1 && poseError.getY() < 1) {
-                setRingColor(RING_TOP, GREEN_COLOR);
-            } else {
-                setRingColor(RING_TOP, RED_COLOR);
-            }
+            Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
+    //        System.out.println(poseError);
+    //        System.out.println("Translation: " + poseError);
+    //        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
+            getXYIndicatorRing(visionXRing, Math.abs(poseError.getX()));
+            getXYIndicatorRing(visionYRing, Math.abs(poseError.getY()));
+            getThetaIndicatorRing(visionRotationRing, Math.abs(poseError.getRotation().getDegrees()));
 
-            if (poseError.getRotation().getDegrees() < 10 && poseError.getRotation().getDegrees() > -10) {
-                setRingColor(RING_MIDDLE_TOP, GREEN_COLOR);
-            } else {
-                setRingColor(RING_MIDDLE_TOP, RED_COLOR);
-            }
+            setSegmentFromColorArray(RING_TOP, visionRotationRing, poseError.getRotation());
+            setSegmentFromColorArray(RING_MIDDLE_TOP, visionXRing,
+                new Rotation2d(poseError.getX() > 0 ? 1 : -1,0));
+            setSegmentFromColorArray(RING_MIDDLE_BOTTOM, visionYRing,
+                new Rotation2d(0, poseError.getY() > 0 ? 1 : -1));
         } else {
             setRingColor(RING_TOP, RED_COLOR);
             setRingColor(RING_MIDDLE_TOP, RED_COLOR);
+            setRingColor(RING_MIDDLE_BOTTOM, RED_COLOR);
+        }
+    }
+
+    private void getXYIndicatorRing(Color8Bit[] ring, double absError) {
+        if (absError > 1.0) {
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = i < halfRingLength ? RED_COLOR : ORANGE_COLOR;
+            }
+        } else if (absError > 0.20) {
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = i < halfRingLength ? RED_COLOR : BLUE_COLOR;
+            }
+        } else if (absError > 0.02) {  // kinda cheesy, but OK.
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = i < absError / 0.02 ? RED_COLOR : WHITE_COLOR;
+            }
+        } else {
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = GREEN_COLOR;
+            }
+        }
+    }
+
+    private void getThetaIndicatorRing(Color8Bit[] ring, double absRotationError) {
+        if (absRotationError > 45.0) {
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = i < halfRingLength ? RED_COLOR : BLUE_COLOR;
+            }
+        } else if (absRotationError > 10.0) {
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = i < halfRingLength ? RED_COLOR : ORANGE_COLOR;
+            }
+        } else if (absRotationError > 1.0) {  // kinda cheesy, but OK.
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = i < absRotationError / 1.0 ? RED_COLOR : WHITE_COLOR;
+            }
+        } else {
+            for (int i=0; i < ringLength ; i++) {
+                ring[i] = GREEN_COLOR;
+            }
         }
     }
 
