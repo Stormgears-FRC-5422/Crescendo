@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.utils.vision.LimelightHelpers;
 
@@ -23,6 +24,7 @@ public class VisionSubsystem extends SubsystemBase {
     private NetworkTableEntry cl = null;
     private Alliance alliance = Alliance.Blue;
     NetworkTable tableInstance;
+    RobotState m_robotState;
 
     double ty;
 
@@ -31,8 +33,14 @@ public class VisionSubsystem extends SubsystemBase {
     double LIMELIGHT_HEIGHT = 20.0;
     double GOAL_HEIGHT = 60.0;
 
-    public VisionSubsystem() {
+    LimelightHelpers.LimelightTarget_Fiducial helper;
 
+    public VisionSubsystem() {
+        m_robotState = RobotState.getInstance();
+        helper = new LimelightHelpers.LimelightTarget_Fiducial();
+        LimelightHelpers.setLEDMode_PipelineControl("");
+        LimelightHelpers.setLEDMode_ForceBlink("");
+        LimelightHelpers.setCropWindow("",-1,1,-1,1);
         initialized = true;
     }
 
@@ -119,22 +127,20 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        tableInstance = NetworkTableInstance.getDefault().getTable("limelight");
-
-            botpose = tableInstance.getEntry("botpose_wpiblue");
-
-
-        tTarget = tableInstance.getEntry("tv");
-        txEntry = tableInstance.getEntry("tx");
-        tyEntry = tableInstance.getEntry("ty");
-        taEntry = tableInstance.getEntry("ta");
-
-        targetpose = tableInstance.getEntry("targetpose_robotspace");
-        tl = tableInstance.getEntry("tl");
-        cl = tableInstance.getEntry("cl");
-
-        SmartDashboard.putNumber("tx", tx);
-        SmartDashboard.putNumber("ty", ty);
+//        tableInstance = NetworkTableInstance.getDefault().getTable("limelight");
+//        botpose = tableInstance.getEntry("botpose_wpiblue");
+//
+//        tTarget = tableInstance.getEntry("tv");
+//        txEntry = tableInstance.getEntry("tx");
+//        tyEntry = tableInstance.getEntry("ty");
+//        taEntry = tableInstance.getEntry("ta");
+//
+//        targetpose = tableInstance.getEntry("targetpose_robotspace");
+//        tl = tableInstance.getEntry("tl");
+//        cl = tableInstance.getEntry("cl");
+//
+//        SmartDashboard.putNumber("tx", tx);
+//        SmartDashboard.putNumber("ty", ty);
 
 /*        SmartDashboard.putNumber("Vision Pose Rotation",
             LimelightHelpers.getBotPose2d(botpose.getDoubleArray(new double[7])).getRotation().getDegrees());
@@ -149,9 +155,11 @@ public class VisionSubsystem extends SubsystemBase {
 //        System.out.println(hasTargets());
 
 
-        double[] pose = tableInstance.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
+//        double[] pose = tableInstance.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
 
-
+        LimelightHelpers.PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+        // TODO - handle validity issues
+        m_robotState.setVisionPose(poseEstimate.pose, true);
     }
 
 

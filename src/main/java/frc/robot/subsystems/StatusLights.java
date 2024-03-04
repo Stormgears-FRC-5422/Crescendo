@@ -146,8 +146,12 @@ public class StatusLights extends SubsystemBase {
     }
 
     public void cameraAccuracy() {
-        if (m_robotState.isVisionPoseValid()) {
-            Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
+        // TODO - handle validity issues
+
+        //        if (m_robotState.isVisionPoseValid()) {
+        if (true) {
+            //Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
+            Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), new Pose2d(15.24, 5.30, new Rotation2d(-1,0)));
     //        System.out.println(poseError);
     //        System.out.println("Translation: " + poseError);
     //        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
