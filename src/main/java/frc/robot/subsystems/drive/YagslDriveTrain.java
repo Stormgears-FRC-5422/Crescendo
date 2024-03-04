@@ -20,6 +20,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
@@ -87,10 +88,6 @@ public class YagslDriveTrain extends DrivetrainBase {
         publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose2d.struct).publish();
 
-        Logger.recordOutput("MyPose", swerveDrive.getPose());
-        Logger.recordOutput("Position", swerveDrive.getPose());
-        Logger.recordOutput("Velocity", swerveDrive.getRobotVelocity());
-        Logger.recordOutput("Volts", getSysIdVoltage());
     }
 
     @Override
@@ -214,5 +211,14 @@ public class YagslDriveTrain extends DrivetrainBase {
         } else {
             swerveDrive.drive(m_chassisSpeeds);
         }
+        for (int i = 0; i < swerveModules.length; i++) {
+            Logger.recordOutput("Position drive module " + i, swerveModules[i].getDriveMotor().getPosition());
+            Logger.recordOutput("Velocity drive module " + i, swerveModules[i].getDriveMotor().getVelocity());
+            Logger.recordOutput("Volts drive module " + i, swerveModules[i].getDriveMotor().getVoltage());
+            Logger.recordOutput("Position angle module " + i, swerveModules[i].getAngleMotor().getPosition());
+            Logger.recordOutput("Velocity angle module " + i, swerveModules[i].getAngleMotor().getVelocity());
+            Logger.recordOutput("Volts angle module " + i, swerveModules[i].getAngleMotor().getVoltage());
+        }
+
     }
 }

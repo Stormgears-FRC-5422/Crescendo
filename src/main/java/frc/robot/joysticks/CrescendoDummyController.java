@@ -10,6 +10,21 @@ public class CrescendoDummyController extends CrescendoJoystick {
         return false;
     }
 
+    @Override
+    public boolean climb() {
+        return false;
+    }
+
+    @Override
+    public boolean home() {
+        return false;
+    }
+
+    @Override
+    public boolean climberEmergencyStop() {
+        return false;
+    }
+
     public double getWpiX() {
         return 0;
     }

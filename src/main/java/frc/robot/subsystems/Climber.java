@@ -40,8 +40,11 @@ public class Climber extends SubsystemBase {
         climberForwardLimitSwitch = climberLeadMotor.getForwardLimitSwitch(Type.kNormallyClosed);
         climberZeroLimitSwitch = climberLeadMotor.getReverseLimitSwitch(Type.kNormallyClosed);
 
-        climberForwardLimitSwitch.enableLimitSwitch(true);
-        climberZeroLimitSwitch.enableLimitSwitch(true);
+//        climberForwardLimitSwitch.enableLimitSwitch(true);
+//        climberZeroLimitSwitch.enableLimitSwitch(true);
+
+        climberForwardLimitSwitch.enableLimitSwitch(false);
+        climberZeroLimitSwitch.enableLimitSwitch(false);
 
         climberLeadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
 
@@ -64,7 +67,7 @@ public class Climber extends SubsystemBase {
             case CLIMBING -> {
                 m_climberMotorSpeed = Constants.Climber.climbSpeed;
             }
-            
+
             case HOMING -> {
                 m_climberMotorSpeed = -Constants.Climber.homeSpeed;
             }
@@ -79,7 +82,8 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean isLockedIn(){
-        return climberForwardLimitSwitch.isPressed();
+//        return climberForwardLimitSwitch.isPressed();
+        return false;
     }
 
     public boolean isHome(){
