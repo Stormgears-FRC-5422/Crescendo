@@ -28,13 +28,15 @@ public class AutoCommandFactory {
     final RobotState m_state;
     final DrivetrainBase drivetrain;
     final Shooter shooter;
+//    middle side
     final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
     final ArrayList<ChoreoTrajectory> middle_far_amp = Choreo.getTrajectoryGroup("middle_far_amp");
     final ArrayList<ChoreoTrajectory> middle_far_middle_amp = Choreo.getTrajectoryGroup("middle_far_middle_amp");
     final ArrayList<ChoreoTrajectory> middle_far_middle = Choreo.getTrajectoryGroup("middle_far_middle");
     final ArrayList<ChoreoTrajectory> middle_far_middle_source = Choreo.getTrajectoryGroup("middle_far_middle_source");
+    final ArrayList<ChoreoTrajectory> middle_far_source = Choreo.getTrajectoryGroup("middle_far_source");
 
-
+// amp side
     final ArrayList<ChoreoTrajectory> amp_side_amp = Choreo.getTrajectoryGroup("amp_side_amp");
     final ArrayList<ChoreoTrajectory> amp_side_middle = Choreo.getTrajectoryGroup("amp_side_middle");
     final ArrayList<ChoreoTrajectory> amp_side_source = Choreo.getTrajectoryGroup("amp_side_source");
@@ -42,11 +44,13 @@ public class AutoCommandFactory {
     final ArrayList<ChoreoTrajectory> far_amp_middle_left = Choreo.getTrajectoryGroup("far_amp_middle_left");
     final ArrayList<ChoreoTrajectory> far_amp_middle = Choreo.getTrajectoryGroup("far_amp_middle");
 
+//    source side
     final ArrayList<ChoreoTrajectory> source_side_source = Choreo.getTrajectoryGroup("source_side_source");
     final ArrayList<ChoreoTrajectory> source_side_middle = Choreo.getTrajectoryGroup("source_side_middle");
     final ArrayList<ChoreoTrajectory> source_side_amp = Choreo.getTrajectoryGroup("source_side_amp");
     final ArrayList<ChoreoTrajectory> far_source_right = Choreo.getTrajectoryGroup("far_source_right");
     final ArrayList<ChoreoTrajectory> far_source_middle_right = Choreo.getTrajectoryGroup("far_source_middle_right");
+    final ArrayList<ChoreoTrajectory> source_far_middle = Choreo.getTrajectoryGroup("source_far_middle");
 
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter) {
@@ -225,7 +229,7 @@ public class AutoCommandFactory {
             new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
             startAutoSequence(source_side_amp.get(0)),
-            autoSequence(source_side_source.get(1)),
+            autoSequence(source_side_amp.get(1)),
             new Shoot(shooter));
     }
 
@@ -246,6 +250,15 @@ public class AutoCommandFactory {
             autoSequence(far_source_middle_right.get(1)),
             new Shoot(shooter));
     }
+    public Command sourceFarMiddle() {
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(source_far_middle.get(0)),
+            autoSequence(source_far_middle.get(1)),
+            new Shoot(shooter));
+    }
+
 
 
     public Command fourNoteAmp() {
@@ -344,6 +357,16 @@ public class AutoCommandFactory {
             autoSequence(middle_far_middle_source.get(1)),
             new Shoot(shooter));
     }
+
+    public Command middleFarSource(){
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(middle_far_source.get(0)),
+            autoSequence(middle_far_source.get(1)),
+            new Shoot(shooter));
+    }
+
 
     public Command threeNoteSpeakerv3() {
         return Commands.sequence(new Shoot(shooter),
@@ -483,7 +506,7 @@ public class AutoCommandFactory {
                 if (middleNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.middleSideMiddleNote());
                 }
-                if (middleNote.getSelected()) {
+                if (sourceNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.middleSideSourceNote());
                 }
                 if (ampFar.getSelected()) {
@@ -498,10 +521,12 @@ public class AutoCommandFactory {
                 if (sourceMiddleFar.getSelected()){
                     fullRoutine.add(autoCommandFactory.middleFarMiddleSource());
                 }
+                if (sourceFar.getSelected()) {
+                    fullRoutine.add(autoCommandFactory.middleFarSource());
+                }
             } else {
                 if (sourceNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.sourceSideSourceNote());
-
                 }
                 if (middleNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.sourceSideMiddleNote());
@@ -514,6 +539,9 @@ public class AutoCommandFactory {
                 }
                 if (sourceMiddleFar.getSelected()) {
                     fullRoutine.add(autoCommandFactory.sourceSideFarMiddleRight());
+                }
+                if (farMiddle.getSelected()) {
+                    fullRoutine.add(autoCommandFactory.sourceFarMiddle());
                 }
             }
             Command[] commandsArray = fullRoutine.toArray(new Command[0]);
