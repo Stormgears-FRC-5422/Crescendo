@@ -97,22 +97,21 @@ public class StatusLights extends SubsystemBase {
         }
         setSegmentFromColorArray(RING_BOTTOM, compassRing, m_robotState.getHeading());
 
-        if (m_robotState.isUpperSensorTriggered()) {
-            setRingColor(RING_MIDDLE_TOP, ORANGE_COLOR);
-        } else {
-            setRingColor(RING_MIDDLE_TOP, NO_COLOR);
-        }
+//        if (m_robotState.isUpperSensorTriggered()) {
+//            setRingColor(RING_MIDDLE_TOP, ORANGE_COLOR);
+//        } else {
+//            setRingColor(RING_MIDDLE_TOP, NO_COLOR);
+//        }
 
         // TODO - we need to decide when we want to display these.
         // assuming just during pre-game alignment for now
-        if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
+//        if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
             cameraAccuracy();
-        }
-
-        if (m_shooterState != m_robotState.getShooterState()) {
-            m_shooterState = m_robotState.getShooterState();
-            setShooterLights();
-        }
+//
+//        if (m_shooterState != m_robotState.getShooterState()) {
+//            m_shooterState = m_robotState.getShooterState();
+//            setShooterLights();
+//        }
 
         if (m_ledColorRequested) {
             m_ledLightStrip.setLEDData();
@@ -151,7 +150,7 @@ public class StatusLights extends SubsystemBase {
         //        if (m_robotState.isVisionPoseValid()) {
         if (true) {
             //Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
-            Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), new Pose2d(15.24, 5.30, new Rotation2d(-1,0)));
+            Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), new Pose2d(15.24, 5.547, new Rotation2d(-1,0)));
     //        System.out.println(poseError);
     //        System.out.println("Translation: " + poseError);
     //        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());

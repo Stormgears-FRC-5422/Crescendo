@@ -91,6 +91,11 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     @Override
+    public void setHeadingCorrectionTrue() {
+        swerveDrive.setHeadingCorrection(true);
+    }
+
+    @Override
     public void resetOrientation() {
         Pose2d oldPose = getPose();
 
@@ -158,6 +163,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     public void setSysIdVoltage(double v) {
         for (SwerveModule sm : swerveModules) {
+            sm.setAngle(0);
             sm.getDriveMotor().setVoltage(v);
         }
     }

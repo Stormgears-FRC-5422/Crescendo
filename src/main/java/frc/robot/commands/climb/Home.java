@@ -22,15 +22,16 @@ public class Home extends StormCommand {
     }
 
     public boolean isFinished() {
-        if (m_climber.isHome()) {
-            this.log("Climber is homed. isFinished = true");
-            
-            return true;
-        }
-
-        return false;
+//        if (m_climber.isHome()) {
+//            this.log("Climber is homed. isFinished = true");
+//
+//            return true;
+//        }
+//
+//        return false;
+        return true;
     }
-    
+
     public void end(boolean interrupted) {
         if (interrupted) {
             m_climber.setClimberState(Climber.ClimberState.IDLE);

@@ -2,6 +2,7 @@ package frc.robot.commands.auto;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+import com.choreo.lib.ChoreoTrajectoryState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -54,10 +55,11 @@ public class AutoCommandFactory {
 
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter) {
-        System.out.println("Traj pt1: " + note_speaker_3.get(0));
+//        System.out.println("Traj pt1: " + note_speaker_3.get(0));
         this.drivetrain = drivetrainBase;
         this.shooter = shooter;
         m_state = RobotState.getInstance();
+        drivetrainBase.setHeadingCorrectionTrue();
     }
 
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
@@ -91,7 +93,9 @@ public class AutoCommandFactory {
             openLoop ? 0 : Swerve.rotPidKd
         );
 
-        return Choreo.choreoSwerveCommand(
+
+        return Commands.sequence(Commands.print("Start X PID error: " + xController.getPositionError()),
+            Choreo.choreoSwerveCommand(
             trajectory,
             drivetrain::getPose,
             xController,
@@ -100,7 +104,10 @@ public class AutoCommandFactory {
             (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
             m_state::isAllianceRed,
             drivetrain
-        );
+        ), Commands.print(" END X PID error: " + xController.getPositionError()),
+            Commands.print("Drive End Pose: " + drivetrain.getPose()),
+            Commands.print("Rboto State Drive End Pose: " + RobotState.getInstance().getPose()),
+            Commands.print("Choreo pose: " + trajectory.getFinalState().getPose()));
     }
 
     public Command startAutoSequence(String trajectoryName) {
@@ -122,7 +129,12 @@ public class AutoCommandFactory {
 //            startAutoSequence(Choreo.getTrajectory("simple_2m")),
 //            autoSequence(Choreo.getTrajectory("new2")),
 //        new Shoot(shooter));
-        return startAutoSequence(Choreo.getTrajectory("simple_2m"));
+        System.out.println("getting simple_2m");
+//        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("simple_2m")),
+//            Commands.waitSeconds(1),autoSequence(Choreo.getTrajectory("back_2m")));
+        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("straight_2m")),
+            Commands.waitSeconds(1),autoSequence(Choreo.getTrajectory("back_2m")));
+
     }
 
     public Command ampSideAmpNote() {

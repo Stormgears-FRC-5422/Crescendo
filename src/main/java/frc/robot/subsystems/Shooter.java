@@ -108,6 +108,7 @@ public class Shooter extends SubsystemBase {
             }
             case AMP_SHOOTING -> {
                 setLimitSwitch(FORWARD, false);
+                setIntakeSpeed(FORWARD, Constants.Shooter.intakeLowerMotorSpeed);
                 setShooterSpeed(FORWARD, Constants.Shooter.ampShootMotorSpeed);
                 NoteVisualizer.shoot();
             }

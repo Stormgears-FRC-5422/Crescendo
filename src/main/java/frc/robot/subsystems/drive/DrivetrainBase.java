@@ -134,5 +134,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     public void zeroWheels(){
 
     }
+
+    public void setHeadingCorrectionTrue(){}
 }
 
