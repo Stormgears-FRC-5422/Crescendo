@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Constants;
 import frc.robot.Constants.Swerve;
 import frc.robot.Constants.Toggles;
@@ -29,7 +30,7 @@ public class AutoCommandFactory {
     final RobotState m_state;
     final DrivetrainBase drivetrain;
     final Shooter shooter;
-//    middle side
+    //    middle side
     final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
     final ArrayList<ChoreoTrajectory> middle_far_amp = Choreo.getTrajectoryGroup("middle_far_amp");
     final ArrayList<ChoreoTrajectory> middle_far_middle_amp = Choreo.getTrajectoryGroup("middle_far_middle_amp");
@@ -37,7 +38,7 @@ public class AutoCommandFactory {
     final ArrayList<ChoreoTrajectory> middle_far_middle_source = Choreo.getTrajectoryGroup("middle_far_middle_source");
     final ArrayList<ChoreoTrajectory> middle_far_source = Choreo.getTrajectoryGroup("middle_far_source");
 
-// amp side
+    // amp side
     final ArrayList<ChoreoTrajectory> amp_side_amp = Choreo.getTrajectoryGroup("amp_side_amp");
     final ArrayList<ChoreoTrajectory> amp_side_middle = Choreo.getTrajectoryGroup("amp_side_middle");
     final ArrayList<ChoreoTrajectory> amp_side_source = Choreo.getTrajectoryGroup("amp_side_source");
@@ -45,13 +46,16 @@ public class AutoCommandFactory {
     final ArrayList<ChoreoTrajectory> far_amp_middle_left = Choreo.getTrajectoryGroup("far_amp_middle_left");
     final ArrayList<ChoreoTrajectory> far_amp_middle = Choreo.getTrajectoryGroup("far_amp_middle");
 
-//    source side
+    //    source side
     final ArrayList<ChoreoTrajectory> source_side_source = Choreo.getTrajectoryGroup("source_side_source");
     final ArrayList<ChoreoTrajectory> source_side_middle = Choreo.getTrajectoryGroup("source_side_middle");
     final ArrayList<ChoreoTrajectory> source_side_amp = Choreo.getTrajectoryGroup("source_side_amp");
     final ArrayList<ChoreoTrajectory> far_source_right = Choreo.getTrajectoryGroup("far_source_right");
     final ArrayList<ChoreoTrajectory> far_source_middle_right = Choreo.getTrajectoryGroup("far_source_middle_right");
     final ArrayList<ChoreoTrajectory> source_far_middle = Choreo.getTrajectoryGroup("source_far_middle");
+
+
+    private double timestamp = 0;
 
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter) {
@@ -94,20 +98,18 @@ public class AutoCommandFactory {
         );
 
 
-        return Commands.sequence(Commands.print("Start X PID error: " + xController.getPositionError()),
+        return Commands.sequence(new ParallelCommandGroup(Commands.print("Start X PID error: " + xController.getPositionError()),
             Choreo.choreoSwerveCommand(
-            trajectory,
-            drivetrain::getPose,
-            xController,
-            yController,
-            rotationController,
-            (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
-            m_state::isAllianceRed,
-            drivetrain
-        ), Commands.print(" END X PID error: " + xController.getPositionError()),
-            Commands.print("Drive End Pose: " + drivetrain.getPose()),
-            Commands.print("Rboto State Drive End Pose: " + RobotState.getInstance().getPose()),
-            Commands.print("Choreo pose: " + trajectory.getFinalState().getPose()));
+                trajectory,
+                drivetrain::getPose,
+                xController,
+                yController,
+                rotationController,
+                (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
+                m_state::isAllianceRed,
+                drivetrain
+            ), Commands.repeatingSequence(Commands.print("X PID error: " + xController.getPositionError()),
+            Commands.print("Trandslation error: " + (xController.getSetpoint() - drivetrain.getPose().getX())))));
     }
 
     public Command startAutoSequence(String trajectoryName) {
@@ -133,7 +135,7 @@ public class AutoCommandFactory {
 //        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("simple_2m")),
 //            Commands.waitSeconds(1),autoSequence(Choreo.getTrajectory("back_2m")));
         return Commands.sequence(startAutoSequence(Choreo.getTrajectory("straight_2m")),
-            Commands.waitSeconds(1),autoSequence(Choreo.getTrajectory("back_2m")));
+            Commands.waitSeconds(1), autoSequence(Choreo.getTrajectory("back_2m")));
 
     }
 
@@ -262,6 +264,7 @@ public class AutoCommandFactory {
             autoSequence(far_source_middle_right.get(1)),
             new Shoot(shooter));
     }
+
     public Command sourceFarMiddle() {
         return Commands.sequence(
             new Shoot(shooter),
@@ -270,7 +273,6 @@ public class AutoCommandFactory {
             autoSequence(source_far_middle.get(1)),
             new Shoot(shooter));
     }
-
 
 
     public Command fourNoteAmp() {
@@ -335,16 +337,16 @@ public class AutoCommandFactory {
         }
     }
 
-    public Command middleFarAmp(){
+    public Command middleFarAmp() {
         return Commands.sequence(
-        new Shoot(shooter),
+            new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
             startAutoSequence(middle_far_amp.get(0)),
             autoSequence(middle_far_amp.get(1)),
             new Shoot(shooter));
     }
 
-    public Command middleFarMiddleAmp(){
+    public Command middleFarMiddleAmp() {
         return Commands.sequence(
             new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
@@ -353,7 +355,7 @@ public class AutoCommandFactory {
             new Shoot(shooter));
     }
 
-    public Command middleFarMiddle(){
+    public Command middleFarMiddle() {
         return Commands.sequence(
             new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
@@ -361,7 +363,8 @@ public class AutoCommandFactory {
             autoSequence(middle_far_middle.get(1)),
             new Shoot(shooter));
     }
-    public Command middleFarMiddleSource(){
+
+    public Command middleFarMiddleSource() {
         return Commands.sequence(
             new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
@@ -370,7 +373,7 @@ public class AutoCommandFactory {
             new Shoot(shooter));
     }
 
-    public Command middleFarSource(){
+    public Command middleFarSource() {
         return Commands.sequence(
             new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
@@ -530,7 +533,7 @@ public class AutoCommandFactory {
                 if (farMiddle.getSelected()) {
                     fullRoutine.add(autoCommandFactory.middleFarMiddle());
                 }
-                if (sourceMiddleFar.getSelected()){
+                if (sourceMiddleFar.getSelected()) {
                     fullRoutine.add(autoCommandFactory.middleFarMiddleSource());
                 }
                 if (sourceFar.getSelected()) {
