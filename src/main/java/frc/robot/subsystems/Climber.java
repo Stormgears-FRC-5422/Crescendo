@@ -22,7 +22,7 @@ public class Climber extends SubsystemBase {
     private final CANSparkMax climberFollowerMotor;
 
     private SparkLimitSwitch climberForwardLimitSwitch;
-    private SparkLimitSwitch climberZeroLimitSwitch;
+    private SparkLimitSwitch climberHomeLimitSwitch;
     private final RobotState m_robotState;
     private ClimberState m_myState;
 
@@ -44,11 +44,11 @@ public class Climber extends SubsystemBase {
         climberFollowerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
         climberFollowerMotor.follow(climberLeadMotor, true);
 
-        climberForwardLimitSwitch = climberLeadMotor.getForwardLimitSwitch(Type.kNormallyClosed);
-        climberZeroLimitSwitch = climberLeadMotor.getReverseLimitSwitch(Type.kNormallyClosed);
+        climberForwardLimitSwitch = climberLeadMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+        climberHomeLimitSwitch = climberLeadMotor.getReverseLimitSwitch(Type.kNormallyClosed);
 
         climberForwardLimitSwitch.enableLimitSwitch(false);
-        climberZeroLimitSwitch.enableLimitSwitch(false);
+        climberHomeLimitSwitch.enableLimitSwitch(false);
 
         setupPID();
 
@@ -71,13 +71,14 @@ public class Climber extends SubsystemBase {
 
         // Encoder object created to display position values
         m_encoder = climberLeadMotor.getEncoder();
-
+//        climberFollowerMotor.burnFlash();
         // PID coefficients
-        kP = 6e-5;
+        kP = 0.05;
         kI = 0;
         kD = 0;
         kIz = 0;
-        kFF = 0.000015;
+//        kFF = 0.000015;
+        kFF = Constants.Climber.climbSpeed * Constants.SparkMax.FreeSpeedRPM;
         kMaxOutput = 1;
         kMinOutput = -1;
         maxRPM = 5700;
@@ -125,12 +126,12 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean isLockedIn(){
-//        return climberForwardLimitSwitch.isPressed();
-        return false;
+        return climberForwardLimitSwitch.isPressed();
+//        return false;
     }
 
     public boolean isHome(){
-        return climberZeroLimitSwitch.isPressed();
+        return climberHomeLimitSwitch.isPressed();
     }
 
     public void stop(){

@@ -9,9 +9,11 @@ import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
+import frc.robot.ShuffleboardConstants;
 import frc.utils.vision.NoteVisualizer;
 
 import static frc.robot.subsystems.Shooter.Direction.FORWARD;
@@ -50,6 +52,9 @@ public class Shooter extends SubsystemBase {
     double m_intakeMotorSpeed = 0;
 
     SlewRateLimiter shooterSlewRateLimiter = new SlewRateLimiter(3);
+    Boolean shooterStaged = false;
+
+
 
     public Shooter() {
         shooterLeadMotor = new CANSparkMax(Constants.Shooter.leaderID, CANSparkLowLevel.MotorType.kBrushless);
@@ -65,6 +70,8 @@ public class Shooter extends SubsystemBase {
 
         m_robotState = RobotState.getInstance();
         setShooterState(ShooterState.IDLE);
+
+        ShuffleboardConstants.getInstance().drivetrainTab.addBoolean("Note Stages", ()-> shooterStaged);
     }
 
     @Override
@@ -80,50 +87,58 @@ public class Shooter extends SubsystemBase {
 
         switch (state) {
             case IDLE -> {
+                shooterStaged = false;
                 setShooterSpeed(FORWARD, 0);
                 setIntakeSpeed(FORWARD, 0);
                 setIdleModeAll(IdleMode.kCoast);
             }
             case SOURCE_PICKUP_1 -> {
+                shooterStaged = false;
                 setLimitSwitch(REVERSE, false);
                 setShooterSpeed(REVERSE, Constants.Shooter.intakeUpperMotorSpeed);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case SOURCE_PICKUP_2 -> {
+                shooterStaged = false;
                 setLimitSwitch(REVERSE, true);
                 setShooterSpeed(REVERSE, Constants.Shooter.intakeUpperMotorSpeed);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case GROUND_PICKUP -> {
+                shooterStaged = false;
                 setLimitSwitch(FORWARD, true);
                 setIntakeSpeed(FORWARD, Constants.Shooter.intakeLowerMotorSpeed);
                 setShooterSpeed(FORWARD, Constants.Shooter.intakeUpperMotorSpeed);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case SPEAKER_SHOOTING -> {
+                shooterStaged = false;
                 setLimitSwitch(FORWARD, false);
                 setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
                 setIntakeSpeed(FORWARD, Constants.Shooter.intakeMotorSpeed);
                 NoteVisualizer.shoot();
             }
             case AMP_SHOOTING -> {
+                shooterStaged = false;
                 setLimitSwitch(FORWARD, false);
-                setIntakeSpeed(FORWARD, Constants.Shooter.intakeLowerMotorSpeed);
                 setShooterSpeed(FORWARD, Constants.Shooter.ampShootMotorSpeed);
                 NoteVisualizer.shoot();
             }
             case OUTTAKE -> {
+                shooterStaged = false;
                 setLimitSwitch(REVERSE, false);
                 setIntakeSpeed(REVERSE, Constants.Shooter.outtakeSpeed);
                 setShooterSpeed(REVERSE, Constants.Shooter.outtakeSpeed);
                 setIdleModeAll(IdleMode.kCoast);
             }
             case STAGED_FOR_SHOOTING -> {
+                shooterStaged = true;
                 setShooterSpeed(FORWARD, 0);
                 setIntakeSpeed(FORWARD, 0);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case DIAGNOSTIC -> {
+                shooterStaged = false;
                 setLimitSwitch(FORWARD, false);
                 setShooterSpeed(FORWARD, Constants.Shooter.diagnosticShooterSpeed);
                 setIntakeSpeed(FORWARD, Constants.Shooter.diagnosticIntakeSpeed);

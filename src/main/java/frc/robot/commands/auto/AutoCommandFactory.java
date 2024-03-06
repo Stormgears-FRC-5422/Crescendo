@@ -9,10 +9,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants;
 import frc.robot.Constants.Swerve;
 import frc.robot.Constants.Toggles;
@@ -23,6 +20,7 @@ import frc.robot.commands.shoot.Shoot;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.CrescendoField;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;
 
@@ -98,18 +96,23 @@ public class AutoCommandFactory {
         );
 
 
-        return Commands.sequence(new ParallelCommandGroup(Commands.print("Start X PID error: " + xController.getPositionError()),
-            Choreo.choreoSwerveCommand(
-                trajectory,
-                drivetrain::getPose,
-                xController,
-                yController,
-                rotationController,
-                (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
-                m_state::isAllianceRed,
-                drivetrain
-            ), Commands.repeatingSequence(Commands.print("X PID error: " + xController.getPositionError()),
-            Commands.print("Trandslation error: " + (xController.getSetpoint() - drivetrain.getPose().getX())))));
+        return Commands.sequence(
+            Commands.print("Start X PID error: " + xController.getPositionError()),
+            new ParallelRaceGroup(
+                Choreo.choreoSwerveCommand(
+                    trajectory,
+                    drivetrain::getPose,
+                    xController,
+                    yController,
+                    rotationController,
+                    (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
+                    m_state::isAllianceRed,
+                    drivetrain
+                ),
+                Commands.repeatingSequence(new InstantCommand(() -> System.out.println("X SetPoint: " + xController.getSetpoint())),
+                    new InstantCommand(() -> System.out.println("Translation error: " + +(xController.getSetpoint() - drivetrain.getPose().getX()))),
+                    new InstantCommand(() -> System.out.println("X POse: " + drivetrain.getPose().getX()))))
+        );
     }
 
     public Command startAutoSequence(String trajectoryName) {
@@ -134,8 +137,8 @@ public class AutoCommandFactory {
         System.out.println("getting simple_2m");
 //        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("simple_2m")),
 //            Commands.waitSeconds(1),autoSequence(Choreo.getTrajectory("back_2m")));
-        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("straight_2m")),
-            Commands.waitSeconds(1), autoSequence(Choreo.getTrajectory("back_2m")));
+        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("straight_2m")));
+//            Commands.waitSeconds(1), autoSequence(Choreo.getTrajectory("back_2m")));
 
     }
 
