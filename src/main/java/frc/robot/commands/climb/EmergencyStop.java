@@ -10,6 +10,8 @@ public class EmergencyStop extends StormCommand {
 
     public EmergencyStop(Climber c){
         mClimber = c;
+
+        addRequirements(c);
     }
 
     @Override

@@ -18,6 +18,7 @@ import frc.robot.Constants.Toggles;
 import frc.robot.Constants.Choreo;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.AutoCommandFactory;
+import frc.robot.commands.climb.AmpPosition;
 import frc.robot.commands.climb.Climbing;
 import frc.robot.commands.climb.EmergencyStop;
 import frc.robot.commands.climb.Home;
@@ -217,11 +218,10 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useSysId) {
-//            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
-//            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
-//            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
-//            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
-            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getSysIdCommand()); //y button
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
+            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
+            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
+            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
             new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()-> drivetrain.zeroWheels()));
         }
 

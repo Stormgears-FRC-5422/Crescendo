@@ -70,20 +70,25 @@ public class CrescendoLogitechController extends CrescendoJoystick {
 
     @Override
     public boolean climb() {
-        
+
         return controller.getRawButton(9);
     }
 
     @Override
     public boolean home() {
-        
+
         return controller.getRawButton(10);
     }
 
     @Override
     public boolean climberEmergencyStop() {
-        
+
         return controller.getRawButton(7);
     }
-    
+
+    @Override
+    public boolean ampPosition() {
+        return false;
+    }
+
 }

@@ -10,6 +10,8 @@ public class Home extends StormCommand {
 
     public Home(Climber c) {
         m_climber = c;
+
+        addRequirements(c);
     }
 
     @Override

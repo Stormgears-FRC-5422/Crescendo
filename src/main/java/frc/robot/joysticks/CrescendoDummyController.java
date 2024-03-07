@@ -5,6 +5,7 @@ public class CrescendoDummyController extends CrescendoJoystick {
 
     }
 
+
     @Override
     public boolean zeroWheels() {
         return false;
@@ -15,6 +16,7 @@ public class CrescendoDummyController extends CrescendoJoystick {
         return false;
     }
 
+
     @Override
     public boolean home() {
         return false;
@@ -22,6 +24,11 @@ public class CrescendoDummyController extends CrescendoJoystick {
 
     @Override
     public boolean climberEmergencyStop() {
+        return false;
+    }
+
+    @Override
+    public boolean ampPosition() {
         return false;
     }
 

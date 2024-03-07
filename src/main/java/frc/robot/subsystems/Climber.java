@@ -6,16 +6,22 @@ import com.revrobotics.SparkLimitSwitch.Type;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
+import swervelib.math.SwerveMath;
 
 
 public class Climber extends SubsystemBase {
+
+    private static double CLIMBING_SOFT_LIMIT_POSTIION = Constants.Climber.gearRatio * ((Constants.Climber.offsetInDegree + Constants.Climber.climbingSoftLimitInDegree)/360.0);
+
     public enum ClimberState {
         BAD,     //There is an error
         IDLE,    //When it is still and nothing is running(not necessarily at home position)
         CLIMBING, //When it is climbing onto the chain
         HOMING,  //When it is moving back to home
         HANGING, //It is on the chain
-        HOME     //It is at the home position
+        HOME,     //It is at the home position
+        MOVE_FORWARD, // moving to forward position
+        MOVE_REVERSE  // moving to reverse position
     }
 
     private final CANSparkMax climberLeadMotor;
@@ -55,6 +61,8 @@ public class Climber extends SubsystemBase {
         // Keep at the end of the constructor
         m_robotState = RobotState.getInstance();
         setClimberState(ClimberState.IDLE);
+
+
     }
 
     @Override
@@ -77,13 +85,14 @@ public class Climber extends SubsystemBase {
         kI = 0;
         kD = 0;
         kIz = 0;
-//        kFF = 0.000015;
-        kFF = Constants.Climber.climbSpeed * Constants.SparkMax.FreeSpeedRPM;
+        kFF = 0.000015;
+//        kFF = Constants.Climber.climbSpeed * Constants.SparkMax.FreeSpeedRPM;
         kMaxOutput = 1;
         kMinOutput = -1;
         maxRPM = 5700;
 
         m_climbVelocity = 0.25;
+
 
         // set PID coefficients
         m_pidController.setP(kP);
@@ -102,9 +111,13 @@ public class Climber extends SubsystemBase {
         switch (state) {
             case IDLE, BAD -> {
                 m_climberMotorSpeed = 0;
+                enableForwardSoftLimit(false);
+                enableReverseSoftLimit(false);
                 m_usePid = false;
             }
             case CLIMBING -> {
+                setForwardSoftLimit((float) CLIMBING_SOFT_LIMIT_POSTIION);
+                enableForwardSoftLimit(true);
                 m_climberMotorSpeed = Constants.Climber.climbSpeed;
                 m_usePid = true;
             }
@@ -119,26 +132,67 @@ public class Climber extends SubsystemBase {
             case HOME -> {//when it is actually home and done moving
                 m_hasBeenHomed = true;
                 m_climberMotorSpeed = 0;
+                m_encoder.setPosition(0);
+                m_usePid = false;
+            }
+            case MOVE_FORWARD -> {    // climber is moving to amp shoot position
+                m_climberMotorSpeed = Constants.Climber.fwdPosSpeed;
+                enableForwardSoftLimit(true);
+                m_usePid = false;
+            }
+            case MOVE_REVERSE -> {    // climber is moving to amp shoot position
+                m_climberMotorSpeed = -1 * Constants.Climber.revPosSpeed;
+                enableReverseSoftLimit(true);
                 m_usePid = false;
             }
             default -> System.out.println("invalid Climber state");
         }
     }
 
-    public boolean isLockedIn(){
+    public boolean isLockedIn() {
         return climberForwardLimitSwitch.isPressed();
 //        return false;
     }
 
-    public boolean isHome(){
+    public boolean isHome() {
         return climberHomeLimitSwitch.isPressed();
     }
 
-    public void stop(){
+    public void stop() {
         setClimberState(ClimberState.IDLE);
     }
-    public boolean isIdle(){
-        return(m_robotState.getClimberState()==ClimberState.IDLE);
+
+    public boolean isIdle() {
+        return (m_robotState.getClimberState() == ClimberState.IDLE);
     }
 
+    public boolean reachedToForwardPosition() {
+        double error = climberLeadMotor.getSoftLimit(CANSparkBase.SoftLimitDirection.kForward) - m_encoder.getPosition();
+        System.out.println("error position: " + error);
+        System.out.println("error position: " + error);
+        System.out.println("ENCODER POSITION: " + m_encoder.getPosition());
+        return error < 0;
+    }
+
+    public boolean reachedToReversePosition() {
+        double error = climberLeadMotor.getSoftLimit(CANSparkBase.SoftLimitDirection.kReverse) - m_encoder.getPosition();
+        System.out.println("Soft Limit: " + climberLeadMotor.getSoftLimit(CANSparkBase.SoftLimitDirection.kReverse));
+        System.out.println("error position: " + error);
+        System.out.println("ENCODER POSITION: " + m_encoder.getPosition());
+        return error > 0;
+    }
+
+    public void setForwardSoftLimit(float limit) {
+        climberLeadMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward,limit);
+    }
+    public void setReverseSoftLimit(float limit) {
+        climberLeadMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse,limit);
+    }
+
+    public void enableForwardSoftLimit(boolean enable) {
+        climberLeadMotor.enableSoftLimit(CANSparkBase.SoftLimitDirection.kForward, enable);
+    }
+    public void enableReverseSoftLimit(boolean enable) {
+        climberLeadMotor.enableSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, enable);
+    }
 }

@@ -8,6 +8,8 @@ public class Climbing extends StormCommand {
 
     public Climbing(Climber c){
         m_climber = c;
+
+        addRequirements(c);
     }
 
     @Override
