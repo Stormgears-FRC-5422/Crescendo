@@ -136,5 +136,10 @@ public abstract class DrivetrainBase extends SubsystemBase {
     }
 
     public void setHeadingCorrectionTrue(){}
+
+    public Command getSysIdCommand() {
+        return new Command() {
+        };
+    }
 }
 

@@ -49,7 +49,7 @@ public class RobotContainer {
     private Shooter shooter;
     private VisionSubsystem visionSubsystem;
     private Climber climber;
-    
+
 
 
     // **********
@@ -68,7 +68,7 @@ public class RobotContainer {
     private Climbing climbing;
     private Home home;
     private EmergencyStop emergencyStop;
-    
+
 
     // **********
     // Fields
@@ -172,7 +172,7 @@ public class RobotContainer {
             climbing = new Climbing(climber);
             home = new Home(climber);
             emergencyStop = new EmergencyStop(climber);
-            
+
             }
         }
 
@@ -217,10 +217,11 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useSysId) {
-            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
-            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
-            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
-            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
+//            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
+//            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
+//            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
+//            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
+            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getSysIdCommand()); //y button
             new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()-> drivetrain.zeroWheels()));
         }
 
@@ -239,7 +240,7 @@ public class RobotContainer {
             new Trigger(() ->joystick.home()).onTrue(home);
             new Trigger(() ->joystick.climberEmergencyStop()).onTrue(emergencyStop);
         }
-            
+
 
             if(Toggles.useSecondXbox){
                 System.out.println("Configure Second Joystick");

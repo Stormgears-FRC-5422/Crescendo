@@ -19,6 +19,7 @@ import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveParser;
@@ -179,6 +180,12 @@ public class YagslDriveTrain extends DrivetrainBase {
         );
     }
 
+    @Override
+    public Command getSysIdCommand() {
+        return SwerveDriveTest.generateSysIdCommand(sysIdRoutine, 1, 2, 2);
+
+    }
+
     public Command getQuasBackwardCommand() {
         return Commands.sequence(
             new InstantCommand(this::zeroWheels),
@@ -197,6 +204,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         return Commands.sequence(
             new InstantCommand(this::zeroWheels),
             sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+
         );
     }
 
