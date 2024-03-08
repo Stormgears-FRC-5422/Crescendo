@@ -18,10 +18,10 @@ import frc.robot.Constants.Toggles;
 import frc.robot.Constants.Choreo;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.AutoCommandFactory;
-import frc.robot.commands.climb.AmpPosition;
 import frc.robot.commands.climb.Climbing;
 import frc.robot.commands.climb.EmergencyStop;
 import frc.robot.commands.climb.Home;
+import frc.robot.commands.climb.SimpleGotoDegrees;
 import frc.robot.commands.shoot.*;
 import frc.robot.joysticks.*;
 import frc.robot.subsystems.NavX;
@@ -67,6 +67,9 @@ public class RobotContainer {
     private Outtake outtake;
     private SourceIntake sourceIntake;
     private Climbing climbing;
+    private SimpleGotoDegrees gotoAmpShootPosition;
+    private SimpleGotoDegrees gotoStowPosition;
+    private SimpleGotoDegrees gotoClimbStartPosition;
     private Home home;
     private EmergencyStop emergencyStop;
 
@@ -167,14 +170,23 @@ public class RobotContainer {
                         Choreo.path.isBlank() ? "simple_2m" : Choreo.path);
                 };
             }
+        }
 
         if(Toggles.useClimber){
             climber = new Climber();
             climbing = new Climbing(climber);
             home = new Home(climber);
             emergencyStop = new EmergencyStop(climber);
-
-            }
+            // TODO - these commands assume a direction to reach the target. We should add safeties to confirm
+            // we don't end up going the wrong direction and destroy a note in the process.
+            // ideally the climber has knowledge of all of the positions, perhaps through a set of enumerated
+            // locations and could pick the correct path in all cases.
+            gotoAmpShootPosition = new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
+                                                         Climber.Direction.REVERSE);
+            gotoStowPosition = new SimpleGotoDegrees(climber, Constants.Climber.stowDegrees,
+                                                         Climber.Direction.FORWARD);
+            gotoClimbStartPosition = new SimpleGotoDegrees(climber, Constants.Climber.climbStartDegrees,
+                                                         Climber.Direction.REVERSE);
         }
 
         // Configure the trigger bindings
@@ -239,6 +251,7 @@ public class RobotContainer {
             new Trigger(()-> joystick.climb()).onTrue(climbing);
             new Trigger(() ->joystick.home()).onTrue(home);
             new Trigger(() ->joystick.climberEmergencyStop()).onTrue(emergencyStop);
+            new Trigger(() ->joystick.ampPosition()).onTrue(gotoAmpShootPosition);
         }
 
 

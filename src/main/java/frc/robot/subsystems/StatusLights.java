@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.reduxrobotics.sensors.canandcolor.digout.DigoutMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.StateAlliance;
 import frc.utils.lights.LEDLightStrip;
@@ -51,6 +53,7 @@ public class StatusLights extends SubsystemBase {
     private Color8Bit[] visionXRing;
     private Color8Bit[] visionYRing;
     private Color8Bit[] visionRotationRing;
+    private Color8Bit allianceColor;
 
     private LEDLightStrip m_ledLightStrip;
     boolean m_ledColorRequested;
@@ -61,9 +64,9 @@ public class StatusLights extends SubsystemBase {
     public StatusLights() {
         m_iteration = 0;
         m_robotState = RobotState.getInstance();
+        m_alliance = m_robotState.getAlliance();
 
         m_shooterState = m_robotState.getShooterState();
-        m_alliance = m_robotState.getAlliance();
 
         RED_COLOR = scaleColor(new Color8Bit(255, 0, 0), Constants.Lights.brightness);
         GREEN_COLOR = scaleColor(new Color8Bit(0, 255, 0), Constants.Lights.brightness);
@@ -93,26 +96,26 @@ public class StatusLights extends SubsystemBase {
         StateAlliance alliance = m_robotState.getAlliance();
         if (alliance != m_alliance) {
             m_alliance = alliance;
+            allianceColor = getAllianceColor();
             makeCompassArray();
         }
-        setSegmentFromColorArray(RING_BOTTOM, compassRing, m_robotState.getHeading());
 
-//        if (m_robotState.isUpperSensorTriggered()) {
-//            setRingColor(RING_MIDDLE_TOP, ORANGE_COLOR);
-//        } else {
-//            setRingColor(RING_MIDDLE_TOP, NO_COLOR);
-//        }
+        if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
+            if (m_robotState.isClimberParked()) {
+                setAlternatingRingColor(RING_BOTTOM, GREEN_COLOR, allianceColor);
+            } else {
+                setAlternatingRingColor(RING_BOTTOM, WHITE_COLOR, allianceColor);
+            }
+            cameraAccuracy();
+        } else {
+            if (m_shooterState != m_robotState.getShooterState()) {
+                m_shooterState = m_robotState.getShooterState();
+                setShooterLights();
+            }
+            setSegmentFromColorArray(RING_BOTTOM, compassRing, m_robotState.getHeading());
+        }
 
         // TODO - we need to decide when we want to display these.
-        // assuming just during pre-game alignment for now
-//        if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
-            cameraAccuracy();
-//
-//        if (m_shooterState != m_robotState.getShooterState()) {
-//            m_shooterState = m_robotState.getShooterState();
-//            setShooterLights();
-//        }
-
         if (m_ledColorRequested) {
             m_ledLightStrip.setLEDData();
         }
@@ -271,6 +274,14 @@ public class StatusLights extends SubsystemBase {
         return new Color8Bit(MathUtil.clamp((int) (s * c.red), 0, 255),
             MathUtil.clamp((int) (s * c.green), 0, 255),
             MathUtil.clamp((int) (s * c.blue), 0, 255));
+    }
+
+    private Color8Bit getAllianceColor() {
+        return switch (m_alliance) {
+            case RED -> RED_COLOR;
+            case BLUE -> BLUE_COLOR;
+            default -> WHITE_COLOR;
+        };
     }
 
     private void makeCompassArray() {

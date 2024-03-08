@@ -27,8 +27,9 @@ public class RobotState extends SubsystemBase {
     private boolean m_didTeleop = false;
     private int count = 0;
     private boolean isPoseValid = false;
+    private boolean climberIsHome = false;
+    private boolean climberIsParked = false;
     boolean m_isUpperSensorTriggered;
-
 
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
@@ -120,6 +121,21 @@ public class RobotState extends SubsystemBase {
         climberState = s;
     }
 
+    public void setClimberIsHome(boolean isHome) {
+        climberIsHome = isHome;
+    }
+
+    public boolean isClimberHome() {
+        return climberIsHome;
+    }
+
+    public void setClimberIsParked(boolean isParked) {
+        climberIsParked = isParked;
+    }
+
+    public boolean isClimberParked() {
+        return climberIsParked;
+    }
 
     public boolean isVisionPoseValid() {
 

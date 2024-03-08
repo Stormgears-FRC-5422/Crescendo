@@ -4,18 +4,17 @@ import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Climber;
 
 public class Climbing extends StormCommand {
-    Climber m_climber;
+    Climber climber;
 
     public Climbing(Climber c){
-        m_climber = c;
-
+        climber = c;
         addRequirements(c);
     }
 
     @Override
     public void initialize() {
         super.initialize();
-        m_climber.setClimberState(Climber.ClimberState.CLIMBING);
+        climber.setClimberState(Climber.ClimberState.CLIMBING);
     }
 
     @Override
@@ -25,7 +24,7 @@ public class Climbing extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        if (m_climber.isLockedIn()) {
+        if (climber.isLockedIn()) {
             this.log("Chain is locked in. isFinished = true");
             return true;
         }
@@ -36,9 +35,9 @@ public class Climbing extends StormCommand {
     @Override
     public void end(boolean interrupted) {
         if (interrupted) {
-            m_climber.setClimberState(Climber.ClimberState.IDLE);
+            climber.setClimberState(Climber.ClimberState.IDLE);
         } else {
-            m_climber.setClimberState(Climber.ClimberState.HANGING);
+            climber.setClimberState(Climber.ClimberState.HANGING);
         }
 
         super.end(interrupted);
