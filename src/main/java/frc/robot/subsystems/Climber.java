@@ -151,19 +151,24 @@ public class Climber extends SubsystemBase {
             }
             case IDLE -> {
                 m_climberMotorSpeed = 0;
-                enableForwardSoftLimit(false);
-                enableReverseSoftLimit(false);
+//                enableForwardSoftLimit(false);
+//                enableReverseSoftLimit(false);
                 doClimb = false;
             }
             case CLIMBING -> {
-                setForwardSoftLimit((float) getPositionFromDegrees(Constants.Climber.climbStartDegrees));
+                setForwardSoftLimit((float) getPositionFromDegrees(Constants.Climber.climbStopInDegree));
                 enableForwardSoftLimit(true);
 //                m_climberMotorSpeed = Constants.Climber.climbSpeed;
                 doClimb = true;
+                climberLeadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+                climberFollowerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+
             }
             case HOMING -> {
                 m_climberMotorSpeed = -Constants.Climber.homeSpeed;
                 doClimb = false;
+                climberLeadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+                climberFollowerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
             }
             case HANGING -> { // Separate from idle since we might need to do something else here like hold
                 m_climberMotorSpeed = 0;
@@ -179,12 +184,16 @@ public class Climber extends SubsystemBase {
                 doClimb = false;
             }
             case MOVE_FORWARD -> {    // climber is moving to amp shoot position
+                climberLeadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+                climberFollowerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
                 m_climberMotorSpeed = Constants.Climber.fwdPosSpeed;
                 setForwardSoftLimit((float) m_targetPosition);
                 enableForwardSoftLimit(true);
                 doClimb = false;
             }
             case MOVE_REVERSE -> {    // climber is moving to amp shoot position
+                climberLeadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+                climberFollowerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
                 m_climberMotorSpeed = -1 * Constants.Climber.revPosSpeed;
                 setReverseSoftLimit((float) m_targetPosition);
                 enableReverseSoftLimit(true);

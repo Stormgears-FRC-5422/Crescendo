@@ -86,11 +86,13 @@ public class LEDLightStrip {
     }
 
     public void setLEDColor(int segmentNumber, int index, Color8Bit color) {
-        SegmentDetails segment = this.getSegment(segmentNumber);
-        if (segment.lightType == LightType.RGBW) {
-            this.buffer.setRGBW4(segment.startPosition, index, color.red, color.green, color.blue, 0);
-        } else if (segment.lightType == LightType.RGB) {
-            this.buffer.setRGB3(segment.startPosition, index, color.red, color.green, color.blue);
+        if (color != null) {
+            SegmentDetails segment = this.getSegment(segmentNumber);
+            if (segment.lightType == LightType.RGBW) {
+                this.buffer.setRGBW4(segment.startPosition, index, color.red, color.green, color.blue, 0);
+            } else if (segment.lightType == LightType.RGB) {
+                this.buffer.setRGB3(segment.startPosition, index, color.red, color.green, color.blue);
+            }
         }
     }
 

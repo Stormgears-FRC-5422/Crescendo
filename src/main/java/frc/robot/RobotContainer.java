@@ -9,7 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Drive;
@@ -33,6 +35,7 @@ import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 import frc.robot.subsystems.Climber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import java.util.Optional;
 
 /**
@@ -50,7 +53,6 @@ public class RobotContainer {
     private Shooter shooter;
     private VisionSubsystem visionSubsystem;
     private Climber climber;
-
 
 
     // **********
@@ -172,7 +174,7 @@ public class RobotContainer {
             }
         }
 
-        if(Toggles.useClimber){
+        if (Toggles.useClimber) {
             climber = new Climber();
             climbing = new Climbing(climber);
             home = new Home(climber);
@@ -182,11 +184,11 @@ public class RobotContainer {
             // ideally the climber has knowledge of all of the positions, perhaps through a set of enumerated
             // locations and could pick the correct path in all cases.
             gotoAmpShootPosition = new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
-                                                         Climber.Direction.REVERSE);
+                Climber.Direction.REVERSE);
             gotoStowPosition = new SimpleGotoDegrees(climber, Constants.Climber.stowDegrees,
-                                                         Climber.Direction.FORWARD);
+                Climber.Direction.FORWARD);
             gotoClimbStartPosition = new SimpleGotoDegrees(climber, Constants.Climber.climbStartDegrees,
-                                                         Climber.Direction.REVERSE);
+                Climber.Direction.REVERSE);
         }
 
         // Configure the trigger bindings
@@ -234,41 +236,42 @@ public class RobotContainer {
             new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
             new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
             new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
-            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()-> drivetrain.zeroWheels()));
+            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
         }
 
-        if (Toggles.useIntake && Toggles.useShooter && !Toggles.useSysId) {
+        if (Toggles.useIntake && Toggles.useShooter && !Toggles.useSysId && Toggles.useClimber) {
             new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
             new Trigger(() -> joystick.shooter()).onTrue(shoot);
             new Trigger(() -> joystick.intake()).onTrue(groundPickup);
             new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-            new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
+            new Trigger(() -> joystick.shooterAmp()).onTrue(Commands.sequence(gotoAmpShootPosition,
+                ampShoot, gotoStowPosition));
             new Trigger(() -> joystick.outtake()).onTrue(outtake);
             new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
-            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()-> drivetrain.zeroWheels()));
-
-        if (Toggles.useClimber){
-            new Trigger(()-> joystick.climb()).onTrue(climbing);
-            new Trigger(() ->joystick.home()).onTrue(home);
-            new Trigger(() ->joystick.climberEmergencyStop()).onTrue(emergencyStop);
-            new Trigger(() ->joystick.ampPosition()).onTrue(gotoAmpShootPosition);
+//            new Trigger(() -> joystick.zeroWheels()).onTrue(ampShoot);
+            new Trigger(() -> joystick.climb()).onTrue(climbing);
+            new Trigger(() -> joystick.home()).onTrue(home);
+            new Trigger(() -> joystick.climberEmergencyStop()).onTrue(emergencyStop);
+//            new Trigger(() ->joystick.ampPosition()).onTrue(gotoAmpShootPosition);
         }
 
 
-            if(Toggles.useSecondXbox){
-                System.out.println("Configure Second Joystick");
-                new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
-                new Trigger(() -> joystick2.shooter()).onTrue(shoot);
-                new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
-                new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-                new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
-                new Trigger(() -> joystick2.outtake()).onTrue(outtake);
-                new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
-            }
+        if (Toggles.useSecondXbox) {
+            System.out.println("Configure Second Joystick");
+            new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+            new Trigger(() -> joystick2.shooter()).onTrue(shoot);
+            new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
+            new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+            new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
+            new Trigger(() -> joystick2.outtake()).onTrue(outtake);
+            new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
         }
+
 
         System.out.println("[DONE] configureBindings");
     }
+
+
 
     public Command getAutonomousCommand() {
         if (Toggles.useAutoSelector) {

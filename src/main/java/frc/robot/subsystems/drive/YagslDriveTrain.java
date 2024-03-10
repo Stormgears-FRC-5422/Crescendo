@@ -77,12 +77,12 @@ public class YagslDriveTrain extends DrivetrainBase {
             default -> SwerveDriveTelemetry.TelemetryVerbosity.NONE;
         };
 
-        tab.addNumber("PoseX", () -> getPose().getX());
-        tab.addNumber("ChassisSpeed", () -> m_chassisSpeeds.vxMetersPerSecond);
-        tab.addNumber("YagslChassisiSpeeds", () -> getCurrentChassisSpeeds().vxMetersPerSecond);
-        tab.addNumber("Vision X pose", () -> RobotState.getInstance().getVisionPose().getX());
-        tab.addNumber("Vision Y Pose", () -> RobotState.getInstance().getVisionPose().getY());
-        tab.addNumber("VIsion Rotation Pose", () -> RobotState.getInstance().getVisionPose().getRotation().getDegrees());
+//        tab.addNumber("PoseX", () -> getPose().getX());
+//        tab.addNumber("ChassisSpeed", () -> m_chassisSpeeds.vxMetersPerSecond);
+//        tab.addNumber("YagslChassisiSpeeds", () -> getCurrentChassisSpeeds().vxMetersPerSecond);
+//        tab.addNumber("Vision X pose", () -> RobotState.getInstance().getVisionPose().getX());
+//        tab.addNumber("Vision Y Pose", () -> RobotState.getInstance().getVisionPose().getY());
+//        tab.addNumber("VIsion Rotation Pose", () -> RobotState.getInstance().getVisionPose().getRotation().getDegrees());
 
         //        needs to get moved just for testing
 //      coold not figure out how to add pose through logger--- this allows us to use 3d field!!!

@@ -37,6 +37,7 @@ public class SimpleGotoDegrees extends StormCommand {
         }
 
         return result;
+//        return false;
     }
 
     @Override

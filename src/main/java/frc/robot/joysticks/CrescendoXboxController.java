@@ -66,7 +66,7 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
     @Override
     public boolean zeroWheels() {
-        return false;
+        return   controller.getLeftBumperIsPressed();
     }
 
     public boolean home() {
@@ -83,7 +83,7 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
     @Override
     public boolean ampPosition() {
-        return  controller.getLeftBumperIsPressed();
+        return false;
     }
 
 
