@@ -114,8 +114,8 @@ public class Shooter extends SubsystemBase {
             case SPEAKER_SHOOTING -> {
                 shooterStaged = false;
                 setLimitSwitch(FORWARD, false);
-                setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
                 setIntakeSpeed(FORWARD, Constants.Shooter.intakeMotorSpeed);
+                setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
                 NoteVisualizer.shoot();
             }
             case AMP_SHOOTING -> {

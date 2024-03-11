@@ -76,6 +76,8 @@ public class Climber extends SubsystemBase {
         // Keep at the end of the constructor
         robotState = RobotState.getInstance();
         setClimberState(ClimberState.IDLE_COAST);
+
+        climberLeadMotor.enableVoltageCompensation(12);
     }
 
     @Override
@@ -98,10 +100,12 @@ public class Climber extends SubsystemBase {
             double maxVoltage = 1.0;
             double theta = Math.toRadians(getDegreesFromPosition(m_encoder.getPosition()));
 //            System.out.println("Theta is " + theta);
-            climberLeadMotor.set(maxVoltage * Math.abs(Math.cos(theta)));
+//            climberLeadMotor.set(maxVoltage * Math.abs(Math.cos(theta)));
+            climberLeadMotor.set(1);
         } else {
             climberLeadMotor.set(m_climberMotorSpeed);
         }
+
     }
 
     private void setupPID() {
@@ -165,6 +169,8 @@ public class Climber extends SubsystemBase {
 
             }
             case HOMING -> {
+                enableForwardSoftLimit(false);
+                enableReverseSoftLimit(false);
                 m_climberMotorSpeed = -Constants.Climber.homeSpeed;
                 doClimb = false;
                 climberLeadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);

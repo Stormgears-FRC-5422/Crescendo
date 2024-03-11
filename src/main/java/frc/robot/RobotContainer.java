@@ -252,7 +252,8 @@ public class RobotContainer {
             new Trigger(() -> joystick.climb()).onTrue(climbing);
             new Trigger(() -> joystick.home()).onTrue(home);
             new Trigger(() -> joystick.climberEmergencyStop()).onTrue(emergencyStop);
-//            new Trigger(() ->joystick.ampPosition()).onTrue(gotoAmpShootPosition);
+            new Trigger(() ->joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
+                Climber.Direction.REVERSE));
         }
 
 
