@@ -8,7 +8,6 @@ public class Home extends StormCommand {
 
     public Home(Climber c) {
         climber = c;
-
         addRequirements(c);
     }
 
@@ -18,13 +17,9 @@ public class Home extends StormCommand {
         climber.setClimberState(Climber.ClimberState.HOMING);
     }
 
-    public void execute() {
-    }
-
     public boolean isFinished() {
         if (climber.isHome()) {
             this.log("Climber is homed. isFinished = true");
-
             return true;
         }
         return false;
@@ -32,11 +27,10 @@ public class Home extends StormCommand {
 
     public void end(boolean interrupted) {
         if (interrupted) {
-            climber.setClimberState(Climber.ClimberState.IDLE);
+            climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
         } else {
             climber.setClimberState(Climber.ClimberState.HOME);
         }
-
         super.end(interrupted);
     }
 

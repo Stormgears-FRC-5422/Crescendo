@@ -9,11 +9,10 @@ public class SimpleGotoDegrees extends StormCommand {
     double angle;
 
     public SimpleGotoDegrees(Climber c, double degrees, Climber.Direction direction){
-        addRequirements(c);
-
         climber = c;
         this.angle = degrees;
         this.direction = direction;
+        addRequirements(c);
     }
 
     @Override
@@ -25,24 +24,17 @@ public class SimpleGotoDegrees extends StormCommand {
     }
 
     @Override
-    public void execute(){
-        // The subsystem will climb automatically in the CLIMBING state
-    }
-
-    @Override
     public boolean isFinished() {
         boolean result = climber.reachedTargetDegrees();
         if (result) {
             this.log("Climber is at the desired position");
         }
-
         return result;
-//        return false;
     }
 
     @Override
     public void end(boolean interrupted) {
-        climber.setClimberState(Climber.ClimberState.IDLE);
+        climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
         super.end(interrupted);
     }
 

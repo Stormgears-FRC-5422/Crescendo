@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.reduxrobotics.sensors.canandcolor.digout.DigoutMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,7 +8,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.CrescendoField;
-import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.StateAlliance;
 import frc.utils.lights.LEDLightStrip;
@@ -109,7 +107,7 @@ public class StatusLights extends SubsystemBase {
         setRingColor(RING_MIDDLE_BOTTOM, m_robotState.isUpperSensorTriggered() ? ORANGE_COLOR : NO_COLOR);
 
         if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
-            if (m_robotState.isClimberParked()) {
+            if (m_robotState.isClimberAtInit()) {
                 setAlternatingRingColor(RING_BOTTOM, GREEN_COLOR, allianceColor);
             } else {
                 setAlternatingRingColor(RING_BOTTOM, WHITE_COLOR, allianceColor);

@@ -18,28 +18,21 @@ public class Climbing extends StormCommand {
     }
 
     @Override
-    public void execute(){
-        // The subsystem will climb automatically in the CLIMBING state
-    }
-
-    @Override
     public boolean isFinished() {
         if (climber.isLockedIn()) {
             this.log("Chain is locked in. isFinished = true");
             return true;
         }
-
         return false;
     }
 
     @Override
     public void end(boolean interrupted) {
         if (interrupted) {
-            climber.setClimberState(Climber.ClimberState.IDLE);
+            climber.setClimberState(Climber.ClimberState.IDLE_COAST);
         } else {
             climber.setClimberState(Climber.ClimberState.HANGING);
         }
-
         super.end(interrupted);
     }
 
