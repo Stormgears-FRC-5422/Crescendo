@@ -29,4 +29,8 @@ public abstract class CrescendoJoystick {
     public abstract boolean climberEmergencyStop();
 
     public abstract boolean ampPosition();
+
+    public abstract void setRumble();
+
+    public abstract void stopRumble();
 }

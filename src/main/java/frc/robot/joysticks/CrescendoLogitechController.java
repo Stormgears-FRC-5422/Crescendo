@@ -1,5 +1,6 @@
 package frc.robot.joysticks;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import frc.utils.joysticks.StormLogitechController;
 
 public class CrescendoLogitechController extends CrescendoJoystick {
@@ -90,5 +91,16 @@ public class CrescendoLogitechController extends CrescendoJoystick {
     public boolean ampPosition() {
         return false;
     }
+
+  public void setRumble() {
+        controller.setRumble(GenericHID.RumbleType.kBothRumble, 1.0);
+    }
+
+    @Override
+    public void stopRumble() {
+        controller.setRumble(GenericHID.RumbleType.kBothRumble, 0.0);
+    }
+
+    
 
 }

@@ -1,5 +1,6 @@
 package frc.robot.joysticks;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import frc.utils.joysticks.StormXboxController;
 
 public class CrescendoXboxController extends CrescendoJoystick {
@@ -84,7 +85,18 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
     @Override
     public boolean ampPosition() {
+        
         return controller.getLeftBumperIsPressed();
+
+    }
+
+    public void setRumble() {
+        controller.setRumble(GenericHID.RumbleType.kBothRumble, 1.0);
+    }
+
+    @Override
+    public void stopRumble() {
+        controller.setRumble(GenericHID.RumbleType.kBothRumble, 0.0);
     }
 
 

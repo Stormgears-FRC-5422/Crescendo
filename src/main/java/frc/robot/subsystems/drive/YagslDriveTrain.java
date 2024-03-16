@@ -49,6 +49,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
         swerveDrive.setHeadingCorrection(false);
+//        swerveDrive.setHeadingCorrection(true);
         swerveModules = swerveDrive.getModules();
 
         // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
@@ -163,16 +164,8 @@ public class YagslDriveTrain extends DrivetrainBase {
     );
 
     public void setSysIdVoltage(double v) {
-        System.out.println("setSysIdVoltage: " + v);
-        this.setDriveSpeedScale(1.0);
-        this.percentOutputDrive(new ChassisSpeeds(v/12.0, 0, 0),
-            false);
-
-//        System.out.println("setSysIdVoltage: " + v);
-//        for (SwerveModule sm : swerveModules) {
-//            sm.setAngle(0);
-//            sm.getDriveMotor().setVoltage(v);
-//        }
+            this.setDriveSpeedScale(1.0);
+            this.percentOutputDrive(new ChassisSpeeds(v/12.0, 0, 0), false);
     }
 
     public double getSysIdVoltage() {
@@ -188,7 +181,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public Command getSysIdCommand() {
-        return SwerveDriveTest.generateSysIdCommand(sysIdRoutine, 1, 2, 2);
+        return SwerveDriveTest.generateSysIdCommand(sysIdRoutine, 1, 4, 2);
 
     }
 
@@ -232,6 +225,8 @@ public class YagslDriveTrain extends DrivetrainBase {
         } else {
             swerveDrive.drive(m_chassisSpeeds);
         }
+        Logger.recordOutput("Drive Pose", swerveDrive.getPose());
+        Logger.recordOutput("Drive velocity", swerveDrive.getRobotVelocity());
         for (int i = 0; i < swerveModules.length; i++) {
             Logger.recordOutput("Position drive module " + i, swerveModules[i].getDriveMotor().getPosition());
             Logger.recordOutput("Velocity drive module " + i, swerveModules[i].getDriveMotor().getVelocity());
@@ -240,6 +235,8 @@ public class YagslDriveTrain extends DrivetrainBase {
             Logger.recordOutput("Velocity angle module " + i, swerveModules[i].getAngleMotor().getVelocity());
             Logger.recordOutput("Volts angle module " + i, swerveModules[i].getAngleMotor().getVoltage());
         }
+
+
 
     }
 }

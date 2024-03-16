@@ -232,17 +232,21 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useSysId) {
-            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
-            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
-            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
-            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
-            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
+//            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
+//            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
+//            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
+//            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
+//            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
         }
 
         if (Toggles.useIntake && Toggles.useShooter && !Toggles.useSysId && Toggles.useClimber) {
             new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
             new Trigger(() -> joystick.shooter()).onTrue(shoot);
-            new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+            new Trigger(() -> joystick.intake()).onTrue(groundPickup
+            .andThen(new InstantCommand(()->joystick.setRumble()).andThen( 
+            new WaitCommand(0.5))).andThen(new InstantCommand(()-> joystick.stopRumble()))
+            );
             new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
             new Trigger(() -> joystick.shooterAmp()).onTrue(Commands.sequence(gotoAmpShootPosition,
                 ampShoot, gotoStowPosition));
