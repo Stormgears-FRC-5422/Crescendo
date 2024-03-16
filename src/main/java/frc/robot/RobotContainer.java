@@ -11,29 +11,27 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
-import frc.robot.Constants.Toggles;
 import frc.robot.Constants.Choreo;
-import frc.robot.commands.*;
+import frc.robot.Constants.Drive;
+import frc.robot.Constants.Toggles;
+import frc.robot.commands.JoyStickDrive;
+import frc.robot.commands.RumbleCommand;
 import frc.robot.commands.auto.AutoCommandFactory;
 import frc.robot.commands.climb.Climbing;
 import frc.robot.commands.climb.EmergencyStop;
 import frc.robot.commands.climb.Home;
 import frc.robot.commands.climb.SimpleGotoDegrees;
 import frc.robot.commands.shoot.*;
-import frc.robot.joysticks.*;
-import frc.robot.subsystems.NavX;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.StatusLights;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.joysticks.CrescendoJoystick;
+import frc.robot.joysticks.CrescendoJoystickFactory;
+import frc.robot.joysticks.IllegalJoystickTypeException;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.robot.subsystems.Climber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.Optional;
@@ -243,9 +241,10 @@ public class RobotContainer {
         if (Toggles.useIntake && Toggles.useShooter && !Toggles.useSysId && Toggles.useClimber) {
             new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
             new Trigger(() -> joystick.shooter()).onTrue(shoot);
-            new Trigger(() -> joystick.intake()).onTrue(groundPickup
-            .andThen(new InstantCommand(()->joystick.setRumble()).andThen( 
-            new WaitCommand(0.5))).andThen(new InstantCommand(()-> joystick.stopRumble()))
+
+            new Trigger(() -> joystick.intake()).onTrue(
+                groundPickup
+                    .andThen(new RumbleCommand(joystick, 1.0)).unless(() -> !robotState.isUpperSensorTriggered())
             );
             new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
             new Trigger(() -> joystick.shooterAmp()).onTrue(Commands.sequence(gotoAmpShootPosition,
