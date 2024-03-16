@@ -95,10 +95,13 @@ public class AutoCommandFactory {
             openLoop ? 0 : Swerve.rotPidKd
         );
 
+        System.out.println("X P: " + xController.getP());
+
 
         return Commands.sequence(
             Commands.print("Start X PID error: " + xController.getPositionError()),
             new ParallelRaceGroup(
+
                 Choreo.choreoSwerveCommand(
                     trajectory,
                     drivetrain::getPose,
@@ -111,7 +114,14 @@ public class AutoCommandFactory {
                 ),
                 Commands.repeatingSequence(new InstantCommand(() -> System.out.println("X SetPoint: " + xController.getSetpoint())),
                     new InstantCommand(() -> System.out.println("Translation error: " + +(xController.getSetpoint() - drivetrain.getPose().getX()))),
-                    new InstantCommand(() -> System.out.println("X POse: " + drivetrain.getPose().getX()))))
+                    new InstantCommand(() -> System.out.println("X POse: " + drivetrain.getPose().getX())),
+                    new InstantCommand(()-> Logger.recordOutput("X setpoint", xController.getSetpoint())),
+                    new InstantCommand(()-> Logger.recordOutput("Translation X", drivetrain.getPose().getX())),
+                    new InstantCommand(()-> Logger.recordOutput("Y setpoint", yController.getSetpoint())),
+                    new InstantCommand(()-> Logger.recordOutput("Translation Y", drivetrain.getPose().getY())),
+                    new InstantCommand(()-> Logger.recordOutput("Rot setpoint", rotationController.getSetpoint())),
+                    new InstantCommand(()-> Logger.recordOutput("Translation Rot", drivetrain.getPose().getRotation().getDegrees()))
+                    ))
         );
     }
 
