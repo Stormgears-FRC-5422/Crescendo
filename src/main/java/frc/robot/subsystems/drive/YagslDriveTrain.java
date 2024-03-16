@@ -163,10 +163,16 @@ public class YagslDriveTrain extends DrivetrainBase {
     );
 
     public void setSysIdVoltage(double v) {
-        for (SwerveModule sm : swerveModules) {
-            sm.setAngle(0);
-            sm.getDriveMotor().setVoltage(v);
-        }
+        System.out.println("setSysIdVoltage: " + v);
+        this.setDriveSpeedScale(1.0);
+        this.percentOutputDrive(new ChassisSpeeds(v/12.0, 0, 0),
+            false);
+
+//        System.out.println("setSysIdVoltage: " + v);
+//        for (SwerveModule sm : swerveModules) {
+//            sm.setAngle(0);
+//            sm.getDriveMotor().setVoltage(v);
+//        }
     }
 
     public double getSysIdVoltage() {
@@ -210,6 +216,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void zeroWheels() {
+        System.out.println("Zero Wheels");
         for (SwerveModule sm : swerveModules) {
             sm.setAngle(0);
         }
