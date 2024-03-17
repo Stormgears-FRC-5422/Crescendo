@@ -123,6 +123,7 @@ public class Climber extends SubsystemBase {
             enableReverseSoftLimit(m_enableReverseSoftLimit);
             climberLeadMotor.setIdleMode(m_idleMode);
             climberFollowerMotor.setIdleMode(m_idleMode);
+            m_updateControllerState = false;
         }
 
         if (doClimb) {
@@ -158,7 +159,7 @@ public class Climber extends SubsystemBase {
                 m_climberMotorSpeed = 0;
             }
             case CLIMBING -> {
-                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.climbSpeed, Direction.FORWARD);
+                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.climbSpeed, Direction.REVERSE);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 m_targetPosition = getPositionFromDegrees(Constants.Climber.climbStopInDegrees);
                 m_forwardSoftLimitPosition = m_targetPosition;
@@ -241,6 +242,10 @@ public class Climber extends SubsystemBase {
 
     public boolean isHome() {
         return climberHomeLimitSwitch.isPressed();
+    }
+
+    public boolean isStopped() {
+        return m_encoder.getVelocity() == 0 && climberLeadMotor.get() == 0;
     }
 
     public double getPosition() {

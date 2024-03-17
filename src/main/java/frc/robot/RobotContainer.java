@@ -182,11 +182,11 @@ public class RobotContainer {
             // ideally the climber has knowledge of all of the positions, perhaps through a set of enumerated
             // locations and could pick the correct path in all cases.
             gotoAmpShootPosition = new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
-                Climber.Direction.REVERSE);
-            gotoStowPosition = new SimpleGotoDegrees(climber, Constants.Climber.stowDegrees,
                 Climber.Direction.FORWARD);
-            gotoClimbStartPosition = new SimpleGotoDegrees(climber, Constants.Climber.climbStartDegrees,
+            gotoStowPosition = new SimpleGotoDegrees(climber, Constants.Climber.stowDegrees,
                 Climber.Direction.REVERSE);
+            gotoClimbStartPosition = new SimpleGotoDegrees(climber, Constants.Climber.climbStartDegrees,
+                Climber.Direction.FORWARD);
         }
 
         // Configure the trigger bindings

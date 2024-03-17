@@ -18,7 +18,7 @@ public class Home extends StormCommand {
     }
 
     public boolean isFinished() {
-        if (climber.isHome()) {
+        if (climber.isHome() && climber.isStopped()) {
             this.log("Climber is homed. isFinished = true");
             return true;
         }
