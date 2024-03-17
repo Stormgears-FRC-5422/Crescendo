@@ -29,7 +29,7 @@ public class Climbing extends StormCommand {
     @Override
     public void end(boolean interrupted) {
         if (interrupted) {
-            climber.setClimberState(Climber.ClimberState.IDLE_COAST);
+            climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
         } else {
             climber.setClimberState(Climber.ClimberState.HANGING);
         }

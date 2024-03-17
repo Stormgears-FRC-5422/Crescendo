@@ -5,6 +5,7 @@ import frc.robot.subsystems.Climber;
 
 public class Home extends StormCommand {
     Climber climber;
+    boolean atHome;
 
     public Home(Climber c) {
         climber = c;
@@ -14,11 +15,21 @@ public class Home extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
+        atHome = false;
         climber.setClimberState(Climber.ClimberState.HOMING);
     }
 
+    public void execute() {
+        if (climber.isHome() & !atHome) {
+            climber.setClimberState(Climber.ClimberState.HOME);
+            atHome = true;
+        }
+     }
+
     public boolean isFinished() {
-        if (climber.isHome() && climber.isStopped()) {
+//        System.out.println("climber is " + (climber.isHome()? "home" : "not home"));
+//        System.out.println("climber is " + (climber.isStopped()? "stopped" : "not stopped"));
+        if (climber.isHome() && climber.hasStopped()) {
             this.log("Climber is homed. isFinished = true");
             return true;
         }
@@ -29,7 +40,7 @@ public class Home extends StormCommand {
         if (interrupted) {
             climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
         } else {
-            climber.setClimberState(Climber.ClimberState.HOME);
+            climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
         }
         super.end(interrupted);
     }
