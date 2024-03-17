@@ -8,16 +8,17 @@ import frc.robot.subsystems.Shooter;
 
 public class GroundPickup extends StormCommand {
     private final Shooter s;
-   
+
 
     public GroundPickup(Shooter s) {
         this.s = s;
-        
+
         addRequirements(s);
     }
 
     @Override
     public void initialize() {
+        System.out.println("INIT GROUND PICKUP!!!");
         super.initialize();
         s.setShooterState(Shooter.ShooterState.GROUND_PICKUP);
     }
@@ -34,11 +35,11 @@ public class GroundPickup extends StormCommand {
 
     @Override
     public void end(boolean interrupted) {
-        
+
         s.setShooterState(Shooter.ShooterState.STAGED_FOR_SHOOTING);
         super.end(interrupted);
-        
-        
+
+
 
     }
 

@@ -48,6 +48,7 @@ public class CrescendoXboxController extends CrescendoJoystick {
     @Override
     public boolean intake() {
         return controller.getAButtonIsHeld();
+//        return true;
     }
 
     public boolean zeroGyro() {
@@ -85,9 +86,9 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
     @Override
     public boolean ampPosition() {
-        
-        return controller.getLeftBumperIsPressed();
 
+        return controller.getLeftBumperIsPressed();
+//            return false;
     }
 
     public void setRumble() {

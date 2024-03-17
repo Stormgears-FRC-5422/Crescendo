@@ -242,16 +242,17 @@ public class RobotContainer {
             new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
             new Trigger(() -> joystick.shooter()).onTrue(shoot);
 
-            new Trigger(() -> joystick.intake()).onTrue(
+            new Trigger
+                (() -> joystick.intake()).onTrue(
                 groundPickup
-                    .andThen(new RumbleCommand(joystick, 1.0)).unless(() -> !robotState.isUpperSensorTriggered())
+//                    .andThen(new RumbleCommand(joystick, 1.0)).unless(() -> !robotState.isUpperSensorTriggered())
             );
             new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
             new Trigger(() -> joystick.shooterAmp()).onTrue(Commands.sequence(gotoAmpShootPosition,
                 ampShoot, gotoStowPosition));
             new Trigger(() -> joystick.outtake()).onTrue(outtake);
             new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
-//            new Trigger(() -> joystick.zeroWheels()).onTrue(ampShoot);
+            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()->drivetrain.zeroWheels()));
             new Trigger(() -> joystick.climb()).onTrue(climbing);
             new Trigger(() -> joystick.home()).onTrue(home);
             new Trigger(() -> joystick.climberEmergencyStop()).onTrue(emergencyStop);

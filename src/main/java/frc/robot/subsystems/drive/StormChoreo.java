@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.RobotState;
+import org.littletonrobotics.junction.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -210,6 +213,19 @@ public class StormChoreo {
             double yFeedback = yController.calculate(pose.getY(), referenceState.y);
             double rotationFeedback =
                 rotationController.calculate(pose.getRotation().getRadians(), referenceState.heading);
+
+            Logger.recordOutput("X setpoint", referenceState.x);
+            Logger.recordOutput("X Pose", pose.getX());
+            Logger.recordOutput("X FF", xFF);
+
+            Logger.recordOutput("Y setpoint", referenceState.y);
+            Logger.recordOutput("Y Pose", pose.getY());
+            Logger.recordOutput("Y FF", yFF);
+
+            Logger.recordOutput(" ROT setpoint", referenceState.y);
+            Logger.recordOutput("ROT Pose", pose.getY());
+            Logger.recordOutput("ROT FF", rotationFF);
+
 
             System.out.println("xE: " + xController.getPositionError() + ", yE: " + yController.getPositionError() +
                 ", rE: " + rotationController.getPositionError() );

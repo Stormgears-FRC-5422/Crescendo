@@ -73,7 +73,7 @@ public class Climber extends SubsystemBase {
         climberFollowerMotor.follow(climberLeadMotor, true);
 
         climberForwardLimitSwitch = climberLeadMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-        climberHomeLimitSwitch = climberLeadMotor.getReverseLimitSwitch(Type.kNormallyClosed);
+        climberHomeLimitSwitch = climberLeadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
 
         double p1 = getPositionFromDegrees(Constants.Climber.initDegrees
                                          - Constants.Climber.initToleranceDegrees);
@@ -169,7 +169,7 @@ public class Climber extends SubsystemBase {
                 m_climberMotorSpeed = 0;
             }
             case HOMING -> {
-                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.homeSpeed, Direction.REVERSE);
+                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.homeSpeed, Direction.FORWARD);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
             }
             case HOME -> {//when it is actually home and done moving

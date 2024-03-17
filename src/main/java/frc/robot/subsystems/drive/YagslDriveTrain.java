@@ -52,6 +52,8 @@ public class YagslDriveTrain extends DrivetrainBase {
 //        swerveDrive.setHeadingCorrection(true);
         swerveModules = swerveDrive.getModules();
 
+//        swerveDrive.getModules()[0].getDriveMotor().setMotorBrake(true);
+
         // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         // per https://www.chiefdelphi.com/t/yet-another-generic-swerve-library-yagsl-beta/425148/1280
         // There are other reasons to disable it (e.g. during PID tuning)
