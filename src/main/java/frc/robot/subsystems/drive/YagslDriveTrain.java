@@ -68,11 +68,16 @@ public class YagslDriveTrain extends DrivetrainBase {
             }
         }
 
-        if (Swerve.arbFFKs != 0) {
+        if (Swerve.useArbitraryFF) {
             // Make a FF that mimics what the library does, but add ks to overcome static friction.
             SimpleMotorFeedforward tmpFF = SwerveMath.createDriveFeedforward(12,m_maxVelocityMetersPerSecond,1.01);
-            System.out.println("Swerve: arbFF Ks: " + Swerve.arbFFKs + " Kv: " + tmpFF.kv + ", Ka:" + tmpFF.ka);
-            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(Swerve.arbFFKs, tmpFF.kv, tmpFF.ka);
+
+            double ks = Swerve.arbFFKs < 0 ? 0 : Swerve.arbFFKs;
+            double kv = Swerve.arbFFKv < 0 ? tmpFF.kv : Swerve.arbFFKv;
+            double ka = Swerve.arbFFKa < 0 ? tmpFF.ka : Swerve.arbFFKa;
+            System.out.println("Swerve: arbFF Ks: " + ks + " Kv: " + kv + ", Ka:" + ka);
+
+            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(ks, kv, ka);
             swerveDrive.replaceSwerveModuleFeedforward(ff);
         }
 
