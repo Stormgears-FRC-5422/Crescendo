@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive;
 
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -21,6 +22,7 @@ import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
+import swervelib.math.SwerveMath;
 import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -49,10 +51,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
         swerveDrive.setHeadingCorrection(false);
-//        swerveDrive.setHeadingCorrection(true);
         swerveModules = swerveDrive.getModules();
-
-//        swerveDrive.getModules()[0].getDriveMotor().setMotorBrake(true);
 
         // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         // per https://www.chiefdelphi.com/t/yet-another-generic-swerve-library-yagsl-beta/425148/1280
@@ -67,6 +66,14 @@ public class YagslDriveTrain extends DrivetrainBase {
             for (SwerveModule sm : swerveModules) {
                 sm.setDriveMotorVoltageCompensation(Swerve.compensatedVoltage);
             }
+        }
+
+        if (Swerve.arbFFKs != 0) {
+            // Make a FF that mimics what the library does, but add ks to overcome static friction.
+            SimpleMotorFeedforward tmpFF = SwerveMath.createDriveFeedforward(12,m_maxVelocityMetersPerSecond,1.01);
+            System.out.println("Swerve: arbFF Ks: " + Swerve.arbFFKs + " Kv: " + tmpFF.kv + ", Ka:" + tmpFF.ka);
+            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(Swerve.arbFFKs, tmpFF.kv, tmpFF.ka);
+            swerveDrive.replaceSwerveModuleFeedforward(ff);
         }
 
         // Before we know anything else, just assume forward is 0.
