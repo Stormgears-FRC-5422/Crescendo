@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Drive;
@@ -23,6 +24,8 @@ public class JoyStickDrive extends StormCommand {
     private RobotState m_state;
     private boolean m_finish = true;
     private boolean m_flipJoystick = false;
+    private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.5);
+
 
     public JoyStickDrive(DrivetrainBase drivetrain,
                          CrescendoJoystick joystick) {
@@ -86,10 +89,15 @@ public class JoyStickDrive extends StormCommand {
 
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
         // But only for field relative driving. Robot relative driving is always the same
+
         if (m_flipJoystick && fieldRelative) {
             speeds = new ChassisSpeeds(-x, -y, omega);
+//            speeds = new ChassisSpeeds(speedScaleLimiter.calculate(-x), speedScaleLimiter.calculate(-y),
+//                speedScaleLimiter.calculate(omega));
         } else {
             speeds = new ChassisSpeeds(x, y, omega);
+//            speeds = new ChassisSpeeds(speedScaleLimiter.calculate(x), speedScaleLimiter.calculate(y),
+//                speedScaleLimiter.calculate(omega));
         }
 
         drivetrain.percentOutputDrive(speeds, fieldRelative);

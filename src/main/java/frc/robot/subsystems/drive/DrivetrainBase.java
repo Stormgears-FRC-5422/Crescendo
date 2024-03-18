@@ -19,7 +19,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     public double m_maxVelocityMetersPerSecond = 1 ;
     public double m_maxAngularVelocityRadiansPerSecond = 1;
     protected double m_driveSpeedScale = 0;
-    private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.7);
+    private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.25);
     protected final ShuffleboardTab tab;
 
     protected final RobotState m_state;

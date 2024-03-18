@@ -217,6 +217,8 @@ public class StormChoreo {
             Logger.recordOutput("X setpoint", referenceState.x);
             Logger.recordOutput("X Pose", pose.getX());
             Logger.recordOutput("X FF", xFF);
+            Logger.recordOutput("X FF", xFF);
+            Logger.recordOutput("X feedback", xFeedback);
 
             Logger.recordOutput("Y setpoint", referenceState.y);
             Logger.recordOutput("Y Pose", pose.getY());

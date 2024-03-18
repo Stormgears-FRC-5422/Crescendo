@@ -245,8 +245,7 @@ public class RobotContainer {
             new Trigger
                 (() -> joystick.intake()).onTrue(
                 groundPickup
-//                    .andThen(new RumbleCommand(joystick, 1.0)).unless(() -> !robotState.isUpperSensorTriggered())
-            );
+                    .andThen(new RumbleCommand(joystick, 1.0).unless(() -> !robotState.isUpperSensorTriggered())));
             new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
             new Trigger(() -> joystick.shooterAmp()).onTrue(Commands.sequence(gotoAmpShootPosition,
                 ampShoot, gotoStowPosition));

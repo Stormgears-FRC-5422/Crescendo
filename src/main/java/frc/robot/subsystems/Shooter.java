@@ -9,6 +9,7 @@ import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -90,7 +91,7 @@ public class Shooter extends SubsystemBase {
                 shooterStaged = false;
                 setShooterSpeed(FORWARD, 0);
                 setIntakeSpeed(FORWARD, 0);
-                setIdleModeAll(IdleMode.kCoast);
+                setIdleModeAll(IdleMode.kBrake);
             }
             case SOURCE_PICKUP_1 -> {
                 shooterStaged = false;
@@ -106,6 +107,8 @@ public class Shooter extends SubsystemBase {
             }
             case GROUND_PICKUP -> {
                 shooterStaged = false;
+                shooterLeadMotor.setIdleMode(IdleMode.kBrake);
+                shooterFollowerMotor.setIdleMode(IdleMode.kBrake);
                 setLimitSwitch(FORWARD, true);
                 setIntakeSpeed(FORWARD, Constants.Shooter.intakeLowerMotorSpeed);
                 setShooterSpeed(FORWARD, Constants.Shooter.intakeUpperMotorSpeed);
