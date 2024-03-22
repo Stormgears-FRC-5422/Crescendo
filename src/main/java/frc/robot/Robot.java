@@ -85,7 +85,19 @@ public class Robot extends LoggedRobot {
                     LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder3)); // Log to a USB stick ("/U/logs")
                 } else if (LogfileChecker((Constants.logFolder4))) {
                     LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder4)); // Log to a USB stick ("/U/logs")
+                } else if (LogfileChecker((Constants.logFolder5))) {
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder5)); // Log to a USB stick ("/U/logs")
+                } else if (LogfileChecker((Constants.logFolder6))) {
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder6)); // Log to a USB stick ("/U/logs")
+                } else if (LogfileChecker((Constants.logFolder7))) {
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder7)); // Log to a USB stick ("/U/logs")
+                } else if (LogfileChecker((Constants.logFolder8))) {
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder8)); // Log to a USB stick ("/U/logs")
+                } else if (LogfileChecker((Constants.logFolder9))) {
+                    LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder9)); // Log to a USB stick ("/U/logs")
                 }
+
+
                 else {
                     System.out.println("No Log file Chosen!");
                 }
