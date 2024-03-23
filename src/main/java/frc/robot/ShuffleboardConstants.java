@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class ShuffleboardConstants {
 
-    public ShuffleboardTab drivetrainTab, preRoundTab;
+    public ShuffleboardTab drivetrainTab, preRoundTab, visionTab,visionNoteTab;
     public ShuffleboardLayout autoSelectionLayout;
     private static ShuffleboardConstants instance;
 
@@ -20,6 +20,8 @@ public class ShuffleboardConstants {
     private ShuffleboardConstants() {
         drivetrainTab = Shuffleboard.getTab("Drivetrain");
         preRoundTab = Shuffleboard.getTab("Pre Round");
+        visionTab = Shuffleboard.getTab("Vision");
+        visionNoteTab = Shuffleboard.getTab("Vision Note");
 
         autoSelectionLayout = preRoundTab
             .getLayout("Auto Selector", BuiltInLayouts.kList)

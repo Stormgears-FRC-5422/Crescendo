@@ -20,7 +20,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 
+import static edu.wpi.first.math.util.Units.degreesToRadians;
+
 public class LimelightHelpers {
+
+    /** Physical location of the note limelight camera on the robot, relative to the center of the robot. */
+    public static final Transform3d NOTE_LIMELIGHT_TO_ROBOT = new Transform3d(
+        new Translation3d(-0.083, 0.254, -0.537),
+        new Rotation3d(0.0, degreesToRadians(-9.0), degreesToRadians(-1.0)));
+
+    /** Physical location of the  limelight camera on the robot, relative to the center of the robot. */
+    public static final Transform3d LIMELIGHT_TO_ROBOT = new Transform3d(
+        new Translation3d(0.241, 0.0, 0.426),
+        new Rotation3d(degreesToRadians(0), degreesToRadians(21.67), 180.0));
 
     public static class LimelightTarget_Retro {
 
@@ -417,8 +429,8 @@ public class LimelightHelpers {
         }
         return new Pose3d(
             new Translation3d(inData[0], inData[1], inData[2]),
-            new Rotation3d(Units.degreesToRadians(inData[3]), Units.degreesToRadians(inData[4]),
-                Units.degreesToRadians(inData[5])));
+            new Rotation3d(degreesToRadians(inData[3]), degreesToRadians(inData[4]),
+                degreesToRadians(inData[5])));
     }
 
     private static Pose2d toPose2D(double[] inData) {
@@ -427,7 +439,7 @@ public class LimelightHelpers {
             return new Pose2d();
         }
         Translation2d tran2d = new Translation2d(inData[0], inData[1]);
-        Rotation2d r2d = new Rotation2d(Units.degreesToRadians(inData[5]));
+        Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
         return new Pose2d(tran2d, r2d);
     }
 

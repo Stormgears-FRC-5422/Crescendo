@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -49,7 +50,10 @@ public class RobotContainer {
     private StatusLights statusLights;
     private NavX navX;
     private Shooter shooter;
+    private VisionSubsystem visionSubsystemNote;
+
     private VisionSubsystem visionSubsystem;
+
     private Climber climber;
 
 
@@ -98,7 +102,10 @@ public class RobotContainer {
         robotState.setPose(initialPose);
 
         if (Toggles.useVision) {
-            visionSubsystem = new VisionSubsystem();
+            visionSubsystem = new VisionSubsystem(Constants.Vision.limelight);
+            visionSubsystemNote= new VisionSubsystem(Constants.Vision.noteLimelight);
+            visionSubsystem.addDetectorDashboardWidgets(ShuffleboardConstants.getInstance().visionTab);
+            visionSubsystemNote.addDetectorDashboardWidgets(ShuffleboardConstants.getInstance().visionNoteTab);
         }
 
         if (Toggles.useDrive) {
@@ -272,11 +279,8 @@ public class RobotContainer {
             new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
         }
 
-
         System.out.println("[DONE] configureBindings");
     }
-
-
 
     public Command getAutonomousCommand() {
         if (Toggles.useAutoSelector) {
