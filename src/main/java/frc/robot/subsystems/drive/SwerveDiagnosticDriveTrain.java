@@ -68,6 +68,7 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
             m.setIdleMode(CANSparkBase.IdleMode.kCoast);
             m.getEncoder().setAverageDepth(8);
             m.getEncoder().setMeasurementPeriod(8);
+            m.setSmartCurrentLimit(80);
         }
 
 //        for (CANSparkMax m : m_driveArray) {
