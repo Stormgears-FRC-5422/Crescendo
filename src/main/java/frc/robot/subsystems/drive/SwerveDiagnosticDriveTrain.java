@@ -103,11 +103,13 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
     }
 
     public Command getDynamicForwardCommand() {
-        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2);
+        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(1.5
+
+        );
     }
 
     public Command getDynamicBackwardCommand() {
-        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(2);
+        return sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(1.5);
     }
 
 

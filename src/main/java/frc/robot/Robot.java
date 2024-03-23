@@ -132,14 +132,18 @@ public class Robot extends LoggedRobot {
 
     private boolean LogfileChecker(String file) {
         File testFile = new File(file+"/hello.txt");
+        System.out.print("Checking log location " + testFile.getAbsolutePath());
         boolean check;
         try {
             testFile.createNewFile();
             check = true;
             testFile.delete();
         } catch (Exception e) {
+            System.out.print(", exception = " + e.getMessage());
             check = false;
         }
+        System.out.println(", check = " + check);
+
         return check;
     }
 

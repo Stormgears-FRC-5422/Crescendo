@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive;
 
 
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,6 +25,7 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.motors.SwerveMotor;
 import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -72,6 +74,14 @@ public class YagslDriveTrain extends DrivetrainBase {
                 sm.setDriveMotorVoltageCompensation(Swerve.compensatedVoltage);
             }
         }
+        for (SwerveModule sm : swerveModules) {
+            CANSparkMax canSparkMax = (CANSparkMax) sm.getDriveMotor().getMotor();
+            canSparkMax.getEncoder().setMeasurementPeriod(8);
+            canSparkMax.getEncoder().setAverageDepth(8);
+            sm.getDriveMotor().setCurrentLimit(80);
+//                sm.getAngleMotor().setCurrentLimit(80);
+        }
+
 
 
         if (Swerve.useArbitraryFF) {
