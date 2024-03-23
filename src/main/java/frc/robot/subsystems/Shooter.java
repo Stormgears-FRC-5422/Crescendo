@@ -1,16 +1,12 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.IdleMode;
-
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
@@ -54,6 +50,7 @@ public class Shooter extends SubsystemBase {
 
     SlewRateLimiter shooterSlewRateLimiter = new SlewRateLimiter(3);
     Boolean shooterStaged = false;
+    ShooterState shooterState;
 
 
 
@@ -84,6 +81,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setShooterState(ShooterState state) {
+        this.shooterState = state;
         m_robotState.setShooterState(state);
 
         switch (state) {

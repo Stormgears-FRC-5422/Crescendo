@@ -21,14 +21,20 @@ public abstract class CrescendoJoystick {
     public abstract boolean zeroGyro();
 
     public abstract boolean diagnosticShooterIntake();
+
     public abstract boolean outtake();
+
     public abstract boolean zeroWheels();
 
     public abstract boolean climb();
+
     public abstract boolean home();
+
     public abstract boolean climberEmergencyStop();
 
     public abstract boolean ampPosition();
+
+    public abstract boolean driveNote();
 
     public abstract void setRumble();
 

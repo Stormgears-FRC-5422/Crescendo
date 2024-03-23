@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -18,6 +17,7 @@ import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Choreo;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.Toggles;
+import frc.robot.commands.DriveToNote;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.RumbleCommand;
 import frc.robot.commands.auto.AutoCommandFactory;
@@ -50,10 +50,7 @@ public class RobotContainer {
     private StatusLights statusLights;
     private NavX navX;
     private Shooter shooter;
-    private VisionSubsystem visionSubsystemNote;
-
     private VisionSubsystem visionSubsystem;
-
     private Climber climber;
 
 
@@ -102,10 +99,7 @@ public class RobotContainer {
         robotState.setPose(initialPose);
 
         if (Toggles.useVision) {
-            visionSubsystem = new VisionSubsystem(Constants.Vision.limelight);
-            visionSubsystemNote= new VisionSubsystem(Constants.Vision.noteLimelight);
-            visionSubsystem.addDetectorDashboardWidgets(ShuffleboardConstants.getInstance().visionTab);
-            visionSubsystemNote.addDetectorDashboardWidgets(ShuffleboardConstants.getInstance().visionNoteTab);
+            visionSubsystem = new VisionSubsystem("limelight-note");
         }
 
         if (Toggles.useDrive) {
@@ -234,6 +228,7 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
+        new Trigger(() -> joystick.driveNote()).onTrue(Commands.parallel(new DriveToNote(drivetrain, visionSubsystem), new GroundPickup(shooter)));
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useSysId) {
@@ -263,8 +258,9 @@ public class RobotContainer {
             new Trigger(() -> joystick.climb()).onTrue(climbing);
             new Trigger(() -> joystick.home()).onTrue(home);
             new Trigger(() -> joystick.climberEmergencyStop()).onTrue(emergencyStop);
-            new Trigger(() ->joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
+            new Trigger(() -> joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
                 Climber.Direction.REVERSE));
+
         }
 
 
@@ -279,8 +275,10 @@ public class RobotContainer {
             new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
         }
 
+
         System.out.println("[DONE] configureBindings");
     }
+
 
     public Command getAutonomousCommand() {
         if (Toggles.useAutoSelector) {

@@ -91,9 +91,14 @@ public class CrescendoLogitechController extends CrescendoJoystick {
         return false;
     }
 
-  public void setRumble() {
+    public void setRumble() {
 
-  }
+    }
+
+    @Override
+    public boolean driveNote() {
+        return false;
+    }
 
     @Override
     public void stopRumble() {
