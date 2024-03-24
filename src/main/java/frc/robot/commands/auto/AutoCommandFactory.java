@@ -52,25 +52,6 @@ public class AutoCommandFactory {
 
     private double timestamp = 0;
 
-    boolean openLoop = Swerve.openLoopAuto;
-
-
-    PIDController xController = new PIDController(openLoop ? 0 : Swerve.xPidKp,
-        openLoop ? 0 : Swerve.xPidKi,
-        openLoop ? 0 : Swerve.xPidKd
-    );
-
-    PIDController yController = new PIDController(openLoop ? 0 : Swerve.yPidKp,
-        openLoop ? 0 : Swerve.yPidKi,
-        openLoop ? 0 : Swerve.yPidKd
-    );
-
-    PIDController rotationController = new PIDController(openLoop ? 0 : Swerve.rotPidKp,
-        openLoop ? 0 : Swerve.rotPidKi,
-        openLoop ? 0 : Swerve.rotPidKd
-    );
-
-
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter) {
 //        System.out.println("Traj pt1: " + note_speaker_3.get(0));
@@ -78,7 +59,6 @@ public class AutoCommandFactory {
         this.shooter = shooter;
         m_state = RobotState.getInstance();
         drivetrainBase.setHeadingCorrectionTrue();
-
 
 
     }
@@ -102,53 +82,39 @@ public class AutoCommandFactory {
 //        Logger.recordOutput("Translation Y", drivetrain.getPose().getY());
 //        Logger.recordOutput("Rot setpoint", rotationController.getSetpoint());
 //        Logger.recordOutput("Translation Rot", drivetrain.getPose().getRotation().getDegrees());
-//        boolean openLoop = Swerve.openLoopAuto;
+        boolean openLoop = Swerve.openLoopAuto;
 
         System.out.println("Control is " + (openLoop ? "open loop" : "pid controlled"));
 
-//        PIDController xController = new PIDController(openLoop ? 0 : Swerve.xPidKp,
-//            openLoop ? 0 : Swerve.xPidKi,
-//            openLoop ? 0 : Swerve.xPidKd
-//        );
-//
-//        PIDController yController = new PIDController(openLoop ? 0 : Swerve.yPidKp,
-//            openLoop ? 0 : Swerve.yPidKi,
-//            openLoop ? 0 : Swerve.yPidKd
-//        );
-//
-//        PIDController rotationController = new PIDController(openLoop ? 0 : Swerve.rotPidKp,
-//            openLoop ? 0 : Swerve.rotPidKi,
-//            openLoop ? 0 : Swerve.rotPidKd
-//        );
+        PIDController xController = new PIDController(openLoop ? 0 : Swerve.xPidKp,
+            openLoop ? 0 : Swerve.xPidKi,
+            openLoop ? 0 : Swerve.xPidKd
+        );
+
+        PIDController yController = new PIDController(openLoop ? 0 : Swerve.yPidKp,
+            openLoop ? 0 : Swerve.yPidKi,
+            openLoop ? 0 : Swerve.yPidKd
+        );
+
+        PIDController rotationController = new PIDController(openLoop ? 0 : Swerve.rotPidKp,
+            openLoop ? 0 : Swerve.rotPidKi,
+            openLoop ? 0 : Swerve.rotPidKd
+        );
 
         System.out.println("X P: " + xController.getP());
 
 
         return Commands.sequence(new InstantCommand(drivetrain::zeroWheels),
+            StormChoreo.choreoSwerveCommand(
+                trajectory,
+                drivetrain::getPose,
+                xController,
+                yController,
+                rotationController,
+                (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
+                m_state::isAllianceRed,
+                drivetrain), new InstantCommand(drivetrain::stopDrive)
 
-        Commands.print("Start X PID error: " + xController.getPositionError()),
-            new ParallelRaceGroup(
-
-                StormChoreo.choreoSwerveCommand(
-                    trajectory,
-                    drivetrain::getPose,
-                    xController,
-                    yController,
-                    rotationController,
-                    (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
-                    m_state::isAllianceRed,
-                    drivetrain
-                ),
-                Commands.repeatingSequence(new InstantCommand(() -> System.out.println("X SetPoint: " + xController.getSetpoint())),
-                    new InstantCommand(() -> System.out.println("Translation error: " + +(xController.getSetpoint() - drivetrain.getPose().getX())))//,
-//                    new InstantCommand(() -> System.out.println("X Pose: " + drivetrain.getPose().getX())),
-//                    new InstantCommand(()-> Logger.recordOutput("X setpoint", xController.getSetpoint())),
-//                    new InstantCommand(()-> Logger.recordOutput("Translation X", drivetrain.getPose().getX())),
-//                    new InstantCommand(()-> Logger.recordOutput("Y setpoint", yController.getSetpoint())),
-//                    new InstantCommand(()-> Logger.recordOutput("Translation Y", drivetrain.getPose().getY())),
-//                    new InstantCommand(()-> Logger.recordOutput("Rot setpoint", rotationController.getSetpoint())),
-//                    new InstantCommand(()-> Logger.recordOutput("Translation Rot", drivetrain.getPose().getRotation().getDegrees()))
-                ))
         );
     }
 

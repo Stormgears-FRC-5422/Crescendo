@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -247,8 +248,27 @@ public class YagslDriveTrain extends DrivetrainBase {
         }
     }
 
+
+    @Override
+    public void stopDrive() {
+        drive(new ChassisSpeeds(0, 0, 0), false);
+        for (SwerveModule swerveModule: swerveModules) {
+            swerveModule.getDriveMotor().setMotorBrake(true);
+            swerveModule.getDriveMotor().set(0);
+            swerveModule.getAngleMotor().set(0);
+        }
+    }
+
     @Override
     public void periodic() {
+
+//        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.75, 1);
+//        double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(21.4285714, 1);
+//        System.out.println("Drive conversion factor:  " + driveConversionFactor);
+//        System.out.println("Angle conversion factor:  " + angleConversionFactor);
+
+
+
         publisher.set(swerveDrive.getPose());
         m_state.setPose(swerveDrive.getPose());
 
