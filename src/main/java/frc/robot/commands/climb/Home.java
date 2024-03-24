@@ -1,5 +1,6 @@
 package frc.robot.commands.climb;
 
+import frc.robot.Constants;
 import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Climber;
 
@@ -16,13 +17,25 @@ public class Home extends StormCommand {
     public void initialize() {
         super.initialize();
         atHome = false;
-        climber.setClimberState(Climber.ClimberState.HOMING);
+
+        if (Constants.Climber.useCurrentLimitHomeStrategy) {
+            climber.setClimberState(Climber.ClimberState.CURRENT_HOMING);
+        } else {
+            climber.setClimberState(Climber.ClimberState.SWITCH_HOMING);
+        }
     }
 
     public void execute() {
-        if (climber.isHome() & !atHome) {
-            climber.setClimberState(Climber.ClimberState.HOME);
-            atHome = true;
+        if (Constants.Climber.useCurrentLimitHomeStrategy) {
+            if (climber.isAtStallLimit() && !atHome) {
+                climber.setClimberState(Climber.ClimberState.HOME);
+                atHome = true;
+            }
+        } else {
+            if (climber.isHome() & !atHome) {
+                climber.setClimberState(Climber.ClimberState.HOME);
+                atHome = true;
+            }
         }
      }
 

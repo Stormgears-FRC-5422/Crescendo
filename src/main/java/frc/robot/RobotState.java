@@ -28,6 +28,7 @@ public class RobotState extends SubsystemBase {
     private int count = 0;
     private boolean isPoseValid = false;
     private boolean climberIsHome = false;
+    private boolean climberHasBeenHomed = false;
     private boolean isAtInit = false;
     boolean m_isUpperSensorTriggered;
 
@@ -127,6 +128,14 @@ public class RobotState extends SubsystemBase {
 
     public boolean isClimberHome() {
         return climberIsHome;
+    }
+
+    public void setClimberHasBeenHomed(boolean hasBeenHomed) {
+        climberHasBeenHomed = hasBeenHomed;
+    }
+
+    public boolean climberHasBeenHomed() {
+        return climberHasBeenHomed;
     }
 
     public void setClimberIsAtInit(boolean atInit) {

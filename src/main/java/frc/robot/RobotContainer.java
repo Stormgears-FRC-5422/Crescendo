@@ -9,8 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ButtonBoard;
@@ -19,11 +19,9 @@ import frc.robot.Constants.Drive;
 import frc.robot.Constants.Toggles;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.RumbleCommand;
+import frc.robot.commands.StormCommand;
 import frc.robot.commands.auto.AutoCommandFactory;
-import frc.robot.commands.climb.Climbing;
-import frc.robot.commands.climb.EmergencyStop;
-import frc.robot.commands.climb.Home;
-import frc.robot.commands.climb.SimpleGotoDegrees;
+import frc.robot.commands.climb.*;
 import frc.robot.commands.shoot.*;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.joysticks.CrescendoJoystickFactory;
@@ -67,9 +65,10 @@ public class RobotContainer {
     private Outtake outtake;
     private SourceIntake sourceIntake;
     private Climbing climbing;
-    private SimpleGotoDegrees gotoAmpShootPosition;
-    private SimpleGotoDegrees gotoStowPosition;
-    private SimpleGotoDegrees gotoClimbStartPosition;
+    private StormCommand gotoAmpShootPosition;
+    private StormCommand gotoStowPosition;
+    private SimpleGotoDegrees gotoForwardDeltaPosition;
+    private StormCommand gotoClimbStartPosition;
     private Home home;
     private EmergencyStop emergencyStop;
 
@@ -181,12 +180,22 @@ public class RobotContainer {
             // we don't end up going the wrong direction and destroy a note in the process.
             // ideally the climber has knowledge of all of the positions, perhaps through a set of enumerated
             // locations and could pick the correct path in all cases.
-            gotoAmpShootPosition = new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
-                Climber.Direction.FORWARD);
-            gotoStowPosition = new SimpleGotoDegrees(climber, Constants.Climber.stowDegrees,
-                Climber.Direction.REVERSE);
-            gotoClimbStartPosition = new SimpleGotoDegrees(climber, Constants.Climber.climbStartDegrees,
-                Climber.Direction.FORWARD);
+
+            // Don't use this one without first setting the position
+            gotoForwardDeltaPosition = new SimpleGotoDegrees(climber, 0, Climber.Direction.FORWARD);
+
+            if (Constants.Climber.usePidToAimArm) {
+                gotoAmpShootPosition = new PidMoveToDegrees(climber, Constants.Climber.ampShootDegrees);
+                gotoStowPosition = new PidMoveToDegrees(climber, Constants.Climber.stowDegrees);
+                gotoClimbStartPosition = new PidMoveToDegrees(climber, Constants.Climber.climbStartDegrees);
+            } else {
+                gotoAmpShootPosition = new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
+                    Climber.Direction.FORWARD);
+                gotoStowPosition = new SimpleGotoDegrees(climber, Constants.Climber.stowDegrees,
+                    Climber.Direction.REVERSE);
+                gotoClimbStartPosition = new SimpleGotoDegrees(climber, Constants.Climber.climbStartDegrees,
+                    Climber.Direction.FORWARD);
+            }
         }
 
         // Configure the trigger bindings
@@ -229,8 +238,46 @@ public class RobotContainer {
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
 
-        if (Toggles.useSysId) {
-            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
+        if (!Toggles.useSysId) {
+            System.out.println("Creating non SysID commands");
+            if (Toggles.useIntake && Toggles.useShooter && Toggles.useClimber) {
+                new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+                new Trigger(() -> joystick.shooter()).onTrue(shoot);
+                new Trigger(() -> joystick.intake()).onTrue(
+                    groundPickup
+                    .andThen(new RumbleCommand(joystick, 1.0)
+                        .unless(() -> !robotState.isUpperSensorTriggered())));
+                new Trigger(() -> joystick.shooterAmp()).onTrue(
+                    new SequentialCommandGroup(
+                        gotoAmpShootPosition,
+                        ampShoot,
+                        gotoStowPosition
+                    ).unless(() -> !robotState.climberHasBeenHomed()));
+                new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+                new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()->drivetrain.zeroWheels()));
+//                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+//                new Trigger(() -> joystick.outtake()).onTrue(outtake);
+//                new Trigger(() ->joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
+//                    Climber.Direction.FORWARD));
+            }
+
+            if (Toggles.useClimber) {
+                System.out.println("Creating climber motion triggers");
+                new Trigger(() -> joystick.home()).onTrue(home.unless(robotState::climberHasBeenHomed));
+                new Trigger(() -> joystick.lower()).onTrue(
+                    new SequentialCommandGroup(
+                        new InstantCommand(() -> gotoForwardDeltaPosition.setTarget(climber.getDegrees()
+                         + Constants.Climber.forwardDeltaDegrees)),
+                        gotoForwardDeltaPosition
+                    ).unless(robotState::climberHasBeenHomed));
+                new Trigger(() -> joystick.armPreClimb()).onTrue(
+                    gotoClimbStartPosition.unless(() -> !robotState.climberHasBeenHomed()));
+                new Trigger(() -> joystick.climb()).onTrue(climbing);
+//                new Trigger(() -> joystick.climberEmergencyStop()).onTrue(emergencyStop);
+            }
+        } else {
+            System.out.println("Creating SysID commands");
+//            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
 //            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
 //            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
 //            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
@@ -238,44 +285,8 @@ public class RobotContainer {
 //            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
         }
 
-        if (Toggles.useIntake && Toggles.useShooter && !Toggles.useSysId && Toggles.useClimber) {
-            new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
-            new Trigger(() -> joystick.shooter()).onTrue(shoot);
-
-            new Trigger
-                (() -> joystick.intake()).onTrue(
-                groundPickup
-                    .andThen(new RumbleCommand(joystick, 1.0).unless(() -> !robotState.isUpperSensorTriggered())));
-            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-            new Trigger(() -> joystick.shooterAmp()).onTrue(Commands.sequence(gotoAmpShootPosition,
-                ampShoot, gotoStowPosition));
-            new Trigger(() -> joystick.outtake()).onTrue(outtake);
-            new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
-            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()->drivetrain.zeroWheels()));
-            new Trigger(() -> joystick.climb()).onTrue(climbing);
-            new Trigger(() -> joystick.home()).onTrue(home);
-            new Trigger(() -> joystick.climberEmergencyStop()).onTrue(emergencyStop);
-            new Trigger(() ->joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
-                Climber.Direction.REVERSE));
-        }
-
-
-        if (Toggles.useSecondXbox) {
-            System.out.println("Configure Second Joystick");
-            new Trigger(() -> joystick2.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
-            new Trigger(() -> joystick2.shooter()).onTrue(shoot);
-            new Trigger(() -> joystick2.intake()).onTrue(groundPickup);
-            new Trigger(() -> joystick2.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-            new Trigger(() -> joystick2.shooterAmp()).onTrue(ampShoot);
-            new Trigger(() -> joystick2.outtake()).onTrue(outtake);
-            new Trigger(() -> joystick2.shooterIntake()).onTrue(sourceIntake);
-        }
-
-
         System.out.println("[DONE] configureBindings");
     }
-
-
 
     public Command getAutonomousCommand() {
         if (Toggles.useAutoSelector) {
@@ -286,6 +297,13 @@ public class RobotContainer {
         } else {
             return m_noChooserCommand;
         }
+    }
+
+    public void autoHome() {
+        System.out.println("Auto Homing");
+            new SequentialCommandGroup(
+                new Home(climber),
+                new PidMoveToDegrees(climber, Constants.Climber.stowDegrees)).schedule();
     }
 
 }

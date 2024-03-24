@@ -15,11 +15,13 @@ public class Climber extends SubsystemBase {
         IDLE_BRAKE,    //When it is still and nothing is running(not necessarily at home position)
         IDLE_COAST,
         CLIMBING, //When it is climbing onto the chain
-        HOMING,  //When it is moving back to home
+        SWITCH_HOMING,  //When it is moving back to home
+        CURRENT_HOMING,  //When it is moving back to home
         HANGING, //It is on the chain
         HOME,     //It is at the home position
         MOVE_FORWARD, // moving to forward position
-        MOVE_REVERSE  // moving to reverse position
+        MOVE_REVERSE,  // moving to reverse position
+        MOVE_PID_POSITION
     }
 
     public enum Direction {
@@ -50,13 +52,13 @@ public class Climber extends SubsystemBase {
     private boolean hasBeenHomed = false;
     private boolean hasSeenHome = false;
     private double homePosition;
-    double m_climberMotorSpeed = 0;
+    double m_motorSpeed = 0;
+    double m_stallCurrent = 0;
     double m_targetPosition = 0;
 
     private SparkPIDController m_pidController;
     private RelativeEncoder m_encoder;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
-    private boolean doClimb;
     CANSparkMax.ControlType controlType;
 
     private final double armInitLowPosition;
@@ -74,8 +76,8 @@ public class Climber extends SubsystemBase {
         followerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
         followerMotor.follow(leadMotor, true);
 
-        leadMotor.setSmartCurrentLimit(30);
-        followerMotor.setSmartCurrentLimit(30);
+        leadMotor.setSmartCurrentLimit(Constants.Climber.currentLimit);
+        followerMotor.setSmartCurrentLimit(Constants.Climber.currentLimit);
 
         climbLimitSwitch = leadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         homeLimitSwitch = leadMotor.getForwardLimitSwitch(Type.kNormallyOpen);
@@ -100,21 +102,20 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         // if we were told to stop, stop first
-        if (m_climberMotorSpeed == 0) {
-            leadMotor.set(0);
-        }
+//        if (m_motorSpeed == 0) {
+//            leadMotor.set(0);
+//        }
+        double position = getPosition();
 
         boolean home = isHome();
         robotState.setClimberIsHome(home);
 
         // We want to indicate whether the arm is in the correct position before autonomous runs
         if (robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
-            double position = getPosition();
             if (!hasBeenHomed && home) {
                 hasSeenHome = true;
                 homePosition = position;
             }
-
             robotState.setClimberIsAtInit(hasSeenHome &&
                 position >= homePosition + armInitLowPosition &&
                 position <= homePosition + armInitHighPosition );
@@ -134,16 +135,24 @@ public class Climber extends SubsystemBase {
             m_updateControllerState = false;
         }
 
-        if (doClimb) {
-//            m_pidController.setReference(getRPMFromPctOutput(m_climberMotorSpeed),
-//                                         CANSparkMax.ControlType.kVelocity);
-            double maxVoltage = 1.0;
-            double theta = Math.toRadians(getDegreesFromPosition(m_encoder.getPosition()));
-//            System.out.println("Theta is " + theta);
-//            climberLeadMotor.set(maxVoltage * Math.abs(Math.cos(theta)));
-            leadMotor.set(-0.75);
-        } else {
-            leadMotor.set(m_climberMotorSpeed);
+        // Control the motors here
+        switch(myState) {
+            case CLIMBING -> {
+                // Just got for it
+                leadMotor.set(m_motorSpeed);
+            }
+            case MOVE_PID_POSITION -> {
+                double error = m_targetPosition - position;
+                double arbitraryFF = getArbitraryFeedforward(error);
+                System.out.println("error: " + getDegreesFromPosition(error) +
+                                    ", position: " + getDegreesFromPosition(position) +
+                                    ", arbFF: " +  arbitraryFF);
+                m_pidController.setReference(m_targetPosition, CANSparkMax.ControlType.kPosition, 0,
+                    arbitraryFF, SparkPIDController.ArbFFUnits.kPercentOut);
+            }
+            default -> {
+                leadMotor.set(m_motorSpeed);
+            }
         }
     }
 
@@ -159,57 +168,88 @@ public class Climber extends SubsystemBase {
         m_enableClimbLimitSwitch = false;
         m_enableHomeLimitSwitch = false;
 
-        doClimb = false;
-
         switch (state) {
             case IDLE_BRAKE -> {
-                m_climberMotorSpeed = 0;
+                m_motorSpeed = 0;
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
             }
             case IDLE_COAST -> {
-                m_climberMotorSpeed = 0;
+                m_motorSpeed = 0;
             }
             case CLIMBING -> {
-                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.climbSpeed, Direction.REVERSE);
+                m_motorSpeed = getSpeedForDirection(Constants.Climber.climbSpeed, Direction.REVERSE);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 m_enableClimbLimitSwitch = true;
                 m_targetPosition = getPositionFromDegrees(Constants.Climber.climbStopInDegrees);
                 m_reverseSoftLimitPosition = m_targetPosition;
                 m_enableReverseSoftLimit = true;
-                doClimb = true;
             }
             case HANGING -> { // Separate from idle since we might need to do something else here like hold
-                m_climberMotorSpeed = 0;
+                m_motorSpeed = 0;
             }
-            case HOMING -> {
-                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.homeSpeed, Direction.FORWARD);
+            case SWITCH_HOMING -> {
+                m_motorSpeed = getSpeedForDirection(Constants.Climber.homeSpeed, Direction.FORWARD);
                 m_enableHomeLimitSwitch = true;
-
+                m_idleMode = CANSparkBase.IdleMode.kBrake;
+            }
+            case CURRENT_HOMING -> {
+                m_motorSpeed = getSpeedForDirection(Constants.Climber.homeSpeed, Direction.REVERSE);
+                m_stallCurrent = Constants.Climber.homeStallCurrent;
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
             }
             case HOME -> {//when it is actually home and done moving
-                m_climberMotorSpeed = 0;
-                m_enableHomeLimitSwitch = true;
-                homePosition = getPositionFromDegrees(Constants.Climber.homeDegrees);
+                m_motorSpeed = 0;
+                m_stallCurrent = 0;
+                if (Constants.Climber.useCurrentLimitHomeStrategy) {
+                    homePosition = getPositionFromDegrees(Constants.Climber.homeHardLimitDegrees);
+                } else {
+                    m_enableHomeLimitSwitch = true;
+                    homePosition = getPositionFromDegrees(Constants.Climber.homeSwitchDegrees);
+                }
                 m_encoder.setPosition(homePosition);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 hasBeenHomed = true;
                 hasSeenHome = true;
+                robotState.setClimberHasBeenHomed(true);
             }
             case MOVE_FORWARD -> {    // climber is moving to amp shoot position
-                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.fwdPosSpeed, Direction.FORWARD);
+                m_motorSpeed = getSpeedForDirection(Constants.Climber.fwdPosSpeed, Direction.FORWARD);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 m_forwardSoftLimitPosition = m_targetPosition;
                 m_enableForwardSoftLimit = true;
             }
             case MOVE_REVERSE -> {    // climber is moving to amp shoot position
-                m_climberMotorSpeed = getSpeedForDirection(Constants.Climber.revPosSpeed, Direction.REVERSE);
+                m_motorSpeed = getSpeedForDirection(Constants.Climber.revPosSpeed, Direction.REVERSE);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 m_reverseSoftLimitPosition = m_targetPosition;
                 m_enableReverseSoftLimit = true;
             }
+            case MOVE_PID_POSITION -> {
+                m_idleMode = CANSparkBase.IdleMode.kBrake;
+            }
             default -> System.out.println("invalid Climber state");
         }
+    }
+
+    private double getArbitraryFeedforward(double error) {
+        double rampWidth = getPositionFromDegrees(Constants.Climber.pidTrapezoidRampDegrees);
+
+        if (error > rampWidth) {
+            return directionFactor * Constants.Climber.arbMaxFF;
+        } else if (error < -rampWidth) {
+            return -directionFactor * Constants.Climber.arbMaxFF;
+        } else {
+            return directionFactor * (error / rampWidth * (Constants.Climber.arbMaxFF - Constants.Climber.arbMinFF));
+        }
+    }
+
+    private void setupPID() {
+        m_pidController.setP(Constants.Climber.pidKp);
+        m_pidController.setI(Constants.Climber.pidKi);
+        m_pidController.setD(Constants.Climber.pidKd);
+        m_pidController.setIZone(Constants.Climber.pidiZone);
+        m_pidController.setFF(Constants.Climber.pidKf);
+        m_pidController.setOutputRange(-Constants.Climber.pidMaxKout, Constants.Climber.pidMaxKout);
     }
 
     private double getSpeedForDirection(double speed, Direction direction) {
@@ -224,32 +264,9 @@ public class Climber extends SubsystemBase {
         return directionFactor * position / (Constants.Climber.gearRatio / 360.0 );
     }
 
-    private void setupPID() {
-        kMaxOutput = 1;
-        kMinOutput = -1;
-        maxRPM = Constants.SparkMax.FreeSpeedRPM;
-
-        kP = 0;
-        kI = 0;
-        kD = 0;
-        kIz = 0;
-        kFF = 1.0 / maxRPM;
-
-        m_pidController.setP(kP);
-        m_pidController.setI(kI);
-        m_pidController.setD(kD);
-        m_pidController.setIZone(kIz);
-        m_pidController.setFF(kFF);
-        m_pidController.setOutputRange(kMinOutput, kMaxOutput);
-    }
-
-    public void setTargetAngle(double angle) {
-        m_targetPosition = getPositionFromDegrees(angle);
-        System.out.println("Setting target angle to " + angle + ", position = " + m_targetPosition);
-    }
-
-    private double getRPMFromPctOutput(double percent) {
-        return percent * Constants.SparkMax.FreeSpeedRPM;
+    public void setTargetDegrees(double degrees) {
+        m_targetPosition = getPositionFromDegrees(degrees);
+        System.out.println("Setting target angle to " + degrees + ", position = " + m_targetPosition);
     }
 
     public boolean isLockedIn() {
@@ -261,8 +278,7 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean hasStopped() {
-//        System.out.println("vel: " + m_encoder.getVelocity() + " get: " + climberLeadMotor.get());
-        // weird tolerance in getVelocity
+        // weird tolerance in getVelocity - this appears to be due to long-term averaging within the sparkmax
         return Math.abs(m_encoder.getVelocity()) < 1 && leadMotor.get() == 0;
     }
 
@@ -270,8 +286,16 @@ public class Climber extends SubsystemBase {
         return m_encoder.getPosition();
     }
 
+    public double getDegrees() {
+        return getDegreesFromPosition(getPosition());
+    }
+
     public void stop() {
         setClimberState(ClimberState.IDLE_BRAKE);
+    }
+
+    public boolean isAtStallLimit() {
+        return leadMotor.getOutputCurrent() > m_stallCurrent;
     }
 
     public boolean isIdle() {
@@ -285,13 +309,22 @@ public class Climber extends SubsystemBase {
 //        System.out.println("error position: " + error);
 //        System.out.println("ENCODER POSITION: " + m_encoder.getPosition());
 
-        if (myState == ClimberState.MOVE_FORWARD){
-            return error < 0;
-        } else if (myState == ClimberState.MOVE_REVERSE) {
-            return error > 0;
-        } else {
-            return false;
+        switch (myState) {
+            case MOVE_PID_POSITION -> {
+                return Math.abs(error) < getPositionFromDegrees(Constants.Climber.pidThresholdDegrees)
+                       && Math.abs(m_encoder.getVelocity()) < 1;
+            }
+            case MOVE_FORWARD -> {
+                return error < 0;
+            }
+            case MOVE_REVERSE -> {
+                return error > 0;
+            }
+            default -> {
+                return false;
+            }
         }
+
     }
 
     public void setForwardSoftLimit(float limit) {

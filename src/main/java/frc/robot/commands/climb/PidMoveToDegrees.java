@@ -4,24 +4,17 @@ import frc.robot.RobotState;
 import frc.robot.commands.StormCommand;
 import frc.robot.subsystems.Climber;
 
-public class SimpleGotoDegrees extends StormCommand {
-    RobotState state;
+public class PidMoveToDegrees extends StormCommand {
     Climber climber;
-    Climber.Direction direction;
+    RobotState state;
     double angle;
     boolean earlyFinish = false;
 
-
-    public SimpleGotoDegrees(Climber c, double degrees, Climber.Direction direction){
+    public PidMoveToDegrees(Climber c, double degrees){
         climber = c;
         this.angle = degrees;
-        this.direction = direction;
         this.state = RobotState.getInstance();
         addRequirements(c);
-    }
-
-    public void setTarget(double degrees) {
-        this.angle = degrees;
     }
 
     @Override
@@ -30,8 +23,7 @@ public class SimpleGotoDegrees extends StormCommand {
 
         if (state.climberHasBeenHomed()) {
             climber.setTargetDegrees(angle);
-            climber.setClimberState(direction == Climber.Direction.FORWARD ?
-                Climber.ClimberState.MOVE_FORWARD : Climber.ClimberState.MOVE_REVERSE);
+            climber.setClimberState(Climber.ClimberState.MOVE_PID_POSITION);
             earlyFinish = false;
         } else {
             earlyFinish = true;
@@ -54,7 +46,13 @@ public class SimpleGotoDegrees extends StormCommand {
 
     @Override
     public void end(boolean interrupted) {
-        climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
+        if (interrupted || earlyFinish) {
+            climber.setClimberState(Climber.ClimberState.IDLE_COAST);
+        } else {
+            climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
+            // really out to have a background command for holding, not just a state
+            // climber.setClimberState(Climber.ClimberState.HOLD_PID_POSITION);
+        }
         super.end(interrupted);
     }
 

@@ -56,15 +56,15 @@ public class CrescendoXboxController extends CrescendoJoystick {
         return controller.getRightBumperIsPressed();
     }
 
-    @Override
-    public boolean diagnosticShooterIntake() {
-        return controller.getDownArrowPressed();
-    }
+//    @Override
+//    public boolean diagnosticShooterIntake() {
+//        return controller.getDownArrowPressed();
+//    }
 
-    @Override
-    public boolean outtake() {
-        return controller.getUpArrowPressed();
-    }
+//    @Override
+//    public boolean outtake() {
+//        return controller.getUpArrowPressed();
+//    }
 
     @Override
     public boolean zeroWheels() {
@@ -76,8 +76,12 @@ public class CrescendoXboxController extends CrescendoJoystick {
         return controller.getLeftArrowPressed();
     }
 
+    public boolean lower() { return controller.getDownArrowPressed(); }
+
+    public boolean armPreClimb() { return controller.getUpArrowPressed(); }
+
     public boolean climb() {
-        return controller.getRightArrowPressed();
+        return controller.getDownArrowPressed();
     }
 
     public boolean climberEmergencyStop() {

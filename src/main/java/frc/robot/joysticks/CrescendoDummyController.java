@@ -6,8 +6,6 @@ public class CrescendoDummyController extends CrescendoJoystick {
     CrescendoDummyController(int port) {
 
     }
-
-
     @Override
     public boolean zeroWheels() {
         return false;
@@ -18,9 +16,16 @@ public class CrescendoDummyController extends CrescendoJoystick {
         return false;
     }
 
-
     @Override
     public boolean home() {
+        return false;
+    }
+
+    @Override
+    public boolean armPreClimb() { return false; }
+
+    @Override
+    public boolean lower() {
         return false;
     }
 
@@ -74,22 +79,22 @@ public class CrescendoDummyController extends CrescendoJoystick {
         return false;
     }
 
-    @Override
-    public boolean diagnosticShooterIntake() {
-        return false;
-    }
-
-    @Override
-    public boolean outtake() {
-        return false;
-    }
+//    @Override
+//    public boolean diagnosticShooterIntake() {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean outtake() {
+//        return false;
+//    }
 
 public void setRumble() {
-        
+
     }
 
     @Override
     public void stopRumble() {
-       
+
     }
 }

@@ -260,6 +260,10 @@ public class Robot extends LoggedRobot {
         if (!m_state.getDidAuto()) { // If we did auto, leave the robot where it is.
             m_robotContainer.resetInitialPose();
         }
+
+        if (Constants.Toggles.useClimber && Constants.Climber.autoHome) {
+            m_robotContainer.autoHome();
+        }
     }
 
     /**
