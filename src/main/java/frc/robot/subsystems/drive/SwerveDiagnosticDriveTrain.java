@@ -71,7 +71,8 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
             m.setSmartCurrentLimit(80);
         }
 
-//        for (CANSparkMax m : m_driveArray) {
+//        for (CANSparkMax m : m_driveA
+//       rray) {
 //
 //            m.setInverted(true);
 //            m.setIdleMode(CANSparkBase.IdleMode.kCoast);
