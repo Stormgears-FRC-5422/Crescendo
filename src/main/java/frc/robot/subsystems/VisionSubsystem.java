@@ -7,9 +7,9 @@ import frc.utils.vision.LimelightHelpers;
 
 import java.util.Map;
 import java.util.Optional;
-
+import frc.robot.RobotState;
 public class VisionSubsystem extends SubsystemBase {
-
+    private RobotState robotState;
     private String limelightId;
     private LimelightHelpers.LimelightResults latestLimelightResults = null;
 
@@ -19,6 +19,7 @@ public class VisionSubsystem extends SubsystemBase {
         this.limelightId = limelightId;
         LimelightHelpers.setLEDMode_PipelineControl("");
         LimelightHelpers.setLEDMode_ForceBlink("");
+        robotState = RobotState.getInstance();
     }
 
     public LimelightHelpers.LimelightResults getLatestResults() {
@@ -66,6 +67,22 @@ public class VisionSubsystem extends SubsystemBase {
         return Optional.empty();
     }
 
+    public boolean isNoteDetected() {
+        var results = getLatestResults();
+        if (results == null) {
+            return false;
+        }
+        var targetResult = results.targetingResults;
+        
+        if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
+            boolean isPresent = Optional.of(targetResult.targets_Detector[0]).isPresent();
+            robotState.setIsNoteDetected(isPresent);
+            return isPresent;
+        }
+        robotState.setIsNoteDetected(false);
+        return false;
+    }
+
     public Optional<LimelightHelpers.LimelightTarget_Retro> getLatestRetroTarget() {
         var results = getLatestResults();
         if (results == null) {
@@ -82,6 +99,7 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         latestLimelightResults = null;
+        isNoteDetected();
     }
 
 }

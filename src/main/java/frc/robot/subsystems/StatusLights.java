@@ -12,6 +12,7 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.StateAlliance;
 import frc.utils.lights.LEDLightStrip;
 import frc.utils.lights.LightType;
+import frc.robot.RobotState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +43,14 @@ public class StatusLights extends SubsystemBase {
     public final Color8Bit ORANGE_COLOR;
     public final Color8Bit WHITE_COLOR;
     public final Color8Bit NO_COLOR = new Color8Bit(0, 0, 0);
+    public Color8Bit SIDE_COLOR;
 
     private Segment RING_TOP;
     private Segment RING_MIDDLE_TOP;
     private Segment RING_MIDDLE;
     private Segment RING_MIDDLE_BOTTOM;
     private Segment RING_BOTTOM;
+    private Segment SIDE_LIGHT;
 
     private Color8Bit[] compassRing;
     private Color8Bit[] visionXRing;
@@ -106,6 +109,15 @@ public class StatusLights extends SubsystemBase {
 
         setRingColor(RING_MIDDLE_BOTTOM, m_robotState.isUpperSensorTriggered() ? ORANGE_COLOR : NO_COLOR);
 
+        if(m_robotState.isUpperSensorTriggered()){
+            SIDE_COLOR = GREEN_COLOR;
+            
+        }else if(m_robotState.getIsNoteDetected()){
+            SIDE_COLOR = BLUE_COLOR;
+        }else{
+            SIDE_COLOR = RED_COLOR;
+        }
+        setRingColor(SIDE_LIGHT,SIDE_COLOR);
         if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
             if (m_robotState.isClimberAtInit()) {
                 setAlternatingRingColor(RING_BOTTOM, GREEN_COLOR, allianceColor);
@@ -133,6 +145,10 @@ public class StatusLights extends SubsystemBase {
 
         // These need to be added in the correct order. First string is closest to the roborio
         // Keep the assignment and segments.add together. This is necessary for the ring to have the right position
+
+        SIDE_LIGHT = new Segment(Constants.Lights.oneSideLength, LightType.getType(Constants.Lights.ringLEDType));
+        segments.add(SIDE_LIGHT);
+
         RING_TOP = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
         segments.add(RING_TOP);
 
@@ -243,7 +259,7 @@ public class StatusLights extends SubsystemBase {
         switch (m_shooterState) {
             case IDLE -> {
                 setRingColor(RING_TOP, WHITE_COLOR);
-                //setRingColor(RING_MIDDLE_TOP, NO_COLOR);
+                setRingColor(RING_MIDDLE_TOP, WHITE_COLOR);
                 setRingColor(RING_MIDDLE_BOTTOM, WHITE_COLOR);
             }
             case STAGED_FOR_SHOOTING -> {
@@ -293,6 +309,7 @@ public class StatusLights extends SubsystemBase {
             }
         }
     }
+
 
     private static Color8Bit scaleColor(Color8Bit c, double s) {
         return new Color8Bit(MathUtil.clamp((int) (s * c.red), 0, 255),

@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
 
+
 public class RobotState extends SubsystemBase {
     public enum StateAlliance {
         RED, BLUE, MISSING
@@ -31,6 +32,7 @@ public class RobotState extends SubsystemBase {
     private boolean climberHasBeenHomed = false;
     private boolean isAtInit = false;
     boolean m_isUpperSensorTriggered;
+    private boolean isNoteDetected;
 
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
@@ -169,6 +171,15 @@ public class RobotState extends SubsystemBase {
     public Pose2d getVisionPose() {
         return visionPose;
     }
+
+    public void setIsNoteDetected(boolean detected){
+        isNoteDetected = detected;
+    }
+
+    public boolean getIsNoteDetected(){
+        return isNoteDetected;
+    }
+    
 
 
 }
