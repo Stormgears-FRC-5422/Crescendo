@@ -76,7 +76,7 @@ public class CrescendoXboxController extends CrescendoJoystick {
         return controller.getLeftArrowPressed();
     }
 
-    public boolean lower() { return controller.getDownArrowPressed(); }
+    public boolean lower() { return controller.getRightArrowPressed(); }
 
     public boolean armPreClimb() { return controller.getUpArrowPressed(); }
 

@@ -69,7 +69,7 @@ public class RobotContainer {
     private Climbing climbing;
     private StormCommand gotoAmpShootPosition;
     private StormCommand gotoStowPosition;
-    private SimpleGotoDegrees gotoForwardDeltaPosition;
+    private SimpleGotoDegrees gotoReverseDeltaPosition;
     private StormCommand gotoClimbStartPosition;
     private Home home;
     private EmergencyStop emergencyStop;
@@ -184,7 +184,7 @@ public class RobotContainer {
             // locations and could pick the correct path in all cases.
 
             // Don't use this one without first setting the position
-            gotoForwardDeltaPosition = new SimpleGotoDegrees(climber, 0, Climber.Direction.FORWARD);
+            gotoReverseDeltaPosition = new SimpleGotoDegrees(climber, 0, Climber.Direction.REVERSE);
 
             if (Constants.Climber.usePidToAimArm) {
                 gotoAmpShootPosition = new PidMoveToDegrees(climber, Constants.Climber.ampShootDegrees);
@@ -269,9 +269,13 @@ public class RobotContainer {
                 new Trigger(() -> joystick.home()).onTrue(home.unless(robotState::climberHasBeenHomed));
                 new Trigger(() -> joystick.lower()).onTrue(
                     new SequentialCommandGroup(
-                        new InstantCommand(() -> gotoForwardDeltaPosition.setTarget(climber.getDegrees()
-                         + Constants.Climber.forwardDeltaDegrees)),
-                        gotoForwardDeltaPosition
+                        new InstantCommand(() -> System.out.println("Current position = " + climber.getDegrees())),
+                        new InstantCommand(() -> System.out.println("Change in position = " + Constants.Climber.forwardDeltaDegrees)),
+                        new InstantCommand(() -> gotoReverseDeltaPosition
+                            .setTarget(climber.getDegrees() - Constants.Climber.forwardDeltaDegrees)),
+                        new InstantCommand(() -> gotoReverseDeltaPosition
+                            .forceWhenNotHomed(true)),
+                        gotoReverseDeltaPosition
                     ).unless(robotState::climberHasBeenHomed));
                 new Trigger(() -> joystick.armPreClimb()).onTrue(
                     gotoClimbStartPosition.unless(() -> !robotState.climberHasBeenHomed()));
@@ -302,10 +306,13 @@ public class RobotContainer {
     }
 
     public void autoHome() {
-        System.out.println("Auto Homing");
+        if (!robotState.climberHasBeenHomed()) {
+            System.out.println("Auto Homing");
             new SequentialCommandGroup(
                 new Home(climber),
                 new PidMoveToDegrees(climber, Constants.Climber.stowDegrees)).schedule();
+        } else {
+            System.out.println("Not auto-homing - already done!");
+        }
     }
-
 }

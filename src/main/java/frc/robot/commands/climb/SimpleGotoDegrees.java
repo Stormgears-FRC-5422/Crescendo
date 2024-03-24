@@ -10,7 +10,7 @@ public class SimpleGotoDegrees extends StormCommand {
     Climber.Direction direction;
     double angle;
     boolean earlyFinish = false;
-
+    boolean forceWhenNotHomed = false;
 
     public SimpleGotoDegrees(Climber c, double degrees, Climber.Direction direction){
         climber = c;
@@ -21,14 +21,20 @@ public class SimpleGotoDegrees extends StormCommand {
     }
 
     public void setTarget(double degrees) {
+        log("Resetting target angle to " + degrees);
         this.angle = degrees;
+    }
+
+    public void forceWhenNotHomed(boolean force) {
+        log("Setting forceWhenNotHomed = " + force);
+        forceWhenNotHomed = force;
     }
 
     @Override
     public void initialize() {
         super.initialize();
 
-        if (state.climberHasBeenHomed()) {
+        if (state.climberHasBeenHomed() || forceWhenNotHomed) {
             climber.setTargetDegrees(angle);
             climber.setClimberState(direction == Climber.Direction.FORWARD ?
                 Climber.ClimberState.MOVE_FORWARD : Climber.ClimberState.MOVE_REVERSE);

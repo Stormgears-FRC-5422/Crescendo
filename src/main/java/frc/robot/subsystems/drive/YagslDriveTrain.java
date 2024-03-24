@@ -78,8 +78,6 @@ public class YagslDriveTrain extends DrivetrainBase {
             CANSparkMax canSparkMax = (CANSparkMax) sm.getDriveMotor().getMotor();
             canSparkMax.getEncoder().setMeasurementPeriod(8);
             canSparkMax.getEncoder().setAverageDepth(8);
-            sm.getDriveMotor().setCurrentLimit(80);
-//                sm.getAngleMotor().setCurrentLimit(80);
         }
 
 

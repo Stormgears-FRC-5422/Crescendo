@@ -37,11 +37,12 @@ public class Climber extends SubsystemBase {
     private SparkLimitSwitch climbLimitSwitch;
     private SparkLimitSwitch homeLimitSwitch;
     private final RobotState robotState;
-
+    private double m_currentPosition;
 
     // STATE MACHINE
     private ClimberState myState;
     private boolean m_updateControllerState = true;
+    private int m_currentLimit = 0;
     private boolean m_enableForwardSoftLimit;
     private boolean m_enableReverseSoftLimit;
     private double m_forwardSoftLimitPosition;
@@ -76,8 +77,9 @@ public class Climber extends SubsystemBase {
         followerMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
         followerMotor.follow(leadMotor, true);
 
-        leadMotor.setSmartCurrentLimit(Constants.Climber.currentLimit);
-        followerMotor.setSmartCurrentLimit(Constants.Climber.currentLimit);
+        m_currentLimit = Constants.Climber.preHomeCurrentLimit;
+        leadMotor.setSmartCurrentLimit(m_currentLimit);
+        followerMotor.setSmartCurrentLimit(m_currentLimit);
 
         climbLimitSwitch = leadMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         homeLimitSwitch = leadMotor.getForwardLimitSwitch(Type.kNormallyOpen);
@@ -101,12 +103,7 @@ public class Climber extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // if we were told to stop, stop first
-//        if (m_motorSpeed == 0) {
-//            leadMotor.set(0);
-//        }
-        double position = getPosition();
-
+        m_currentPosition = m_encoder.getPosition();
         boolean home = isHome();
         robotState.setClimberIsHome(home);
 
@@ -114,11 +111,11 @@ public class Climber extends SubsystemBase {
         if (robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
             if (!hasBeenHomed && home) {
                 hasSeenHome = true;
-                homePosition = position;
+                homePosition = m_currentPosition;
             }
             robotState.setClimberIsAtInit(hasSeenHome &&
-                position >= homePosition + armInitLowPosition &&
-                position <= homePosition + armInitHighPosition );
+                m_currentPosition >= homePosition + armInitLowPosition &&
+                m_currentPosition <= homePosition + armInitHighPosition );
         }
 
         // Don't need to reset these on every iteration
@@ -132,6 +129,9 @@ public class Climber extends SubsystemBase {
             climbLimitSwitch.enableLimitSwitch(m_enableClimbLimitSwitch);
             homeLimitSwitch.enableLimitSwitch(m_enableHomeLimitSwitch);
 
+            leadMotor.setSmartCurrentLimit(m_currentLimit);
+            followerMotor.setSmartCurrentLimit(m_currentLimit);
+
             m_updateControllerState = false;
         }
 
@@ -142,10 +142,10 @@ public class Climber extends SubsystemBase {
                 leadMotor.set(m_motorSpeed);
             }
             case MOVE_PID_POSITION -> {
-                double error = m_targetPosition - position;
+                double error = m_targetPosition - m_currentPosition;
                 double arbitraryFF = getArbitraryFeedforward(error);
                 System.out.println("error: " + getDegreesFromPosition(error) +
-                                    ", position: " + getDegreesFromPosition(position) +
+                                    ", angle: " + getDegreesFromPosition(m_currentPosition) +
                                     ", arbFF: " +  arbitraryFF);
                 m_pidController.setReference(m_targetPosition, CANSparkMax.ControlType.kPosition, 0,
                     arbitraryFF, SparkPIDController.ArbFFUnits.kPercentOut);
@@ -168,6 +168,13 @@ public class Climber extends SubsystemBase {
         m_enableClimbLimitSwitch = false;
         m_enableHomeLimitSwitch = false;
 
+        // Natural current limits. Can be overridden below
+        if(hasBeenHomed) {
+            m_currentLimit = Constants.Climber.normalCurrentLimit;
+        } else {
+            m_currentLimit = Constants.Climber.preHomeCurrentLimit;
+        }
+
         switch (state) {
             case IDLE_BRAKE -> {
                 m_motorSpeed = 0;
@@ -178,6 +185,7 @@ public class Climber extends SubsystemBase {
             }
             case CLIMBING -> {
                 m_motorSpeed = getSpeedForDirection(Constants.Climber.climbSpeed, Direction.REVERSE);
+                m_currentLimit = Constants.Climber.climbCurrentLimit;
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 m_enableClimbLimitSwitch = true;
                 m_targetPosition = getPositionFromDegrees(Constants.Climber.climbStopInDegrees);
@@ -189,12 +197,13 @@ public class Climber extends SubsystemBase {
             }
             case SWITCH_HOMING -> {
                 m_motorSpeed = getSpeedForDirection(Constants.Climber.homeSpeed, Direction.FORWARD);
+                m_currentLimit = Constants.Climber.preHomeCurrentLimit;
                 m_enableHomeLimitSwitch = true;
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
             }
             case CURRENT_HOMING -> {
                 m_motorSpeed = getSpeedForDirection(Constants.Climber.homeSpeed, Direction.REVERSE);
-                m_stallCurrent = Constants.Climber.homeStallCurrent;
+                m_stallCurrent = Constants.Climber.stallCurrentLimit;
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
             }
             case HOME -> {//when it is actually home and done moving
@@ -213,18 +222,24 @@ public class Climber extends SubsystemBase {
                 robotState.setClimberHasBeenHomed(true);
             }
             case MOVE_FORWARD -> {    // climber is moving to amp shoot position
+                m_currentLimit = Constants.Climber.normalCurrentLimit;
+
                 m_motorSpeed = getSpeedForDirection(Constants.Climber.fwdPosSpeed, Direction.FORWARD);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 m_forwardSoftLimitPosition = m_targetPosition;
                 m_enableForwardSoftLimit = true;
             }
             case MOVE_REVERSE -> {    // climber is moving to amp shoot position
+                m_currentLimit = Constants.Climber.normalCurrentLimit;
+
                 m_motorSpeed = getSpeedForDirection(Constants.Climber.revPosSpeed, Direction.REVERSE);
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
                 m_reverseSoftLimitPosition = m_targetPosition;
                 m_enableReverseSoftLimit = true;
             }
             case MOVE_PID_POSITION -> {
+                m_currentLimit = Constants.Climber.normalCurrentLimit;
+
                 m_idleMode = CANSparkBase.IdleMode.kBrake;
             }
             default -> System.out.println("invalid Climber state");
@@ -266,7 +281,8 @@ public class Climber extends SubsystemBase {
 
     public void setTargetDegrees(double degrees) {
         m_targetPosition = getPositionFromDegrees(degrees);
-        System.out.println("Setting target angle to " + degrees + ", position = " + m_targetPosition);
+        System.out.println("Setting target to " + degrees + ", position = " + m_targetPosition);
+        System.out.println("Current angle is " + getDegreesFromPosition(m_currentPosition) + ", position = " + m_currentPosition);
     }
 
     public boolean isLockedIn() {
@@ -283,11 +299,12 @@ public class Climber extends SubsystemBase {
     }
 
     public double getPosition() {
-        return m_encoder.getPosition();
+        // Set in periodic
+        return m_currentPosition;
     }
 
     public double getDegrees() {
-        return getDegreesFromPosition(getPosition());
+        return getDegreesFromPosition(m_currentPosition);
     }
 
     public void stop() {
@@ -303,11 +320,7 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean reachedTargetDegrees() {
-        double error = m_targetPosition - m_encoder.getPosition();
-
-//        System.out.println("error position: " + error);
-//        System.out.println("error position: " + error);
-//        System.out.println("ENCODER POSITION: " + m_encoder.getPosition());
+        double error = m_targetPosition - m_currentPosition;
 
         switch (myState) {
             case MOVE_PID_POSITION -> {
