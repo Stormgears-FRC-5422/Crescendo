@@ -1,7 +1,5 @@
 package frc.robot.joysticks;
 
-import edu.wpi.first.wpilibj.GenericHID;
-
 public class CrescendoDummyController extends CrescendoJoystick {
     CrescendoDummyController(int port) {
 
@@ -79,17 +77,22 @@ public class CrescendoDummyController extends CrescendoJoystick {
         return false;
     }
 
-//    @Override
-//    public boolean diagnosticShooterIntake() {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean outtake() {
-//        return false;
-//    }
+    @Override
+    public boolean diagnosticShooterIntake() {
+        return false;
+    }
 
-public void setRumble() {
+    @Override
+    public boolean outtake() {
+        return false;
+    }
+
+    @Override
+    public boolean driveNote() {
+        return false;
+    }
+
+    public void setRumble() {
 
     }
 

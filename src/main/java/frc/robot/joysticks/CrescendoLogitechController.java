@@ -58,15 +58,15 @@ public class CrescendoLogitechController extends CrescendoJoystick {
         return controller.getRawButton(5);
     }
 
-//    @Override
-//    public boolean diagnosticShooterIntake() {
-//        return controller.getRawButton(6);
-//    }
-//
-//    @Override
-//    public boolean outtake() {
-//        return false;
-//    }
+    @Override
+    public boolean diagnosticShooterIntake() {
+        return controller.getRawButton(6);
+    }
+
+    @Override
+    public boolean outtake() {
+        return false;
+    }
 
     @Override
     public boolean climb() {
@@ -96,9 +96,14 @@ public class CrescendoLogitechController extends CrescendoJoystick {
         return false;
     }
 
-  public void setRumble() {
+    public void setRumble() {
 
-  }
+    }
+
+    @Override
+    public boolean driveNote() {
+        return false;
+    }
 
     @Override
     public void stopRumble() {

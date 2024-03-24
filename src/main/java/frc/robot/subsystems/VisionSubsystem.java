@@ -1,166 +1,87 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
-import frc.robot.RobotState;
 import frc.utils.vision.LimelightHelpers;
 
+import java.util.Map;
+import java.util.Optional;
+
 public class VisionSubsystem extends SubsystemBase {
-    private boolean initialized = false;
-    private NetworkTableEntry tTarget = null;
-    private NetworkTableEntry txEntry = null;
-    private NetworkTableEntry tyEntry = null;
-    private NetworkTableEntry taEntry = null;
-    private NetworkTableEntry botpose = null;
-    private NetworkTableEntry targetpose = null;
-    private NetworkTableEntry tl = null;
-    private NetworkTableEntry cl = null;
-    private Alliance alliance = Alliance.Blue;
-    NetworkTable tableInstance;
-    RobotState m_robotState;
 
-    double ty;
+    private String limelightId;
+    private LimelightHelpers.LimelightResults latestLimelightResults = null;
 
-    double tx;
-    double MOUNT_ANGLE_DEGREES = 25.0;
-    double LIMELIGHT_HEIGHT = 20.0;
-    double GOAL_HEIGHT = 60.0;
+    Optional<LimelightHelpers.LimelightTarget_Detector> noteDetector = Optional.empty();
 
-    LimelightHelpers.LimelightTarget_Fiducial helper;
-
-    public VisionSubsystem() {
-        m_robotState = RobotState.getInstance();
-        helper = new LimelightHelpers.LimelightTarget_Fiducial();
+    public VisionSubsystem(String limelightId) {
+        this.limelightId = limelightId;
         LimelightHelpers.setLEDMode_PipelineControl("");
         LimelightHelpers.setLEDMode_ForceBlink("");
-        LimelightHelpers.setCropWindow("",-1,1,-1,1);
-        initialized = true;
     }
 
-    public double getDistance() {
-        ty = tableInstance.getEntry("ty").getDouble(0.0);
-        tx = tableInstance.getEntry("tx").getDouble(0.0);
-        double degrees = MOUNT_ANGLE_DEGREES + ty;
-        double radians = Math.toRadians(degrees);
-        return ((GOAL_HEIGHT - LIMELIGHT_HEIGHT) / Math.tan(radians)) / Math.cos(tx);
-    }
-
-    public double getVerticalAngle() {
-        return ty;
-    }
-
-    public double getHorizontalAngle() {
-        return tx;
-    }
-
-    public boolean isInitialized() {
-        return this.initialized;
-    }
-
-    public boolean hasTargets() {
-        boolean hits = false;
-        //SmartDashboard.putBoolean("isInitialized", isInitialized());
-        if (isInitialized()) {
-            hits = (tableInstance.getEntry("tv").getDouble(0.0) == 1.0);
+    public LimelightHelpers.LimelightResults getLatestResults() {
+        if (latestLimelightResults == null) {
+            latestLimelightResults = LimelightHelpers.getLatestResults(limelightId);
         }
-        return hits;
+        return latestLimelightResults;
     }
 
-    public double[] botPose() {
-        double[] botPose = null;
-        //SmartDashboard.putBoolean("Limelight Inititialized", isInitialized());
-        if (isInitialized()) {
-            botPose = botpose.getDoubleArray(new double[7]);
-        }
-        return botPose;
+    public void addDetectorDashboardWidgets(ShuffleboardTab layout) {
+        layout.addBoolean("Target", () -> getLatestDetectorTarget().isPresent()).withPosition(0, 0);
+        layout.addDouble("Tx", () -> {
+            var optResults = getLatestDetectorTarget();
+            if (optResults.isPresent()) {
+                return optResults.get().tx;
+            }
+            return 0;
+        }).withPosition(0, 1);
+        layout.addDouble("Ty", () -> {
+            var optResults = getLatestDetectorTarget();
+            if (optResults.isPresent()) {
+                return optResults.get().ty;
+            }
+            return 0;
+        }).withPosition(0, 2);
+        layout.addString("Class", () -> {
+            var optResults = getLatestDetectorTarget();
+            if (optResults.isPresent()) {
+                return optResults.get().className;
+            }
+            return "";
+        }).withPosition(0, 3);
     }
 
-    public double tl() {
-        double tL = 0.0;
-        if (isInitialized()) {
-            tL = tl.getDouble(0.0);
+    public Optional<LimelightHelpers.LimelightTarget_Detector> getLatestDetectorTarget() {
+        var results = getLatestResults();
+        if (results == null) {
+            return Optional.empty();
         }
-        return tL;
+        var targetResult = results.targetingResults;
+
+        if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
+            return Optional.of(targetResult.targets_Detector[0]);
+        }
+        return Optional.empty();
     }
 
-    public double cl() {
-        double cL = 0.0;
-        if (isInitialized()) {
-            cL = cl.getDouble(0.0);
+    public Optional<LimelightHelpers.LimelightTarget_Retro> getLatestRetroTarget() {
+        var results = getLatestResults();
+        if (results == null) {
+            return Optional.empty();
         }
-        return cL;
-    }
-
-    public double targetDist() {
-        double[] targetPose = null;
-        if (isInitialized()) {
-            targetPose = targetpose.getDoubleArray(new double[3]);
+        var targetResult = results.targetingResults;
+        if (targetResult != null && targetResult.valid && targetResult.targets_Retro.length > 0) {
+            return Optional.of(targetResult.targets_Retro[0]);
         }
-        Translation3d dist = new Translation3d(targetPose[0], targetPose[1], targetPose[2]);
-        return dist.getDistance(new Translation3d());
-    }
-
-
-    public double targetArea() {
-        double dArea = 0.0;
-        if (isInitialized()) {
-            dArea = taEntry.getDouble(0.0);
-        }
-        return dArea;
-    }
-
-    public double tv() {
-        double tv = 0.0;
-        if (isInitialized()) {
-            tv = tTarget.getDouble(0.0);
-        }
-        return tv;
+        return Optional.empty();
     }
 
 
     @Override
     public void periodic() {
-//        tableInstance = NetworkTableInstance.getDefault().getTable("limelight");
-//        botpose = tableInstance.getEntry("botpose_wpiblue");
-//
-//        tTarget = tableInstance.getEntry("tv");
-//        txEntry = tableInstance.getEntry("tx");
-//        tyEntry = tableInstance.getEntry("ty");
-//        taEntry = tableInstance.getEntry("ta");
-//
-//        targetpose = tableInstance.getEntry("targetpose_robotspace");
-//        tl = tableInstance.getEntry("tl");
-//        cl = tableInstance.getEntry("cl");
-//
-//        SmartDashboard.putNumber("tx", tx);
-//        SmartDashboard.putNumber("ty", ty);
-
-/*        SmartDashboard.putNumber("Vision Pose Rotation",
-            LimelightHelpers.getBotPose2d(botpose.getDoubleArray(new double[7])).getRotation().getDegrees());
-        SmartDashboard.putNumber("Vision Pose X",
-            LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])).getX());
-        SmartDashboard.putNumber("Vision Pose Y",
-            LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])).getY());
-
-        RobotState.getInstance().setVisionPose(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[6])), hasTargets());*/
-
-//        System.out.println(LimelightHelpers.toPose2D(botpose.getDoubleArray(new double[7])));
-//        System.out.println(hasTargets());
-
-
-//        double[] pose = tableInstance.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
-
-        LimelightHelpers.PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
-        // TODO - handle validity issues
-        m_robotState.setVisionPose(poseEstimate.pose, true);
+        latestLimelightResults = null;
     }
-
 
 }

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive;
 
 
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -23,6 +25,7 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.motors.SwerveMotor;
 import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -46,7 +49,11 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     SwerveModule[] swerveModules;
 
+    PowerDistribution powerDistribution = new PowerDistribution();
+
+
     YagslDriveTrain() throws IOException {
+
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
         swerveDrive = new SwerveParser(directory).createSwerveDrive(m_maxVelocityMetersPerSecond);
@@ -67,10 +74,19 @@ public class YagslDriveTrain extends DrivetrainBase {
                 sm.setDriveMotorVoltageCompensation(Swerve.compensatedVoltage);
             }
         }
+        for (SwerveModule sm : swerveModules) {
+            CANSparkMax canSparkMax = (CANSparkMax) sm.getDriveMotor().getMotor();
+            canSparkMax.getEncoder().setMeasurementPeriod(8);
+            canSparkMax.getEncoder().setAverageDepth(8);
+            sm.getDriveMotor().setCurrentLimit(80);
+//                sm.getAngleMotor().setCurrentLimit(80);
+        }
+
+
 
         if (Swerve.useArbitraryFF) {
             // Make a FF that mimics what the library does, but add ks to overcome static friction.
-            SimpleMotorFeedforward tmpFF = SwerveMath.createDriveFeedforward(12,m_maxVelocityMetersPerSecond,1.01);
+            SimpleMotorFeedforward tmpFF = SwerveMath.createDriveFeedforward(12, m_maxVelocityMetersPerSecond, 1.01);
 
             double ks = Swerve.arbFFKs < 0 ? 0 : Swerve.arbFFKs;
             double kv = Swerve.arbFFKv < 0 ? tmpFF.kv : Swerve.arbFFKv;
@@ -178,8 +194,12 @@ public class YagslDriveTrain extends DrivetrainBase {
     );
 
     public void setSysIdVoltage(double v) {
-            this.setDriveSpeedScale(1.0);
-            this.percentOutputDrive(new ChassisSpeeds(v/12.0, 0, 0), false);
+//            this.setDriveSpeedScale(1.0);
+//            this.percentOutputDrive(new ChassisSpeeds(v/12.0, 0, 0), false);
+        for (SwerveModule swerveModule : swerveModules) {
+            swerveModule.setAngle(0);
+            swerveModule.getDriveMotor().setVoltage(v);
+        }
     }
 
     public double getSysIdVoltage() {
@@ -195,7 +215,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public Command getSysIdCommand() {
-        return SwerveDriveTest.generateSysIdCommand(sysIdRoutine, 1, 4, 2);
+        return SwerveDriveTest.generateSysIdCommand(sysIdRoutine, 1, 5, 5);
 
     }
 
@@ -245,11 +265,11 @@ public class YagslDriveTrain extends DrivetrainBase {
             Logger.recordOutput("Position drive module " + i, swerveModules[i].getDriveMotor().getPosition());
             Logger.recordOutput("Velocity drive module " + i, swerveModules[i].getDriveMotor().getVelocity());
             Logger.recordOutput("Volts drive module " + i, swerveModules[i].getDriveMotor().getVoltage());
+            Logger.recordOutput("drive module PID val " + i, String.valueOf(swerveModules[i].getDrivePIDF()));
             Logger.recordOutput("Position angle module " + i, swerveModules[i].getAngleMotor().getPosition());
             Logger.recordOutput("Velocity angle module " + i, swerveModules[i].getAngleMotor().getVelocity());
             Logger.recordOutput("Volts angle module " + i, swerveModules[i].getAngleMotor().getVoltage());
         }
-
 
 
     }

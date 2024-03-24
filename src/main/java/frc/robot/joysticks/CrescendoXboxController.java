@@ -56,15 +56,15 @@ public class CrescendoXboxController extends CrescendoJoystick {
         return controller.getRightBumperIsPressed();
     }
 
-//    @Override
-//    public boolean diagnosticShooterIntake() {
-//        return controller.getDownArrowPressed();
-//    }
+    @Override
+    public boolean diagnosticShooterIntake() {
+        return controller.getDownArrowPressed();
+    }
 
-//    @Override
-//    public boolean outtake() {
-//        return controller.getUpArrowPressed();
-//    }
+    @Override
+    public boolean outtake() {
+        return controller.getUpArrowPressed();
+    }
 
     @Override
     public boolean zeroWheels() {
@@ -93,6 +93,11 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
         return controller.getLeftBumperIsPressed();
 //            return false;
+    }
+
+    @Override
+    public boolean driveNote() {
+        return controller.getLeftBumperIsPressed();
     }
 
     public void setRumble() {

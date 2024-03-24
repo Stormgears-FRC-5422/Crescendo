@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -17,6 +18,7 @@ import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Choreo;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.Toggles;
+import frc.robot.commands.DriveToNote;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.RumbleCommand;
 import frc.robot.commands.StormCommand;
@@ -97,7 +99,7 @@ public class RobotContainer {
         robotState.setPose(initialPose);
 
         if (Toggles.useVision) {
-            visionSubsystem = new VisionSubsystem();
+            visionSubsystem = new VisionSubsystem("limelight-note");
         }
 
         if (Toggles.useDrive) {
@@ -236,6 +238,7 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
+        new Trigger(() -> joystick.driveNote()).onTrue(Commands.parallel(new DriveToNote(drivetrain, visionSubsystem), new GroundPickup(shooter)));
         System.out.println("[Init] configureBindings");
 
         if (!Toggles.useSysId) {
@@ -277,17 +280,16 @@ public class RobotContainer {
             }
         } else {
             System.out.println("Creating SysID commands");
-//            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
-//            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
-//            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
-//            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
-//            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
-//            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
+                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
+                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
+                new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
+                new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
+                new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
+                new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
         }
 
         System.out.println("[DONE] configureBindings");
     }
-
     public Command getAutonomousCommand() {
         if (Toggles.useAutoSelector) {
             return autoSelector.buildAuto();
