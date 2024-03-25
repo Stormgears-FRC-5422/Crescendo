@@ -1,7 +1,7 @@
 package frc.robot.subsystems.drive;
 
-import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
+import com.choreo.lib.ChoreoTrajectoryState;
 import com.google.gson.Gson;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,16 +12,15 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.RobotState;
+import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
+import java.util.Objects;
 
 /** Utilities to load and follow ChoreoTrajectories */
 public class StormChoreo {
@@ -133,7 +132,7 @@ public class StormChoreo {
         return choreoSwerveCommand(
             trajectory,
             poseSupplier,
-            choreoSwerveController(xController, yController, rotationController),
+            stormChoreoSwerveController(xController, yController, rotationController),
             outputChassisSpeeds,
             mirrorTrajectory,
             requirements);
@@ -162,7 +161,7 @@ public class StormChoreo {
     public static Command choreoSwerveCommand(
         ChoreoTrajectory trajectory,
         Supplier<Pose2d> poseSupplier,
-        ChoreoControlFunction controller,
+        StormChoreoControlFunction controller,
         Consumer<ChassisSpeeds> outputChassisSpeeds,
         BooleanSupplier mirrorTrajectory,
         Subsystem... requirements) {
@@ -170,11 +169,12 @@ public class StormChoreo {
         return new FunctionalCommand(
             timer::restart,
             () -> {
-                ;
+                double currentTime = timer.get();
                 outputChassisSpeeds.accept(
                     controller.apply(
                         poseSupplier.get(),
-                        trajectory.sample(timer.get(), mirrorTrajectory.getAsBoolean())));
+                        trajectory.sample(currentTime, mirrorTrajectory.getAsBoolean()),
+                        trajectory.sample(currentTime + Constants.Swerve.lookAheadSeconds, mirrorTrajectory.getAsBoolean())));
             },
             (interrupted) -> {
                 timer.stop();
@@ -186,6 +186,20 @@ public class StormChoreo {
             },
             () -> timer.hasElapsed(trajectory.getTotalTime()),
             requirements);
+    }
+
+    // based on implementation of java.util.BiFunction. We need a variant that takes three objects
+    @FunctionalInterface
+    public interface TriFunction<T, U, V, R> {
+        R apply(T t, U u, V v);
+
+        default <W> TriFunction<T, U, V, W> andThen(Function<? super R, ? extends W> after) {
+            Objects.requireNonNull(after);
+            return (T t, U u, V v) -> after.apply(apply(t, u, v));
+        }
+    }
+
+    public interface StormChoreoControlFunction extends TriFunction<Pose2d, ChoreoTrajectoryState, ChoreoTrajectoryState, ChassisSpeeds> {
     }
 
     /**
@@ -201,13 +215,13 @@ public class StormChoreo {
      * @return A ChoreoControlFunction to track ChoreoTrajectoryStates. This function returns
      *     robot-relative ChassisSpeeds.
      */
-    public static ChoreoControlFunction choreoSwerveController(
+    public static StormChoreoControlFunction stormChoreoSwerveController(
         PIDController xController, PIDController yController, PIDController rotationController) {
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
-        return (pose, referenceState) -> {
-            double xFF = referenceState.velocityX;
-            double yFF = referenceState.velocityY;
-            double rotationFF = referenceState.angularVelocity;
+        return (pose, referenceState, futureState) -> {
+            double xFF = futureState.velocityX;
+            double yFF = futureState.velocityY;
+            double rotationFF = futureState.angularVelocity;
 
             double xFeedback = xController.calculate(pose.getX(), referenceState.x);
             double yFeedback = yController.calculate(pose.getY(), referenceState.y);
@@ -224,7 +238,7 @@ public class StormChoreo {
             Logger.recordOutput("Y Pose", pose.getY());
             Logger.recordOutput("Y FF", yFF);
 
-            Logger.recordOutput(" ROT setpoint", referenceState.y);
+            Logger.recordOutput("ROT setpoint", referenceState.y);
             Logger.recordOutput("ROT Pose", pose.getY());
             Logger.recordOutput("ROT FF", rotationFF);
 
