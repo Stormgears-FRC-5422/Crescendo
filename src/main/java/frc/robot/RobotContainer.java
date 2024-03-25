@@ -238,8 +238,14 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-        new Trigger(() -> joystick.driveNote()).onTrue(Commands.parallel(new DriveToNote(drivetrain, visionSubsystem), new GroundPickup(shooter)));
         System.out.println("[Init] configureBindings");
+
+        if (Toggles.useDrive && Toggles.useVision) {
+            new Trigger(() -> joystick.driveNote()).onTrue(Commands
+                .parallel(new DriveToNote(drivetrain, visionSubsystem),
+                          new GroundPickup(shooter))
+            );
+        }
 
         if (!Toggles.useSysId) {
             System.out.println("Creating non SysID commands");

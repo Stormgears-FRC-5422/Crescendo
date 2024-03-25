@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -42,7 +43,8 @@ public class YagslDriveTrain extends DrivetrainBase {
     private final SwerveDrive swerveDrive;
     protected boolean m_localFieldRelative;
     private final StructPublisher<Pose2d> publisher;
-
+    private boolean poseUpdated = false;
+    private Pose2d m_currentPose;
     double maxVelocityMetersPerSecond = Constants.SparkMax.FreeSpeedRPM / 60.0 *
         Drive.driveReduction * Drive.wheelDiameter * Math.PI;
     double maxAngularVelocityRadiansPerSecond = maxVelocityMetersPerSecond /
@@ -167,7 +169,16 @@ public class YagslDriveTrain extends DrivetrainBase {
     @Override
     @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
-        return swerveDrive.getPose();
+        // cache the call to potentially expensive call into the swervedrive pose estimator
+        // poseUpdated gets reset to false at the end of periodic
+        if (!poseUpdated) {
+            poseUpdated = true;
+            m_currentPose = swerveDrive.getPose();
+            // This might get called early in the Auto command, so set state here so
+            // other subsystems see the same value
+            m_state.setPose(m_currentPose);
+        }
+        return m_currentPose;
     }
 
     @Override
@@ -261,23 +272,21 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
-
 //        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.75, 1);
 //        double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(21.4285714, 1);
 //        System.out.println("Drive conversion factor:  " + driveConversionFactor);
 //        System.out.println("Angle conversion factor:  " + angleConversionFactor);
-
-
-
-        publisher.set(swerveDrive.getPose());
-        m_state.setPose(swerveDrive.getPose());
+        publisher.set(getPose());
+        // This is unnecessary - the above call to getPose has the side effect of setting the state if needed
+        //m_state.setPose(getPose());
 
         if (m_localFieldRelative) {
             swerveDrive.driveFieldOriented(m_chassisSpeeds);
         } else {
             swerveDrive.drive(m_chassisSpeeds);
         }
-        Logger.recordOutput("Drive Pose", swerveDrive.getPose());
+
+        Logger.recordOutput("Drive Pose", getPose());
         Logger.recordOutput("Drive velocity", swerveDrive.getRobotVelocity());
         for (int i = 0; i < swerveModules.length; i++) {
             Logger.recordOutput("Position drive module " + i, swerveModules[i].getDriveMotor().getPosition());
@@ -289,6 +298,7 @@ public class YagslDriveTrain extends DrivetrainBase {
             Logger.recordOutput("Volts angle module " + i, swerveModules[i].getAngleMotor().getVoltage());
         }
 
-
+        // The pose is now stale
+        poseUpdated = false;
     }
 }
