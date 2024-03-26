@@ -8,16 +8,17 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
+import frc.utils.joysticks.StormXboxController;
 
 import static java.lang.Math.abs;
 
 public class DriveToNote extends Command {
 
     private static int TARGET = -21;
-    private final PIDController translationController = new PIDController(0.07, 0, 0);
-    private final PIDController rotationController = new PIDController(0.07, 0, 0);
+    private final PIDController translationController = new PIDController(0.15, 0, 0);
+    private final PIDController rotationController = new PIDController(0.03, 0, 0);
     DrivetrainBase drivetrain;
-
+    StormXboxController controller;
     double tx;
     double ty;
     NetworkTable table;
@@ -35,14 +36,16 @@ public class DriveToNote extends Command {
 
     @Override
     public void execute() {
+        double movement = 0;
+        double rotation = 0;
         if (visionSubsystem.getLatestDetectorTarget().isPresent()) {
             tx = visionSubsystem.getLatestDetectorTarget().get().tx;
             ty = visionSubsystem.getLatestDetectorTarget().get().ty;
-            double movement = translationController.calculate(TARGET - ty);
-            double rotation = rotationController.calculate(tx);
-            ChassisSpeeds speeds;
-            speeds = new ChassisSpeeds(abs(movement), 0, rotation);
-            drivetrain.percentOutputDrive(speeds, false);
+            movement = translationController.calculate(TARGET - ty);
+            rotation = rotationController.calculate(tx);
+        }
+        ChassisSpeeds speeds = new ChassisSpeeds(movement, 0, rotation);
+        drivetrain.percentOutputDrive(speeds, false);
         }
     }
 

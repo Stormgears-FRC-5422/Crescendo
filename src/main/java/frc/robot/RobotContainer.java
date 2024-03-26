@@ -241,7 +241,7 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useDrive && Toggles.useVision) {
-            new Trigger(() -> joystick.driveNote()).onTrue(Commands
+            new Trigger(() -> joystick.driveNote()).whileTrue(Commands
                 .parallel(new DriveToNote(drivetrain, visionSubsystem),
                           new GroundPickup(shooter))
             );

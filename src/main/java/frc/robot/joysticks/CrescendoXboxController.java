@@ -97,7 +97,7 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
     @Override
     public boolean driveNote() {
-        return controller.getLeftBumperIsPressed();
+        return controller.getLeftBumperIsHeld();
     }
 
     public void setRumble() {
