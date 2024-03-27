@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -82,7 +83,6 @@ public class YagslDriveTrain extends DrivetrainBase {
             canSparkMax.getEncoder().setMeasurementPeriod(8);
             canSparkMax.getEncoder().setAverageDepth(8);
         }
-
 
 
         if (Swerve.useArbitraryFF) {
@@ -224,6 +224,13 @@ public class YagslDriveTrain extends DrivetrainBase {
     }
 
     @Override
+    public void setVisionPose(Pose2d pose2d) {
+        System.out.println("Adding vision pose Measurement");
+        swerveDrive.addVisionMeasurement(pose2d, Timer.getFPGATimestamp());
+    }
+
+
+    @Override
     public Command getSysIdCommand() {
         return SwerveDriveTest.generateSysIdCommand(sysIdRoutine, 1, 5, 5);
 
@@ -263,7 +270,7 @@ public class YagslDriveTrain extends DrivetrainBase {
     @Override
     public void stopDrive() {
         drive(new ChassisSpeeds(0, 0, 0), false);
-        for (SwerveModule swerveModule: swerveModules) {
+        for (SwerveModule swerveModule : swerveModules) {
             swerveModule.getDriveMotor().setMotorBrake(true);
             swerveModule.getDriveMotor().set(0);
             swerveModule.getAngleMotor().set(0);

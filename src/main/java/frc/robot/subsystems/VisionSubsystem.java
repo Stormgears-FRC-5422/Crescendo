@@ -73,7 +73,7 @@ public class VisionSubsystem extends SubsystemBase {
             return false;
         }
         var targetResult = results.targetingResults;
-        
+
         if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
             boolean isPresent = Optional.of(targetResult.targets_Detector[0]).isPresent();
             robotState.setIsNoteDetected(isPresent);
@@ -95,10 +95,24 @@ public class VisionSubsystem extends SubsystemBase {
         return Optional.empty();
     }
 
+    public Optional<LimelightHelpers.LimelightTarget_Fiducial> getLatestFiducialsTarget() {
+        var results = getLatestResults();
+        if (results == null) {
+            return Optional.empty();
+        }
+        var targetResult = results.targetingResults;
+        if (targetResult != null && targetResult.valid && targetResult.targets_Fiducials.length > 0) {
+            return Optional.of(targetResult.targets_Fiducials[0]);
+        }
+        return Optional.empty();
+    }
+
 
     @Override
     public void periodic() {
         latestLimelightResults = null;
+//        RobotState.getInstance().setVisionPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"),
+//            LimelightHelpers.getTV("limelight"));
         isNoteDetected();
     }
 

@@ -66,11 +66,14 @@ public class StatusLights extends SubsystemBase {
 
     List<Pose2d> targetList;
 
-    public StatusLights() {
+    VisionSubsystem visionSubsystem;
+
+    public StatusLights(VisionSubsystem visionSubsystem) {
         m_iteration = 0;
         m_robotState = RobotState.getInstance();
         m_alliance = m_robotState.getAlliance();
         m_shooterState = m_robotState.getShooterState();
+        this.visionSubsystem = visionSubsystem;
 
         RED_COLOR = scaleColor(new Color8Bit(255, 0, 0), Constants.Lights.brightness);
         GREEN_COLOR = scaleColor(new Color8Bit(0, 255, 0), Constants.Lights.brightness);
@@ -111,7 +114,7 @@ public class StatusLights extends SubsystemBase {
 
         if(m_robotState.isUpperSensorTriggered()){
             SIDE_COLOR = GREEN_COLOR;
-            
+
         }else if(m_robotState.getIsNoteDetected()){
             SIDE_COLOR = BLUE_COLOR;
         }else{
@@ -185,7 +188,7 @@ public class StatusLights extends SubsystemBase {
 //         TODO - handle validity issues
 //                if (m_robotState.isVisionPoseValid()) {
             //Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
-            Pose2d current = m_robotState.getVisionPose();
+            Pose2d current = m_robotState.getVisionPose(visionSubsystem);
             Pose2d target= current.nearest(targetList);
             Transform2d poseError = new Transform2d(current, target);
             //        System.out.println(poseError);

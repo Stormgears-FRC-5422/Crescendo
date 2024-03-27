@@ -5,6 +5,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.utils.vision.LimelightHelpers;
+
+import java.util.Optional;
 
 
 public class RobotState extends SubsystemBase {
@@ -21,7 +25,7 @@ public class RobotState extends SubsystemBase {
     private Pose2d currentPose = new Pose2d();
     private Shooter.ShooterState shooterState = Shooter.ShooterState.IDLE;
     private Climber.ClimberState climberState = Climber.ClimberState.IDLE_BRAKE;
-    private Pose2d visionPose = new Pose2d();
+    //private Pose2d visionPose = new Pose2d();
 
     private StatePeriod m_period = StatePeriod.NONE;
     private boolean m_didAuto = false;
@@ -150,26 +154,22 @@ public class RobotState extends SubsystemBase {
 
     public boolean isVisionPoseValid() {
 
-        count = (isPoseValid) ? count++ : 0;
+        count = (isPoseValid) ? ++count : 0;
 //        System.out.println(count);
-        if (count>=5) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return count >= 5;
 
     }
 
-    public void setVisionPose(Pose2d pose,boolean valid) {
+/*    public void setVisionPose(Pose2d pose,boolean valid) {
         if (pose != null) {
             visionPose = pose;
         }
         isPoseValid = valid;
-    }
+    }*/
 
-    public Pose2d getVisionPose() {
-        return visionPose;
+    public Pose2d getVisionPose(VisionSubsystem vision) {
+        Optional<LimelightHelpers.LimelightTarget_Fiducial> visionResult =  vision.getLatestFiducialsTarget();
+        return visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null);
     }
 
     public void setIsNoteDetected(boolean detected){
@@ -179,7 +179,7 @@ public class RobotState extends SubsystemBase {
     public boolean getIsNoteDetected(){
         return isNoteDetected;
     }
-    
+
 
 
 }

@@ -142,6 +142,10 @@ public class LimelightHelpers {
         @JsonProperty("t6t_rs")
         private double[] targetPose_RobotSpace;
 
+        @JsonProperty("v")
+        @JsonFormat(shape = Shape.NUMBER)
+        public boolean valid;
+
         public Pose3d getCameraPose_TargetSpace() {
             return toPose3D(cameraPose_TargetSpace);
         }
@@ -197,8 +201,13 @@ public class LimelightHelpers {
         @JsonProperty("typ")
         public double ty_pixels;
 
+        @JsonProperty("botpose_wpiblue")
+        public Pose2d botpose_wpiblue;
+
         @JsonProperty("ts")
         public double ts;
+
+
 
         public LimelightTarget_Fiducial() {
             cameraPose_TargetSpace = new double[6];

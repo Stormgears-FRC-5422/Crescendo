@@ -145,6 +145,10 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     }
 
+    public void setVisionPose (Pose2d pose2d) {
+
+    }
+
     public SwerveDriveKinematics getKinematics() {
         return new SwerveDriveKinematics();
     }

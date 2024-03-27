@@ -13,8 +13,10 @@ import frc.robot.*;
 import frc.robot.Constants.Swerve;
 import frc.robot.Constants.Toggles;
 
+import frc.robot.commands.DriveToNote;
 import frc.robot.commands.shoot.Shoot;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.StormChoreo;
 import org.littletonrobotics.junction.Logger;
@@ -25,6 +27,7 @@ public class AutoCommandFactory {
     final RobotState m_state;
     final DrivetrainBase drivetrain;
     final Shooter shooter;
+    final VisionSubsystem visionSubsystem;
     //    middle side
     final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
     final ArrayList<ChoreoTrajectory> middle_far_amp = Choreo.getTrajectoryGroup("middle_far_amp");
@@ -53,10 +56,11 @@ public class AutoCommandFactory {
     private double timestamp = 0;
 
 
-    public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter) {
+    public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter, VisionSubsystem visionSubsystem) {
 //        System.out.println("Traj pt1: " + note_speaker_3.get(0));
         this.drivetrain = drivetrainBase;
         this.shooter = shooter;
+        this.visionSubsystem = visionSubsystem;
         m_state = RobotState.getInstance();
         drivetrainBase.setHeadingCorrectionTrue();
 
@@ -145,144 +149,88 @@ public class AutoCommandFactory {
 
     }
 
-    public Command ampSideAmpNote() {
+    public Command commandBuilder(ChoreoTrajectory trajectory, ChoreoTrajectory trajectory2) {
         return Commands.sequence(
             new Shoot(shooter),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(amp_side_amp.get(0)),
-            autoSequence(amp_side_amp.get(1)),
+            startAutoSequence(trajectory),
+            new DriveToNote(drivetrain, visionSubsystem),
+            autoSequence(trajectory2),
+            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
             new Shoot(shooter));
+    }
+
+    public Command commandBuilder(ChoreoTrajectory trajectory) {
+        return Commands.sequence(
+            new Shoot(shooter),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            startAutoSequence(trajectory),
+            new Shoot(shooter));
+    }
+
+    public Command ampSideAmpNote() {
+        return commandBuilder(amp_side_amp.get(0), amp_side_amp.get(1));
     }
 
     public Command ampSideMiddleNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(amp_side_middle.get(0)),
-            autoSequence(amp_side_middle.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(amp_side_middle.get(0), amp_side_middle.get(1));
     }
 
     public Command ampSideSourceNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(amp_side_source.get(0)),
-            autoSequence(amp_side_source.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(amp_side_source.get(0), amp_side_source.get(1));
     }
 
     public Command ampSideFarLeft() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(far_amp_side_left.get(0)),
-            autoSequence(far_amp_side_left.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(far_amp_side_left.get(0), far_amp_side_left.get(1));
     }
 
     public Command ampSideFarMiddleLeft() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(far_amp_middle_left.get(0)),
-            autoSequence(far_amp_middle_left.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(far_amp_middle_left.get(0), far_amp_middle_left.get(1));
     }
 
     public Command ampSideFarMiddle() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(far_amp_middle.get(0)),
-            autoSequence(far_amp_middle.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(far_amp_middle.get(0), far_amp_middle.get(1));
     }
 
     public Command middleSideMiddleNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(note_speaker_3.get(0)),
-            autoSequence(note_speaker_3.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(note_speaker_3.get(0), note_speaker_3.get(1));
     }
 
     public Command middleSideAmpNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(note_speaker_3.get(2)),
-            autoSequence(note_speaker_3.get(3)),
-            new Shoot(shooter));
+        return commandBuilder(note_speaker_3.get(2), note_speaker_3.get(3));
     }
 
     public Command middleSideSourceNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(note_speaker_3.get(4)),
-            autoSequence(note_speaker_3.get(5)),
-            new Shoot(shooter));
+        return commandBuilder(note_speaker_3.get(4), note_speaker_3.get(5));
     }
 
     public Command sourceSideSourceNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(source_side_source.get(0)),
-            autoSequence(source_side_source.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(source_side_source.get(0), source_side_source.get(1));
     }
 
     public Command sourceSideMiddleNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(source_side_middle.get(0)),
-            autoSequence(source_side_middle.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(source_side_middle.get(0), source_side_middle.get(1));
     }
 
     public Command sourceSideAmpNote() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(source_side_amp.get(0)),
-            autoSequence(source_side_amp.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(source_side_amp.get(0), source_side_amp.get(1));
     }
 
     public Command sourceSideFarRight() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(far_source_right.get(0)),
-            autoSequence(far_source_right.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(far_source_right.get(0), far_source_right.get(1));
     }
 
     public Command sourceSideFarMiddleRight() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(far_source_middle_right.get(0)),
-            autoSequence(far_source_middle_right.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(far_source_middle_right.get(0), far_source_middle_right.get(1));
     }
 
     public Command sourceFarMiddle() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(source_far_middle.get(0)),
-            autoSequence(source_far_middle.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(source_far_middle.get(0), source_far_middle.get(1));
     }
 
 
     public Command fourNoteAmp() {
-        return startAutoSequence(Choreo.getTrajectory("four_note_w_amp"));
+        return commandBuilder(Choreo.getTrajectory("four_note_w_amp"));
     }
 
     public Command threeNoteSpeakerPart(int p) {
@@ -290,7 +238,7 @@ public class AutoCommandFactory {
             new InstantCommand(() ->
                 System.out.println("Transformation pt" + p + new Transform2d(note_speaker_3.get(p - 1).getFinalPose(), drivetrain.getPose()))),
             new InstantCommand(() ->
-                System.out.println("Vision Transformation pt" + p + new Transform2d(drivetrain.getPose(), m_state.getVisionPose()))));
+                System.out.println("Vision Transformation pt" + p + new Transform2d(drivetrain.getPose(), m_state.getVisionPose(visionSubsystem)))));
 
     }
 
@@ -344,48 +292,23 @@ public class AutoCommandFactory {
     }
 
     public Command middleFarAmp() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(middle_far_amp.get(0)),
-            autoSequence(middle_far_amp.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(middle_far_amp.get(0), middle_far_amp.get(1));
     }
 
     public Command middleFarMiddleAmp() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(middle_far_middle_amp.get(0)),
-            autoSequence(middle_far_middle_amp.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(middle_far_middle_amp.get(0), middle_far_middle_amp.get(1));
     }
 
     public Command middleFarMiddle() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(middle_far_middle.get(0)),
-            autoSequence(middle_far_middle.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(middle_far_middle.get(0), middle_far_middle.get(1));
     }
 
     public Command middleFarMiddleSource() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(middle_far_middle_source.get(0)),
-            autoSequence(middle_far_middle_source.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(middle_far_middle_source.get(0), middle_far_middle_source.get(1));
     }
 
     public Command middleFarSource() {
-        return Commands.sequence(
-            new Shoot(shooter),
-            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            startAutoSequence(middle_far_source.get(0)),
-            autoSequence(middle_far_source.get(1)),
-            new Shoot(shooter));
+        return commandBuilder(middle_far_source.get(0), middle_far_source.get(1));
     }
 
 
@@ -441,9 +364,9 @@ public class AutoCommandFactory {
         private SendableChooser<Boolean> sourceFar = new SendableChooser<>();
         private SendableChooser<Boolean> sourceMiddleFar = new SendableChooser<>();
 
-        public AutoSelector(DrivetrainBase drivetrainBase, Shooter shooter) {
+        public AutoSelector(DrivetrainBase drivetrainBase, Shooter shooter, VisionSubsystem visionSubsystem) {
 
-            autoCommandFactory = new AutoCommandFactory(drivetrainBase, shooter);
+            autoCommandFactory = new AutoCommandFactory(drivetrainBase, shooter, visionSubsystem);
 
             for (int i = 0; i < 3; i++) {
                 if (i == 0) {

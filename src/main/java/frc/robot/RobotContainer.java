@@ -50,6 +50,7 @@ public class RobotContainer {
     private NavX navX;
     private Shooter shooter;
     private VisionSubsystem visionSubsystem;
+    private VisionSubsystem visionSubsystemNote;
     private Climber climber;
 
 
@@ -99,7 +100,8 @@ public class RobotContainer {
         robotState.setPose(initialPose);
 
         if (Toggles.useVision) {
-            visionSubsystem = new VisionSubsystem("limelight-note");
+            visionSubsystem = new VisionSubsystem("limelight");
+            visionSubsystemNote = new VisionSubsystem("limelight-note");
         }
 
         if (Toggles.useDrive) {
@@ -134,12 +136,12 @@ public class RobotContainer {
         }
 
         if (Toggles.useStatusLights) {
-            statusLights = new StatusLights();
+            statusLights = new StatusLights(visionSubsystem);
         }
 
         if (Toggles.useDrive) {
-            autoCommandFactory = new AutoCommandFactory(drivetrain, shooter);
-            autoSelector = new AutoCommandFactory.AutoSelector(drivetrain, shooter);
+            autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, visionSubsystem);
+            autoSelector = new AutoCommandFactory.AutoSelector(drivetrain, shooter, visionSubsystem);
             if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
                 // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
                 // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
@@ -243,8 +245,7 @@ public class RobotContainer {
         if (Toggles.useDrive && Toggles.useVision) {
             new Trigger(() -> joystick.driveNote()).whileTrue(Commands
                 .parallel(new DriveToNote(drivetrain, visionSubsystem),
-                          new GroundPickup(shooter))
-            );
+                    new GroundPickup(shooter)));
         }
 
         if (!Toggles.useSysId) {
