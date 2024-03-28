@@ -188,26 +188,29 @@ public class StatusLights extends SubsystemBase {
 //         TODO - handle validity issues
 //                if (m_robotState.isVisionPoseValid()) {
             //Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
-            Pose2d current = m_robotState.getVisionPose(visionSubsystem);
-            Pose2d target= current.nearest(targetList);
-            Transform2d poseError = new Transform2d(current, target);
-            //        System.out.println(poseError);
-            //        System.out.println("Translation: " + poseError);
-            //        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
-            getXYIndicatorRing(visionXRing, Math.abs(poseError.getX()));
-            getXYIndicatorRing(visionYRing, Math.abs(poseError.getY()));
-            getThetaIndicatorRing(visionRotationRing, Math.abs(poseError.getRotation().getDegrees()));
 
-            setSegmentFromColorArray(RING_TOP, visionRotationRing, poseError.getRotation());
-            setSegmentFromColorArray(RING_MIDDLE_TOP, visionXRing,
-                new Rotation2d(poseError.getX() > 0 ? 1 : -1, 0));
-            setSegmentFromColorArray(RING_MIDDLE, visionYRing,
-                new Rotation2d(0, poseError.getY() > 0 ? 1 : -1));
+            Pose2d current = m_robotState.getVisionPose(visionSubsystem);
+            if (current!=null) {
+                Pose2d target = current.nearest(targetList);
+                Transform2d poseError = new Transform2d(current, target);
+                //        System.out.println(poseError);
+                //        System.out.println("Translation: " + poseError);
+                //        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
+                getXYIndicatorRing(visionXRing, Math.abs(poseError.getX()));
+                getXYIndicatorRing(visionYRing, Math.abs(poseError.getY()));
+                getThetaIndicatorRing(visionRotationRing, Math.abs(poseError.getRotation().getDegrees()));
+
+                setSegmentFromColorArray(RING_TOP, visionRotationRing, poseError.getRotation());
+                setSegmentFromColorArray(RING_MIDDLE_TOP, visionXRing,
+                    new Rotation2d(poseError.getX() > 0 ? 1 : -1, 0));
+                setSegmentFromColorArray(RING_MIDDLE, visionYRing,
+                    new Rotation2d(0, poseError.getY() > 0 ? 1 : -1));
 //        } else {
 //            setRingColor(RING_TOP, RED_COLOR);
 //            setRingColor(RING_MIDDLE_TOP, RED_COLOR);
 //            setRingColor(RING_MIDDLE, RED_COLOR);
 //        }
+            }
     }
 
     private void getXYIndicatorRing(Color8Bit[] ring, double absError) {

@@ -8,10 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ButtonBoard;
@@ -140,8 +137,8 @@ public class RobotContainer {
         }
 
         if (Toggles.useDrive) {
-            autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, visionSubsystem);
-            autoSelector = new AutoCommandFactory.AutoSelector(drivetrain, shooter, visionSubsystem);
+            autoCommandFactory = new AutoCommandFactory(drivetrain, shooter, visionSubsystem, visionSubsystemNote);
+            autoSelector = new AutoCommandFactory.AutoSelector(drivetrain, shooter, visionSubsystem, visionSubsystemNote);
             if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
                 // TODO - we shouldn't hard code these path names here. Not sure the right way to list them
                 // probably in a config setting like (String) simple_2m | 4noteAmp | 3noteSpeaker | etc.
@@ -243,9 +240,10 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useDrive && Toggles.useVision) {
-            new Trigger(() -> joystick.driveNote()).whileTrue(Commands
-                .parallel(new DriveToNote(drivetrain, visionSubsystem),
-                    new GroundPickup(shooter)));
+            new Trigger(() -> joystick.driveNote()).whileTrue(Commands.deadline(
+                new GroundPickup(shooter),
+                new DriveToNote(drivetrain, visionSubsystemNote)
+                ));
         }
 
         if (!Toggles.useSysId) {

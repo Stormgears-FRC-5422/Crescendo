@@ -202,7 +202,7 @@ public class LimelightHelpers {
         public double ty_pixels;
 
         @JsonProperty("botpose_wpiblue")
-        public Pose2d botpose_wpiblue;
+        public double[] botpose_wpiblue;
 
         @JsonProperty("ts")
         public double ts;

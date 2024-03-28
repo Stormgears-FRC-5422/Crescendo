@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
@@ -9,6 +10,8 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.utils.vision.LimelightHelpers;
 
 import java.util.Optional;
+
+import static edu.wpi.first.math.util.Units.degreesToRadians;
 
 
 public class RobotState extends SubsystemBase {
@@ -90,9 +93,11 @@ public class RobotState extends SubsystemBase {
     public boolean isAllianceBlue() {
         return m_alliance == StateAlliance.BLUE;
     }
+
     public boolean isAllianceRed() {
         return m_alliance == StateAlliance.RED;
     }
+
     public boolean isAllianceMissing() {
         return m_alliance == StateAlliance.MISSING;
     }
@@ -101,7 +106,9 @@ public class RobotState extends SubsystemBase {
         currentPose = new Pose2d(currentPose.getX(), currentPose.getY(), new Rotation2d(angle.getRadians()));
     }
 
-    public Rotation2d getHeading() { return currentPose.getRotation(); }
+    public Rotation2d getHeading() {
+        return currentPose.getRotation();
+    }
 
     public void setPose(Pose2d pose) {
         // Make a copy, not a reference to the same object!
@@ -168,18 +175,27 @@ public class RobotState extends SubsystemBase {
     }*/
 
     public Pose2d getVisionPose(VisionSubsystem vision) {
-        Optional<LimelightHelpers.LimelightTarget_Fiducial> visionResult =  vision.getLatestFiducialsTarget();
-        return visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null);
+//        Optional<LimelightHelpers.LimelightTarget_Fiducial> visionResult = vision.getLatestFiducialsTarget();
+//        return toPose2D(visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null));
+        return LimelightHelpers.getBotPose2d_wpiBlue("limelight");
     }
 
-    public void setIsNoteDetected(boolean detected){
+    public void setIsNoteDetected(boolean detected) {
         isNoteDetected = detected;
     }
 
-    public boolean getIsNoteDetected(){
+    public boolean getIsNoteDetected() {
         return isNoteDetected;
     }
 
-
+    private static Pose2d toPose2D(double[] inData) {
+             if (inData == null || inData.length < 6) {
+                //System.err.println("Bad LL 2D Pose Data!");
+                return null;
+            }
+            Translation2d tran2d = new Translation2d(inData[0], inData[1]);
+            Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
+            return new Pose2d(tran2d, r2d);
+        }
 
 }

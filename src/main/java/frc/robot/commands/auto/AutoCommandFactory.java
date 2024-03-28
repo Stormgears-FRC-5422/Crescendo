@@ -28,6 +28,7 @@ public class AutoCommandFactory {
     final DrivetrainBase drivetrain;
     final Shooter shooter;
     final VisionSubsystem visionSubsystem;
+    final VisionSubsystem visionSubsystemNote;
     //    middle side
     final ArrayList<ChoreoTrajectory> note_speaker_3 = Choreo.getTrajectoryGroup("3_note_speaker");
     final ArrayList<ChoreoTrajectory> middle_far_amp = Choreo.getTrajectoryGroup("middle_far_amp");
@@ -52,29 +53,34 @@ public class AutoCommandFactory {
     final ArrayList<ChoreoTrajectory> far_source_middle_right = Choreo.getTrajectoryGroup("far_source_middle_right");
     final ArrayList<ChoreoTrajectory> source_far_middle = Choreo.getTrajectoryGroup("source_far_middle");
 
+    private int count = 0;
 
-    private double timestamp = 0;
 
 
-    public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter, VisionSubsystem visionSubsystem) {
+    public AutoCommandFactory(DrivetrainBase drivetrainBase, Shooter shooter, VisionSubsystem visionSubsystem, VisionSubsystem visionSubsystemNote) {
 //        System.out.println("Traj pt1: " + note_speaker_3.get(0));
         this.drivetrain = drivetrainBase;
         this.shooter = shooter;
         this.visionSubsystem = visionSubsystem;
+        this.visionSubsystemNote = visionSubsystemNote;
         m_state = RobotState.getInstance();
         drivetrainBase.setHeadingCorrectionTrue();
 
 
     }
-
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
         return Commands.runOnce(() -> {
-            // TODO - ultimately we want this initial pose to come from vision
-            Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), m_state.getAlliance());
-            System.out.println("Setting up trajectory " + trajectory + " for " + m_state.getAlliance() + " alliance");
-            System.out.println("Asserting starting pose = " + initialPose);
+            if (count == 0) {
+                // TODO - ultimately we want this initial pose to come from vision
+                Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), m_state.getAlliance());
+                System.out.println("Setting up trajectory " + trajectory + " for " + m_state.getAlliance() + " alliance");
+                System.out.println("Asserting starting pose = " + initialPose);
 
-            drivetrain.declarePoseIsNow(initialPose);
+                drivetrain.declarePoseIsNow(initialPose);
+                count++;
+            } else {
+                System.out.println("setPose to trjectory already ran");
+            }
         });
     }
 
@@ -149,14 +155,37 @@ public class AutoCommandFactory {
 
     }
 
+//    public Command commandBuilder(ChoreoTrajectory trajectory, ChoreoTrajectory trajectory2) {
+//        return Commands.sequence(
+//            new Shoot(shooter),
+//            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+//            startAutoSequence(trajectory),
+//            new DriveToNote(drivetrain, visionSubsystem),
+//            autoSequence(trajectory2),
+//            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
+//            new Shoot(shooter));
+////    }
+//
+//    public Command commandBuilder(ChoreoTrajectory trajectory, ChoreoTrajectory trajectory2) {
+//        return Commands.sequence(
+//            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
+//            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+//            startAutoSequence(trajectory),
+//            new DriveToNote(drivetrain, visionSubsystem).withTimeout(1.5),
+//            autoSequence(trajectory2),
+//        new Shoot(shooter));
+//    }
+
+    //    }
+
     public Command commandBuilder(ChoreoTrajectory trajectory, ChoreoTrajectory trajectory2) {
         return Commands.sequence(
-            new Shoot(shooter),
+            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
             startAutoSequence(trajectory),
-            new DriveToNote(drivetrain, visionSubsystem),
+            new DriveToNote(drivetrain, visionSubsystemNote),
+            new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
             autoSequence(trajectory2),
-            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
             new Shoot(shooter));
     }
 
@@ -308,7 +337,7 @@ public class AutoCommandFactory {
     }
 
     public Command middleFarSource() {
-        return commandBuilder(middle_far_source.get(0), middle_far_source.get(1));
+        return commandBuilder(middle_far_source.get(0),  middle_far_source.get(1));
     }
 
 
@@ -353,7 +382,7 @@ public class AutoCommandFactory {
     public static class AutoSelector {
         String[] startingPos = {"amp", "middle", "source"};
         AutoCommandFactory autoCommandFactory;
-
+        Shooter shooter;
         private SendableChooser<Integer> startingPosition = new SendableChooser<>();
         private SendableChooser<Boolean> ampNote = new SendableChooser<>();
         private SendableChooser<Boolean> middleNote = new SendableChooser<>();
@@ -364,9 +393,10 @@ public class AutoCommandFactory {
         private SendableChooser<Boolean> sourceFar = new SendableChooser<>();
         private SendableChooser<Boolean> sourceMiddleFar = new SendableChooser<>();
 
-        public AutoSelector(DrivetrainBase drivetrainBase, Shooter shooter, VisionSubsystem visionSubsystem) {
+        public AutoSelector(DrivetrainBase drivetrainBase, Shooter shooter, VisionSubsystem visionSubsystem, VisionSubsystem visionSubsystemNote) {
 
-            autoCommandFactory = new AutoCommandFactory(drivetrainBase, shooter, visionSubsystem);
+            autoCommandFactory = new AutoCommandFactory(drivetrainBase, shooter, visionSubsystem, visionSubsystemNote);
+            this.shooter = shooter;
 
             for (int i = 0; i < 3; i++) {
                 if (i == 0) {
@@ -424,6 +454,7 @@ public class AutoCommandFactory {
 
         public Command buildAuto() {
             ArrayList<Command> fullRoutine = new ArrayList<>();
+            fullRoutine.add(new Shoot(shooter));
             if (startingPos[startingPosition.getSelected()].equals("amp")) {
                 if (ampNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.ampSideAmpNote());

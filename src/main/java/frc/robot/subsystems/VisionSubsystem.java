@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -8,6 +11,9 @@ import frc.utils.vision.LimelightHelpers;
 import java.util.Map;
 import java.util.Optional;
 import frc.robot.RobotState;
+
+import static edu.wpi.first.math.util.Units.degreesToRadians;
+
 public class VisionSubsystem extends SubsystemBase {
     private RobotState robotState;
     private String limelightId;
@@ -106,6 +112,16 @@ public class VisionSubsystem extends SubsystemBase {
         }
         return Optional.empty();
     }
+    private static Pose2d toPose2D(double[] inData) {
+        if (inData.length < 6) {
+            //System.err.println("Bad LL 2D Pose Data!");
+            return new Pose2d();
+        }
+        Translation2d tran2d = new Translation2d(inData[0], inData[1]);
+        Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
+        return new Pose2d(tran2d, r2d);
+    }
+
 
 
     @Override
