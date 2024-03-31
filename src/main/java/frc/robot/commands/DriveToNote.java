@@ -10,12 +10,13 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.joysticks.StormXboxController;
+import org.littletonrobotics.junction.Logger;
 
 import static java.lang.Math.abs;
 
 public class DriveToNote extends Command {
 
-    private static int TARGET = -21;
+    private static int TARGET = -26;
     private final PIDController translationController = new PIDController(0.08, 0, 0);
 
     private final PIDController rotationController = new PIDController(0.08, 0, 0.001);
@@ -65,6 +66,9 @@ public class DriveToNote extends Command {
         System.out.println("count: " + count);
         ChassisSpeeds speeds = new ChassisSpeeds(movement, 0, rotation);
         drivetrain.drive(speeds, false, 1);
+        Logger.recordOutput("Tx" + tx);
+        Logger.recordOutput("Ty" + ty);
+
     }
 
 
@@ -76,6 +80,8 @@ public class DriveToNote extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("Tx: " + tx);
+        System.out.println("Ty: " + ty);
         ChassisSpeeds speeds;
         speeds = new ChassisSpeeds(0, 0, 0);
         drivetrain.percentOutputDrive(speeds, false);

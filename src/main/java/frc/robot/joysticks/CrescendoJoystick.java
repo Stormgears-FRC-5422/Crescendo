@@ -25,6 +25,7 @@ public abstract class CrescendoJoystick {
     public abstract boolean zeroWheels();
 
     public abstract boolean climb();
+    public abstract boolean eject();
     public abstract boolean home();
     public abstract boolean lower();
     public abstract boolean armPreClimb();

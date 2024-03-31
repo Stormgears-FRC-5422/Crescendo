@@ -53,7 +53,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     SwerveModule[] swerveModules;
 
-    PowerDistribution powerDistribution = new PowerDistribution();
+//    PowerDistribution powerDistribution = new PowerDistribution();
 
 
     YagslDriveTrain() throws IOException {
@@ -225,8 +225,9 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void setVisionPose(Pose2d pose2d) {
-        System.out.println("Adding vision pose Measurement");
-        swerveDrive.addVisionMeasurement(pose2d, Timer.getFPGATimestamp());
+        if (pose2d.getY()!=0){
+            System.out.println("Adding vision pose Measurement");
+            swerveDrive.resetOdometry(pose2d);}
     }
 
 

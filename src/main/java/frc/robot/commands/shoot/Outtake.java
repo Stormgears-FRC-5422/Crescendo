@@ -6,17 +6,22 @@ import frc.robot.subsystems.Shooter;
 public class Outtake extends Command {
     private final Shooter s;
     private int counter;
+    private boolean eject;
 
-    public Outtake(Shooter s) {
+    public Outtake(Shooter s, boolean eject) {
         this.s = s;
+        this.eject = eject;
         addRequirements(s);
     }
 
     @Override
     public void initialize() {
         System.out.println("Shooter command running");
-        s.setShooterState(Shooter.ShooterState.OUTTAKE);
-        counter = 0;
+        if (eject) {
+            s.setShooterState(Shooter.ShooterState.EJECT);
+        } else {
+            s.setShooterState(Shooter.ShooterState.OUTTAKE);
+        }
     }
 
     @Override
@@ -26,7 +31,7 @@ public class Outtake extends Command {
 
     @Override
     public boolean isFinished() {
-        return counter > 50;
+        return super.isFinished();
     }
 
     @Override

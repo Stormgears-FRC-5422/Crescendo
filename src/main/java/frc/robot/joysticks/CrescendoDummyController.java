@@ -4,6 +4,12 @@ public class CrescendoDummyController extends CrescendoJoystick {
     CrescendoDummyController(int port) {
 
     }
+
+    @Override
+    public boolean eject() {
+        return false;
+    }
+
     @Override
     public boolean zeroWheels() {
         return false;

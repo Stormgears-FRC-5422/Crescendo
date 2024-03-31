@@ -63,7 +63,7 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
     @Override
     public boolean outtake() {
-        return controller.getUpArrowPressed();
+        return controller.getRightLittleButtonIsHeld();
     }
 
     @Override
@@ -84,8 +84,13 @@ public class CrescendoXboxController extends CrescendoJoystick {
         return controller.getDownArrowPressed();
     }
 
-    public boolean climberEmergencyStop() {
+    public boolean eject() {
         return controller.getLeftLittleButtonIsHeld();
+    }
+
+    @Override
+    public boolean climberEmergencyStop() {
+        return false;
     }
 
     @Override

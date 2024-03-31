@@ -12,7 +12,6 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.StateAlliance;
 import frc.utils.lights.LEDLightStrip;
 import frc.utils.lights.LightType;
-import frc.robot.RobotState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,36 +42,44 @@ public class StatusLights extends SubsystemBase {
     public final Color8Bit ORANGE_COLOR;
     public final Color8Bit WHITE_COLOR;
     public final Color8Bit NO_COLOR = new Color8Bit(0, 0, 0);
-    public Color8Bit SIDE_COLOR;
 
     private Segment RING_TOP;
     private Segment RING_MIDDLE_TOP;
     private Segment RING_MIDDLE;
     private Segment RING_MIDDLE_BOTTOM;
     private Segment RING_BOTTOM;
-    private Segment SIDE_LIGHT;
+    private Segment LEFT_SIDE_MAIN;
+    private Segment RIGHT_SIDE_MAIN;
+    private Segment LEFT_SIDE_TOP;
+    private Segment RIGHT_SIDE_TOP;
+
 
     private Color8Bit[] compassRing;
     private Color8Bit[] visionXRing;
     private Color8Bit[] visionYRing;
     private Color8Bit[] visionRotationRing;
+    private Color8Bit[] leftOrientationRing;
+    private Color8Bit[] rightOrientationRing;
+    public Color8Bit sideColor;
+    public Color8Bit topColor;
     private Color8Bit allianceColor;
+    private Color8Bit otherAllianceColor;
 
     private LEDLightStrip m_ledLightStrip;
     boolean m_ledColorRequested;
 
     private int ringLength;
     private int halfRingLength;
+    private int quarterRingLength;
 
     List<Pose2d> targetList;
-
     VisionSubsystem visionSubsystem;
-
     public StatusLights(VisionSubsystem visionSubsystem) {
         m_iteration = 0;
         m_robotState = RobotState.getInstance();
         m_alliance = m_robotState.getAlliance();
         m_shooterState = m_robotState.getShooterState();
+
         this.visionSubsystem = visionSubsystem;
 
         RED_COLOR = scaleColor(new Color8Bit(255, 0, 0), Constants.Lights.brightness);
@@ -80,19 +87,22 @@ public class StatusLights extends SubsystemBase {
         BLUE_COLOR = scaleColor(new Color8Bit(0, 0, 255), Constants.Lights.brightness);
         ORANGE_COLOR = scaleColor(new Color8Bit(255, 32, 0), Constants.Lights.brightness);
         WHITE_COLOR = scaleColor(new Color8Bit(84, 84, 84), Constants.Lights.brightness);
-        allianceColor = getAllianceColor();
+        setAllianceColor();
 
-        ringLength = Constants.Lights.oneRingLength;
-        halfRingLength = Constants.Lights.oneRingLength / 2;
+        ringLength = Constants.Lights.sideMainLength;
+        halfRingLength = Constants.Lights.sideMainLength / 2;
+        quarterRingLength = Constants.Lights.sideMainLength / 4;
 
-        compassRing = new Color8Bit[ringLength];
-        visionXRing = new Color8Bit[ringLength];
-        visionYRing = new Color8Bit[ringLength];
-        visionRotationRing = new Color8Bit[ringLength];
+//        compassRing = new Color8Bit[ringLength];
+//        visionXRing = new Color8Bit[ringLength];
+//        visionYRing = new Color8Bit[ringLength];
+//        visionRotationRing = new Color8Bit[ringLength];
+        leftOrientationRing = new Color8Bit[Constants.Lights.sideMainLength];
+        rightOrientationRing = new Color8Bit[Constants.Lights.sideMainLength];
 
         initializeLights();
-        setShooterLights();
-        makeCompassArray();
+//        setShooterLights();
+//        makeCompassArray();
         makeTargetList();
         System.out.println("Status Lights initializing ");
     }
@@ -105,38 +115,51 @@ public class StatusLights extends SubsystemBase {
         StateAlliance alliance = m_robotState.getAlliance();
         if (alliance != m_alliance) {
             m_alliance = alliance;
-            allianceColor = getAllianceColor();
-            makeCompassArray();
+            setAllianceColor();
+            //makeCompassArray();
             makeTargetList();
         }
 
-        setRingColor(RING_MIDDLE_BOTTOM, m_robotState.isUpperSensorTriggered() ? ORANGE_COLOR : NO_COLOR);
-
-        if(m_robotState.isUpperSensorTriggered()){
-            SIDE_COLOR = GREEN_COLOR;
-
-        }else if(m_robotState.getIsNoteDetected()){
-            SIDE_COLOR = BLUE_COLOR;
-        }else{
-            SIDE_COLOR = RED_COLOR;
-        }
-        setRingColor(SIDE_LIGHT,SIDE_COLOR);
         if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
-            if (m_robotState.isClimberAtInit()) {
-                setAlternatingRingColor(RING_BOTTOM, GREEN_COLOR, allianceColor);
+            // Set light patterns for pre-match configuration
+//            if (m_robotState.isClimberAtInit()) {
+//                topColor = GREEN_COLOR;
+//            } else {
+//                topColor = WHITE_COLOR;
+//            }
+
+            if (m_robotState.getVisionPose(visionSubsystem).getY() != 0) {
+                topColor = ORANGE_COLOR;
             } else {
-                setAlternatingRingColor(RING_BOTTOM, WHITE_COLOR, allianceColor);
+                topColor = WHITE_COLOR;
             }
-            cameraAccuracy();
+            setRingColor(LEFT_SIDE_TOP, topColor);
+            setRingColor(RIGHT_SIDE_TOP, topColor);
+            // Main lights handled here
+            setAlignmentLights();
         } else {
-            if (m_shooterState != m_robotState.getShooterState()) {
-                m_shooterState = m_robotState.getShooterState();
-                setShooterLights();
+            // TOP lights
+            // TODO - I don't like that this needs to both use robot state and have its own copy of the vision subsystem.
+            if (m_robotState.getVisionPose(visionSubsystem).getY() != 0) {
+                topColor = ORANGE_COLOR;
+            } else {
+                topColor = WHITE_COLOR;
             }
-            setSegmentFromColorArray(RING_BOTTOM, compassRing, m_robotState.getHeading());
+            // Main lights
+            if(m_robotState.isUpperSensorTriggered()){
+                sideColor = GREEN_COLOR;
+            } else if(m_robotState.getIsNoteDetected()){
+                sideColor = ORANGE_COLOR;
+            } else {
+                sideColor = allianceColor;
+            }
+
+            setRingColor(LEFT_SIDE_TOP, topColor);
+            setRingColor(RIGHT_SIDE_TOP, topColor);
+            setRingColor(LEFT_SIDE_MAIN, sideColor);
+            setRingColor(RIGHT_SIDE_MAIN, sideColor);
         }
 
-        // TODO - we need to decide when we want to display these.
         if (m_ledColorRequested) {
             m_ledLightStrip.setLEDData();
         }
@@ -149,24 +172,33 @@ public class StatusLights extends SubsystemBase {
         // These need to be added in the correct order. First string is closest to the roborio
         // Keep the assignment and segments.add together. This is necessary for the ring to have the right position
 
-        SIDE_LIGHT = new Segment(Constants.Lights.oneSideLength, LightType.getType(Constants.Lights.ringLEDType));
-        segments.add(SIDE_LIGHT);
+        LEFT_SIDE_TOP = new Segment(Constants.Lights.sideTopLength, LightType.getType(Constants.Lights.ringLEDType));
+        segments.add(LEFT_SIDE_TOP);
 
-        RING_TOP = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
-        segments.add(RING_TOP);
+        LEFT_SIDE_MAIN = new Segment(Constants.Lights.sideMainLength, LightType.getType(Constants.Lights.ringLEDType));
+        segments.add(LEFT_SIDE_MAIN);
 
-        RING_MIDDLE_TOP = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
-        segments.add(RING_MIDDLE_TOP);
+        RIGHT_SIDE_TOP = new Segment(Constants.Lights.sideTopLength, LightType.getType(Constants.Lights.ringLEDType));
+        segments.add(RIGHT_SIDE_TOP);
 
-        RING_MIDDLE = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
-        segments.add(RING_MIDDLE);
+        RIGHT_SIDE_MAIN = new Segment(Constants.Lights.sideMainLength, LightType.getType(Constants.Lights.ringLEDType));
+        segments.add(RIGHT_SIDE_MAIN);
 
-        RING_MIDDLE_BOTTOM = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
-        segments.add(RING_MIDDLE_BOTTOM);
-
-
-        RING_BOTTOM = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
-        segments.add(RING_BOTTOM);
+//        RING_TOP = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
+//        segments.add(RING_TOP);
+//
+//        RING_MIDDLE_TOP = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
+//        segments.add(RING_MIDDLE_TOP);
+//
+//        RING_MIDDLE = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
+//        segments.add(RING_MIDDLE);
+//
+//        RING_MIDDLE_BOTTOM = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
+//        segments.add(RING_MIDDLE_BOTTOM);
+//
+//
+//        RING_BOTTOM = new Segment(Constants.Lights.oneRingLength, LightType.getType(Constants.Lights.ringLEDType));
+//        segments.add(RING_BOTTOM);
 
         m_ledLightStrip = new LEDLightStrip();
         for (Segment s : segments) {
@@ -179,38 +211,124 @@ public class StatusLights extends SubsystemBase {
     public void makeTargetList() {
         targetList = new ArrayList<Pose2d>();
 
-        targetList.add(CrescendoField.remapPose(new Pose2d(1.426, 5.523, new Rotation2d(-1, 0)), m_alliance)); //middle
-        targetList.add(CrescendoField.remapPose(new Pose2d(0.736, 4.324, new Rotation2d(-1.043, 0)), m_alliance)); //speaker
-        targetList.add(CrescendoField.remapPose(new Pose2d(0.688, 6.683, new Rotation2d(1.058, 0)), m_alliance)); // amp
+        targetList.add(CrescendoField.remapPose(new Pose2d(1.356, 5.553, new Rotation2d(1, 0)), m_alliance)); //middle
+        targetList.add(CrescendoField.remapPose(new Pose2d(0.77, 4.393, new Rotation2d(0.5994, -0.8220)), m_alliance)); //speaker
+        targetList.add(CrescendoField.remapPose(new Pose2d(0.768, 6.711, new Rotation2d(0.5694, 0.8220)), m_alliance)); // amp
     }
 
-    public void cameraAccuracy() {
-//         TODO - handle validity issues
-//                if (m_robotState.isVisionPoseValid()) {
-            //Transform2d poseError = new Transform2d(m_robotState.getVisionPose(), cameraTestPose);
+    public void setAlignmentLights() {
+        Pose2d current = m_robotState.getVisionPose(visionSubsystem);
+//        System.out.print("vision pose " + current);
+        if (current == null || current.getX() == 0) {
+            setAlternatingRingColor(RIGHT_SIDE_MAIN, GREEN_COLOR, WHITE_COLOR);
+            setAlternatingRingColor(LEFT_SIDE_MAIN, GREEN_COLOR, WHITE_COLOR);
+            return;
+        }
 
-            Pose2d current = m_robotState.getVisionPose(visionSubsystem);
-            if (current!=null) {
-                Pose2d target = current.nearest(targetList);
-                Transform2d poseError = new Transform2d(current, target);
-                //        System.out.println(poseError);
-                //        System.out.println("Translation: " + poseError);
-                //        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
-                getXYIndicatorRing(visionXRing, Math.abs(poseError.getX()));
-                getXYIndicatorRing(visionYRing, Math.abs(poseError.getY()));
-                getThetaIndicatorRing(visionRotationRing, Math.abs(poseError.getRotation().getDegrees()));
+        Pose2d target= current.nearest(targetList);
+        Transform2d poseError = new Transform2d(current, target);
+        //        System.out.println(poseError);
+        //        System.out.println("Translation: " + poseError);
+        //        System.out.println("Vision pose: " + RobotState.getInstance().getVisionPose());
+        setLeftRightRings(leftOrientationRing, rightOrientationRing, poseError.getY());
 
-                setSegmentFromColorArray(RING_TOP, visionRotationRing, poseError.getRotation());
-                setSegmentFromColorArray(RING_MIDDLE_TOP, visionXRing,
-                    new Rotation2d(poseError.getX() > 0 ? 1 : -1, 0));
-                setSegmentFromColorArray(RING_MIDDLE, visionYRing,
-                    new Rotation2d(0, poseError.getY() > 0 ? 1 : -1));
-//        } else {
-//            setRingColor(RING_TOP, RED_COLOR);
-//            setRingColor(RING_MIDDLE_TOP, RED_COLOR);
-//            setRingColor(RING_MIDDLE, RED_COLOR);
-//        }
+        // We want to move up and down, but not wrap around. So we need to max the rotation and shift total at
+        // just shy of 180 degrees - the top and bottom lights.
+        // Move up and down based on X distance
+        double xOffset = getXOffset(poseError.getX(), halfRingLength);
+        double rotationOffset = getRotationOffset(poseError.getRotation(), halfRingLength);
+
+        // The center light is already set based on the y alignment
+        if (xOffset != 0 || rotationOffset != 0) {
+            leftOrientationRing[halfRingLength] = allianceColor;
+            rightOrientationRing[halfRingLength] = allianceColor;
+        }
+
+        // convert the offset to an angle
+        double leftOffset = MathUtil.clamp(xOffset - rotationOffset, 0, ringLength);
+        double rightOffset = MathUtil.clamp(xOffset + rotationOffset, 0, ringLength);;
+
+        // The function here pretends that the light string is a ring. So we need to convert the
+        // offset to radians using this weird scale. Note that the end of the string isn't quite at 180
+        double toRadians = Math.PI / (halfRingLength + 1);
+
+        setSegmentFromColorArray(LEFT_SIDE_MAIN, leftOrientationRing, new Rotation2d(leftOffset * toRadians));
+        setSegmentFromColorArray(RIGHT_SIDE_MAIN, rightOrientationRing, new Rotation2d(rightOffset * toRadians));
+    }
+
+    private double getRotationOffset(Rotation2d error, int maxOffset) {
+        double absErrorDeg = Math.abs(error.getDegrees());
+        boolean rotateClockwise = error.getDegrees() > 0;
+        double offset;
+
+        if (absErrorDeg > 30) {
+            offset = maxOffset;
+        } else if (absErrorDeg > 10) {
+            offset = maxOffset / 2.0 + (absErrorDeg - 10) / 6.0;
+        } else if (absErrorDeg > 2) {
+            offset = absErrorDeg / 5.0;
+        } else {
+            offset = 0;
+        }
+
+        return rotateClockwise ? offset : -offset;
+    }
+
+    private double getXOffset(double error, int maxOffset) {
+        double absErrorCm = Math.abs(100 * error);
+        boolean moveForward = error > 0;
+        double offset;
+
+        if (absErrorCm > 30) {
+            offset = maxOffset;
+        } else if (absErrorCm > 10) {
+            offset = maxOffset / 2.0 + (absErrorCm - 10) / 6.0;
+        } else if (absErrorCm > 2) {
+            offset = absErrorCm / 5.0;
+        } else {
+            offset = 0;
+        }
+
+        return moveForward ? offset : -offset;
+    }
+
+    private void setLeftRightRings(Color8Bit[] leftRing, Color8Bit[] rightRing, double error) {
+        double absError = Math.abs(error);
+        boolean moveRight = error > 0; // I think?
+        int i;
+
+        Color8Bit leftColor = moveRight ? allianceColor : NO_COLOR;
+        Color8Bit rightColor = moveRight ? NO_COLOR : allianceColor;
+
+        // Start out by clearing the entire segment
+        for (i = 0; i < ringLength; i++) {
+            leftRing[i] = NO_COLOR;
+            rightRing[i] = NO_COLOR;
+        }
+
+        // Make an "arrow", with the bigger range of lights on the error side, and the central dot pointing to the other
+        if (absError > 1.0) {
+            for (i = 0; i < ringLength; i++) {
+                leftRing[i] = leftColor;
             }
+            leftRing[halfRingLength] = rightColor;
+            rightRing[halfRingLength] = leftColor;
+        } else if (absError > 0.20) {
+            for (i = quarterRingLength; i < halfRingLength + quarterRingLength; i++) {
+                leftRing[i] = leftColor;
+                rightRing[i] = rightColor;
+            }
+            leftRing[halfRingLength] = rightColor;
+            rightRing[halfRingLength] = leftColor;
+        } else if (absError > 0.02) {  // kinda cheesy, but OK.
+            leftRing[halfRingLength - 1] = leftColor;
+            leftRing[halfRingLength] = rightColor;
+            leftRing[halfRingLength + 1] = leftColor;
+            rightRing[halfRingLength] = leftColor;
+        } else {
+            leftRing[halfRingLength] = GREEN_COLOR;
+            rightRing[halfRingLength] = GREEN_COLOR;
+        }
     }
 
     private void getXYIndicatorRing(Color8Bit[] ring, double absError) {
@@ -323,11 +441,20 @@ public class StatusLights extends SubsystemBase {
             MathUtil.clamp((int) (s * c.blue), 0, 255));
     }
 
-    private Color8Bit getAllianceColor() {
-        return switch (m_alliance) {
-            case RED -> RED_COLOR;
-            case BLUE -> BLUE_COLOR;
-            default -> WHITE_COLOR;
+    private void setAllianceColor() {
+        switch (m_alliance) {
+            case RED -> {
+                allianceColor = RED_COLOR;
+                otherAllianceColor = BLUE_COLOR;
+            }
+            case BLUE -> {
+                allianceColor = BLUE_COLOR;
+                otherAllianceColor = RED_COLOR;
+            }
+            default -> {
+                allianceColor = WHITE_COLOR;
+                otherAllianceColor = WHITE_COLOR;
+            }
         };
     }
 

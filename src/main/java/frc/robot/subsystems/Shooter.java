@@ -27,7 +27,8 @@ public class Shooter extends SubsystemBase {
         STAGED_FOR_SHOOTING,
         DIAGNOSTIC,
         AMP_SHOOTING,
-        OUTTAKE
+        OUTTAKE,
+        EJECT
     }
 
     public enum Direction {
@@ -44,11 +45,15 @@ public class Shooter extends SubsystemBase {
     private SparkLimitSwitch shooterForwardLimitSwitch;
     private SparkLimitSwitch shooterReverseLimitSwitch;
 
+    private SparkLimitSwitch intakeForwardLimitSwitch;
+    private SparkLimitSwitch intakeReverseLimitSwitch;
+
 
     double m_shooterMotorSpeed = 0;
     double m_intakeMotorSpeed = 0;
 
-    SlewRateLimiter shooterSlewRateLimiter = new SlewRateLimiter(3);
+    SlewRateLimiter shooterSlewRateLimiter = new SlewRateLimiter(5);
+
     Boolean shooterStaged = false;
     ShooterState shooterState;
 
@@ -59,12 +64,17 @@ public class Shooter extends SubsystemBase {
         shooterFollowerMotor = new CANSparkMax(Constants.Shooter.followerID, CANSparkLowLevel.MotorType.kBrushless);
         intakeMotor = new CANSparkMax(Constants.Shooter.intakeID, CANSparkLowLevel.MotorType.kBrushless);
 
+        shooterLeadMotor.setOpenLoopRampRate(0);
+        shooterFollowerMotor.setOpenLoopRampRate(0);
         shooterLeadMotor.setInverted(true);
         shooterFollowerMotor.follow(shooterLeadMotor, true);
         intakeMotor.setInverted(true);
+//
+//        shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+//        shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyClosed);
 
-        shooterForwardLimitSwitch = shooterLeadMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-        shooterReverseLimitSwitch = shooterLeadMotor.getReverseLimitSwitch(Type.kNormallyClosed);
+        intakeForwardLimitSwitch = intakeMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+        intakeReverseLimitSwitch = intakeMotor.getReverseLimitSwitch(Type.kNormallyClosed);
 
         m_robotState = RobotState.getInstance();
         setShooterState(ShooterState.IDLE);
@@ -83,6 +93,7 @@ public class Shooter extends SubsystemBase {
     public void setShooterState(ShooterState state) {
         this.shooterState = state;
         m_robotState.setShooterState(state);
+//        System.out.println(state);
 
         switch (state) {
             case IDLE -> {
@@ -133,6 +144,13 @@ public class Shooter extends SubsystemBase {
                 setShooterSpeed(REVERSE, Constants.Shooter.outtakeSpeed);
                 setIdleModeAll(IdleMode.kCoast);
             }
+            case EJECT -> {
+                shooterStaged = false;
+                setLimitSwitch(FORWARD, false);
+                setIntakeSpeed(FORWARD, Constants.Shooter.outtakeSpeed);
+                setShooterSpeed(FORWARD, Constants.Shooter.outtakeSpeed);
+                setIdleModeAll(IdleMode.kCoast);
+            }
             case STAGED_FOR_SHOOTING -> {
                 shooterStaged = true;
                 setShooterSpeed(FORWARD, 0);
@@ -147,6 +165,9 @@ public class Shooter extends SubsystemBase {
             }
             default -> System.out.println("invalid state");
         }
+
+
+
     }
 
     private void setIdleModeAll(CANSparkBase.IdleMode mode) {
@@ -158,10 +179,12 @@ public class Shooter extends SubsystemBase {
     private void setLimitSwitch(Direction d, boolean enabled) {
         switch (d) {
             case FORWARD -> {
-                shooterForwardLimitSwitch.enableLimitSwitch(enabled);
+//                shooterForwardLimitSwitch.enableLimitSwitch(enabled);
+                intakeForwardLimitSwitch.enableLimitSwitch(enabled);
             }
             case REVERSE -> {
-                shooterReverseLimitSwitch.enableLimitSwitch(enabled);
+//                shooterReverseLimitSwitch.enableLimitSwitch(enabled);
+                intakeReverseLimitSwitch.enableLimitSwitch(enabled);
             }
         }
     }
@@ -179,7 +202,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isUpperSensorTriggered() {
-        return shooterForwardLimitSwitch.isPressed();
+//        return shooterForwardLimitSwitch.isPressed();
+        return intakeForwardLimitSwitch.isPressed();
     }
 
 }

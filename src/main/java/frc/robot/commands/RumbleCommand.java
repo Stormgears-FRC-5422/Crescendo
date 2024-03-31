@@ -9,7 +9,8 @@ public class RumbleCommand extends SequentialCommandGroup {
 
     public RumbleCommand(CrescendoJoystick joystick, double time) {
         addCommands(
-            new InstantCommand(() -> joystick.setRumble()),
+            new InstantCommand(()-> System.out.println("RUMBLING")),
+        new InstantCommand(() -> joystick.setRumble()),
             new WaitCommand(time),
             new InstantCommand(() -> joystick.stopRumble())
         );

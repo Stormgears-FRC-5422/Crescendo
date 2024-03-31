@@ -9,6 +9,11 @@ public class CrescendoLogitechController extends CrescendoJoystick {
         controller = new StormLogitechController(port);
     }
 
+    @Override
+    public boolean eject() {
+        return false;
+    }
+
     public double getWpiX() {
         return controller.getWpiXSpeed();
     }

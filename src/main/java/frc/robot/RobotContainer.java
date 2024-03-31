@@ -63,6 +63,7 @@ public class RobotContainer {
     private GroundPickup groundPickup;
     private DiagnosticShooterIntake diagnosticShooterIntake;
     private Outtake outtake;
+    private Outtake eject;
     private SourceIntake sourceIntake;
     private Climbing climbing;
     private StormCommand gotoAmpShootPosition;
@@ -123,7 +124,8 @@ public class RobotContainer {
             diagnosticShooterIntake = new DiagnosticShooterIntake(shooter);
             groundPickup = new GroundPickup(shooter);
             ampShoot = new AmpShoot(shooter);
-            outtake = new Outtake(shooter);
+            outtake = new Outtake(shooter, false);
+            eject = new Outtake(shooter, true);
             sourceIntake = new SourceIntake(shooter);
         }
 
@@ -242,8 +244,8 @@ public class RobotContainer {
         if (Toggles.useDrive && Toggles.useVision) {
             new Trigger(() -> joystick.driveNote()).whileTrue(Commands.deadline(
                 new GroundPickup(shooter),
-                new DriveToNote(drivetrain, visionSubsystemNote)
-                ));
+                new DriveToNote(drivetrain, visionSubsystemNote)).andThen(new RumbleCommand(joystick, 1.0)
+                .unless(() -> !robotState.isUpperSensorTriggered())));
         }
 
         if (!Toggles.useSysId) {
@@ -264,7 +266,8 @@ public class RobotContainer {
                 new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
                 new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()->drivetrain.zeroWheels()));
 //                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
-//                new Trigger(() -> joystick.outtake()).onTrue(outtake);
+                new Trigger(() -> joystick.outtake()).whileTrue(outtake);
+                new Trigger(() -> joystick.eject()).whileTrue(eject);
 //                new Trigger(() ->joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
 //                    Climber.Direction.FORWARD));
             }

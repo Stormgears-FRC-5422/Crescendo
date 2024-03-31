@@ -70,7 +70,7 @@ public class AutoCommandFactory {
     }
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
         return Commands.runOnce(() -> {
-            if (count == 0) {
+            if (count == 0 && RobotState.getInstance().getVisionPose(visionSubsystem).getY() == 0) {
                 // TODO - ultimately we want this initial pose to come from vision
                 Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), m_state.getAlliance());
                 System.out.println("Setting up trajectory " + trajectory + " for " + m_state.getAlliance() + " alliance");
@@ -180,8 +180,8 @@ public class AutoCommandFactory {
 
     public Command commandBuilder(ChoreoTrajectory trajectory, ChoreoTrajectory trajectory2) {
         return Commands.sequence(
-            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
+            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
             startAutoSequence(trajectory),
             new DriveToNote(drivetrain, visionSubsystemNote),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),

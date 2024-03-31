@@ -1,0 +1,176 @@
+{
+  "samples": [
+    {
+      "x": 1.3,
+      "y": 5.5,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": -1.346341810344916e-21,
+      "timestamp": 0
+    },
+    {
+      "x": 1.3,
+      "y": 5.530925012914686,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 0.3175556565528482,
+      "timestamp": 0.09738454433589984
+    },
+    {
+      "x": 1.3,
+      "y": 5.592775037496301,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 0.6351113002929984,
+      "timestamp": 0.19476908867179968
+    },
+    {
+      "x": 1.3,
+      "y": 5.685550071249334,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 0.952666918407836,
+      "timestamp": 0.29215363300769953
+    },
+    {
+      "x": 1.3,
+      "y": 5.809250106687323,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.2702224596474085,
+      "timestamp": 0.38953817734359936
+    },
+    {
+      "x": 1.3,
+      "y": 5.962750082978877,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.5762252351060986,
+      "timestamp": 0.4869227216794992
+    },
+    {
+      "x": 1.3,
+      "y": 6.116250059270627,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.576225235108107,
+      "timestamp": 0.5843072660153991
+    },
+    {
+      "x": 1.3,
+      "y": 6.269750035562375,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.5762252351081067,
+      "timestamp": 0.6816918103512989
+    },
+    {
+      "x": 1.3,
+      "y": 6.423250011854125,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.5762252351081067,
+      "timestamp": 0.7790763546871987
+    },
+    {
+      "x": 1.3,
+      "y": 6.576749988145875,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.5762252351081067,
+      "timestamp": 0.8764608990230985
+    },
+    {
+      "x": 1.3,
+      "y": 6.730249964437624,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.5762252351081067,
+      "timestamp": 0.9738454433589984
+    },
+    {
+      "x": 1.3,
+      "y": 6.883749940729373,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.5762252351081067,
+      "timestamp": 1.0712299876948983
+    },
+    {
+      "x": 1.3,
+      "y": 7.037249917021123,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.576225235108107,
+      "timestamp": 1.1686145320307981
+    },
+    {
+      "x": 1.3,
+      "y": 7.190749893312677,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.5762252351060986,
+      "timestamp": 1.265999076366698
+    },
+    {
+      "x": 1.3,
+      "y": 7.3144499287506655,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 1.2702224596474085,
+      "timestamp": 1.3633836207025978
+    },
+    {
+      "x": 1.3,
+      "y": 7.407224962503699,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 0.952666918407836,
+      "timestamp": 1.4607681650384976
+    },
+    {
+      "x": 1.3,
+      "y": 7.469074987085314,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 0.6351113002929983,
+      "timestamp": 1.5581527093743974
+    },
+    {
+      "x": 1.3,
+      "y": 7.5,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": 0.3175556565528482,
+      "timestamp": 1.6555372537102973
+    },
+    {
+      "x": 1.3,
+      "y": 7.5,
+      "heading": 0,
+      "angularVelocity": 0,
+      "velocityX": 0,
+      "velocityY": -1.0061912829295056e-21,
+      "timestamp": 1.752921798046197
+    }
+  ],
+  "eventMarkers": []
+}
