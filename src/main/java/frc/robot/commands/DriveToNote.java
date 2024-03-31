@@ -11,15 +11,18 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.joysticks.StormXboxController;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.Constants;
 
 import static java.lang.Math.abs;
 
 public class DriveToNote extends Command {
 
-    private static int TARGET = -26;
-    private final PIDController translationController = new PIDController(0.08, 0, 0);
+    private static int TARGET =  -Constants.DriveToNote.targetOffset;
+    private final PIDController translationController = new PIDController(Constants.DriveToNote.translationKp, 
+                                        Constants.DriveToNote.translationKi, Constants.DriveToNote.translationKd);
+    private final PIDController rotationController = new PIDController(Constants.DriveToNote.rotationKp, 
+                                        Constants.DriveToNote.rotationKi, Constants.DriveToNote.rotationKd);
 
-    private final PIDController rotationController = new PIDController(0.08, 0, 0.001);
     DrivetrainBase drivetrain;
     StormXboxController controller;
     double tx;
@@ -64,7 +67,7 @@ public class DriveToNote extends Command {
         System.out.println("Movement: " + movement);
         System.out.println("ROT: " + rotation);
         System.out.println("count: " + count);
-        ChassisSpeeds speeds = new ChassisSpeeds(movement, 0, rotation);
+        ChassisSpeeds speeds = new ChassisSpeeds(movement+Constants.DriveToNote.feedForward, 0, rotation);
         drivetrain.drive(speeds, false, 1);
         Logger.recordOutput("Tx" + tx);
         Logger.recordOutput("Ty" + ty);
