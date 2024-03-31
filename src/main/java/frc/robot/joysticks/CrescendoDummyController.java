@@ -106,4 +106,9 @@ public class CrescendoDummyController extends CrescendoJoystick {
     public void stopRumble() {
 
     }
+
+    @Override
+    public boolean alignApriltag() {
+        return false;
+    }
 }

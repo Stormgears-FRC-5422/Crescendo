@@ -115,5 +115,10 @@ public class CrescendoLogitechController extends CrescendoJoystick {
 
     }
 
+    @Override
+    public boolean alignApriltag() {
+        return false;
+    }
+
 
 }

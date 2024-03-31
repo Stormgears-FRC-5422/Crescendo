@@ -30,6 +30,7 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.commands.alignToApriltag;
 
 import java.util.Optional;
 
@@ -246,6 +247,9 @@ public class RobotContainer {
                 new GroundPickup(shooter),
                 new DriveToNote(drivetrain, visionSubsystemNote)).andThen(new RumbleCommand(joystick, 1.0)
                 .unless(() -> !robotState.isUpperSensorTriggered())));
+
+            new Trigger(() -> joystick.alignApriltag()).whileTrue(Commands.deadline(
+                new alignToApriltag(drivetrain, visionSubsystem)));
         }
 
         if (!Toggles.useSysId) {

@@ -39,4 +39,6 @@ public abstract class CrescendoJoystick {
     public abstract void setRumble();
 
     public abstract void stopRumble();
+
+    public abstract boolean alignApriltag();
 }

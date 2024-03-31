@@ -63,7 +63,9 @@ public class CrescendoXboxController extends CrescendoJoystick {
 
     @Override
     public boolean outtake() {
-        return controller.getRightLittleButtonIsHeld();
+
+        //return controller.getRightLittleButtonIsHeld();
+        return false;
     }
 
     @Override
@@ -114,5 +116,8 @@ public class CrescendoXboxController extends CrescendoJoystick {
         controller.setRumble(GenericHID.RumbleType.kBothRumble, 0.0);
     }
 
+    public boolean alignApriltag(){
+        return controller.getRightLittleButtonIsHeld();
+    }
 
 }
