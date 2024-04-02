@@ -128,7 +128,7 @@ public class StatusLights extends SubsystemBase {
 //                topColor = WHITE_COLOR;
 //            }
 
-            if (m_robotState.getVisionPose(visionSubsystem).getY() != 0) {
+            if (m_robotState.getVisionPose().getY() != 0) {
                 topColor = ORANGE_COLOR;
             } else {
                 topColor = WHITE_COLOR;
@@ -140,7 +140,7 @@ public class StatusLights extends SubsystemBase {
         } else {
             // TOP lights
             // TODO - I don't like that this needs to both use robot state and have its own copy of the vision subsystem.
-            if (m_robotState.getVisionPose(visionSubsystem).getY() != 0) {
+            if (m_robotState.getVisionPose().getY() != 0) {
                 topColor = ORANGE_COLOR;
             } else {
                 topColor = WHITE_COLOR;
@@ -217,7 +217,7 @@ public class StatusLights extends SubsystemBase {
     }
 
     public void setAlignmentLights() {
-        Pose2d current = m_robotState.getVisionPose(visionSubsystem);
+        Pose2d current = m_robotState.getVisionPose();
 //        System.out.print("vision pose " + current);
         if (current == null || current.getX() == 0) {
             setAlternatingRingColor(RIGHT_SIDE_MAIN, GREEN_COLOR, WHITE_COLOR);

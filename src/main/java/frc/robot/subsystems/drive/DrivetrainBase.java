@@ -113,6 +113,10 @@ public abstract class DrivetrainBase extends SubsystemBase {
     public void declarePoseIsNow(Pose2d pose) {
     }
 
+    public void addVisionMeasurement(Pose2d pose2d) {
+
+    }
+
     public Command getQuasForwardCommand(){
         return new Command() {
         };

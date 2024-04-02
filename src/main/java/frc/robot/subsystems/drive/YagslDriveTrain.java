@@ -21,6 +21,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.Robot;
 import frc.robot.RobotState;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -141,6 +142,12 @@ public class YagslDriveTrain extends DrivetrainBase {
         declarePoseIsNow(newPose);
     }
 
+
+    @Override
+    protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
+        super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
+    }
+
     public void declarePoseIsNow(Pose2d newPose) {
         // These *MUST* be done in this order or odometry will be wrong.
         setGyro(newPose.getRotation());
@@ -172,6 +179,10 @@ public class YagslDriveTrain extends DrivetrainBase {
         // cache the call to potentially expensive call into the swervedrive pose estimator
         // poseUpdated gets reset to false at the end of periodic
         if (!poseUpdated) {
+            if (m_state.getVisionPose().getY() != 0 && Constants.Toggles.addVisionPose) {
+                addVisionMeasurement(m_state.getVisionPose());
+            }
+
             poseUpdated = true;
             m_currentPose = swerveDrive.getPose();
             // This might get called early in the Auto command, so set state here so
@@ -228,6 +239,10 @@ public class YagslDriveTrain extends DrivetrainBase {
         if (pose2d.getY()!=0){
             System.out.println("Adding vision pose Measurement");
             swerveDrive.resetOdometry(pose2d);}
+    }
+
+    public void addVisionMeasurement(Pose2d pose2d) {
+            swerveDrive.addVisionMeasurement(pose2d, Timer.getFPGATimestamp());
     }
 
 

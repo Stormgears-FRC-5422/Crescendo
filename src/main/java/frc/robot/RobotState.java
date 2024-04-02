@@ -174,10 +174,10 @@ public class RobotState extends SubsystemBase {
         isPoseValid = valid;
     }*/
 
-    public Pose2d getVisionPose(VisionSubsystem vision) {
+    public Pose2d getVisionPose() {
 //        Optional<LimelightHelpers.LimelightTarget_Fiducial> visionResult = vision.getLatestFiducialsTarget();
 //        return toPose2D(visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null));
-        return LimelightHelpers.getBotPose2d_wpiBlue("limelight");
+        return LimelightHelpers.getBotPose2d_wpiBlue(Constants.Vision.tagLimelight);
     }
 
     public void setIsNoteDetected(boolean detected) {

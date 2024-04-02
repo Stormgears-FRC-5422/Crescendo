@@ -70,7 +70,7 @@ public class AutoCommandFactory {
     }
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
         return Commands.runOnce(() -> {
-            if (count == 0 && RobotState.getInstance().getVisionPose(visionSubsystem).getY() == 0) {
+            if (count == 0 && RobotState.getInstance().getVisionPose().getY() == 0) {
                 // TODO - ultimately we want this initial pose to come from vision
                 Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), m_state.getAlliance());
                 System.out.println("Setting up trajectory " + trajectory + " for " + m_state.getAlliance() + " alliance");
@@ -181,7 +181,7 @@ public class AutoCommandFactory {
     public Command commandBuilder(ChoreoTrajectory trajectory, ChoreoTrajectory trajectory2) {
         return Commands.sequence(
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose(visionSubsystem))),
+            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose())),
             startAutoSequence(trajectory),
             new DriveToNote(drivetrain, visionSubsystemNote),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
@@ -267,7 +267,7 @@ public class AutoCommandFactory {
             new InstantCommand(() ->
                 System.out.println("Transformation pt" + p + new Transform2d(note_speaker_3.get(p - 1).getFinalPose(), drivetrain.getPose()))),
             new InstantCommand(() ->
-                System.out.println("Vision Transformation pt" + p + new Transform2d(drivetrain.getPose(), m_state.getVisionPose(visionSubsystem)))));
+                System.out.println("Vision Transformation pt" + p + new Transform2d(drivetrain.getPose(), m_state.getVisionPose()))));
 
     }
 
@@ -475,11 +475,11 @@ public class AutoCommandFactory {
                     fullRoutine.add(autoCommandFactory.ampSideFarMiddle());
                 }
             } else if (startingPos[startingPosition.getSelected()].equals("middle")) {
-                if (ampNote.getSelected()) {
-                    fullRoutine.add(autoCommandFactory.middleSideAmpNote());
-                }
                 if (middleNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.middleSideMiddleNote());
+                }
+                if (ampNote.getSelected()) {
+                    fullRoutine.add(autoCommandFactory.middleSideAmpNote());
                 }
                 if (sourceNote.getSelected()) {
                     fullRoutine.add(autoCommandFactory.middleSideSourceNote());

@@ -18,9 +18,9 @@ import static java.lang.Math.abs;
 public class DriveToNote extends Command {
 
     private static int TARGET =  -Constants.DriveToNote.targetOffset;
-    private final PIDController translationController = new PIDController(Constants.DriveToNote.translationKp, 
+    private final PIDController translationController = new PIDController(Constants.DriveToNote.translationKp,
                                         Constants.DriveToNote.translationKi, Constants.DriveToNote.translationKd);
-    private final PIDController rotationController = new PIDController(Constants.DriveToNote.rotationKp, 
+    private final PIDController rotationController = new PIDController(Constants.DriveToNote.rotationKp,
                                         Constants.DriveToNote.rotationKi, Constants.DriveToNote.rotationKd);
 
     DrivetrainBase drivetrain;
@@ -54,6 +54,7 @@ public class DriveToNote extends Command {
 
     @Override
     public void execute() {
+        rotation = 0;
         if (visionSubsystem.getLatestDetectorTarget().isPresent()) {
             tx = visionSubsystem.getLatestDetectorTarget().get().tx;
             ty = visionSubsystem.getLatestDetectorTarget().get().ty;
@@ -67,7 +68,7 @@ public class DriveToNote extends Command {
         System.out.println("Movement: " + movement);
         System.out.println("ROT: " + rotation);
         System.out.println("count: " + count);
-        ChassisSpeeds speeds = new ChassisSpeeds(movement+Constants.DriveToNote.feedForward, 0, rotation);
+        ChassisSpeeds speeds = new ChassisSpeeds(movement, 0, rotation);
         drivetrain.drive(speeds, false, 1);
         Logger.recordOutput("Tx" + tx);
         Logger.recordOutput("Ty" + ty);
