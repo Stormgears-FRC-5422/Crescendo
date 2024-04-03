@@ -70,7 +70,7 @@ public class AutoCommandFactory {
     }
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
         return Commands.runOnce(() -> {
-            if (count == 0 && RobotState.getInstance().getVisionPose().getY() == 0) {
+            if (count == 0 && !RobotState.getInstance().isVisionPoseValid()) {
                 // TODO - ultimately we want this initial pose to come from vision
                 Pose2d initialPose = CrescendoField.remapPose(trajectory.getInitialPose(), m_state.getAlliance());
                 System.out.println("Setting up trajectory " + trajectory + " for " + m_state.getAlliance() + " alliance");

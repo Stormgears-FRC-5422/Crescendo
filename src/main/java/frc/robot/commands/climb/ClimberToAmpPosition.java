@@ -16,7 +16,7 @@ public class ClimberToAmpPosition extends Command {
 
     Translation2d bottomLeftPoint;
     Translation2d topRightPoint;
-    Climber climber = new Climber();
+    Climber climber;
     PidMoveToDegrees pidMoveToDegrees;
     int count = 0;
 

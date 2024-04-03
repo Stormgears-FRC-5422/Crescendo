@@ -40,6 +40,7 @@ public class StatusLights extends SubsystemBase {
     public final Color8Bit GREEN_COLOR;
     public final Color8Bit BLUE_COLOR;
     public final Color8Bit ORANGE_COLOR;
+    public final Color8Bit YELLOW_COLOR;
     public final Color8Bit WHITE_COLOR;
     public final Color8Bit NO_COLOR = new Color8Bit(0, 0, 0);
 
@@ -86,6 +87,7 @@ public class StatusLights extends SubsystemBase {
         GREEN_COLOR = scaleColor(new Color8Bit(0, 255, 0), Constants.Lights.brightness);
         BLUE_COLOR = scaleColor(new Color8Bit(0, 0, 255), Constants.Lights.brightness);
         ORANGE_COLOR = scaleColor(new Color8Bit(255, 32, 0), Constants.Lights.brightness);
+        YELLOW_COLOR = scaleColor(new Color8Bit(255, 255, 0), Constants.Lights.brightness);
         WHITE_COLOR = scaleColor(new Color8Bit(84, 84, 84), Constants.Lights.brightness);
         setAllianceColor();
 
@@ -128,8 +130,8 @@ public class StatusLights extends SubsystemBase {
 //                topColor = WHITE_COLOR;
 //            }
 
-            if (m_robotState.getVisionPose().getY() != 0) {
-                topColor = ORANGE_COLOR;
+            if (m_robotState.isVisionPoseValid()) {
+                topColor = YELLOW_COLOR;
             } else {
                 topColor = WHITE_COLOR;
             }
@@ -140,8 +142,8 @@ public class StatusLights extends SubsystemBase {
         } else {
             // TOP lights
             // TODO - I don't like that this needs to both use robot state and have its own copy of the vision subsystem.
-            if (m_robotState.getVisionPose().getY() != 0) {
-                topColor = ORANGE_COLOR;
+            if (m_robotState.isVisionPoseValid()) {
+                topColor = YELLOW_COLOR;
             } else {
                 topColor = WHITE_COLOR;
             }

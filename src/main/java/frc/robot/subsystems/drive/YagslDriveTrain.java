@@ -23,6 +23,7 @@ import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.utils.LoggerWrapper;
+import frc.utils.vision.LimelightHelpers;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
@@ -179,7 +180,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         // cache the call to potentially expensive call into the swervedrive pose estimator
         // poseUpdated gets reset to false at the end of periodic
         if (!poseUpdated) {
-            if (m_state.getVisionPose().getY() != 0 && Constants.Toggles.addVisionPose) {
+            if (m_state.isVisionPoseValid() && Constants.Toggles.addVisionPose) {
                 addVisionMeasurement(m_state.getVisionPose());
             }
 
@@ -236,13 +237,16 @@ public class YagslDriveTrain extends DrivetrainBase {
 
     @Override
     public void setVisionPose(Pose2d pose2d) {
-        if (pose2d.getY()!=0){
-            System.out.println("Adding vision pose Measurement");
-            swerveDrive.resetOdometry(pose2d);}
+        if (m_state.isVisionPoseValid()) {
+            System.out.println("Setting vision pose ");
+            swerveDrive.resetOdometry(pose2d);
+        } else {
+            System.out.println("NOT setting vision pose");
+        }
     }
 
     public void addVisionMeasurement(Pose2d pose2d) {
-            swerveDrive.addVisionMeasurement(pose2d, Timer.getFPGATimestamp());
+        swerveDrive.addVisionMeasurement(pose2d, Timer.getFPGATimestamp());
     }
 
 
@@ -303,6 +307,9 @@ public class YagslDriveTrain extends DrivetrainBase {
         // This is unnecessary - the above call to getPose has the side effect of setting the state if needed
         //m_state.setPose(getPose());
 
+        if (m_state.isVisionPoseValid()) {
+            addVisionMeasurement(RobotState.getInstance().getVisionPose());
+        }
         if (m_localFieldRelative) {
             swerveDrive.driveFieldOriented(m_chassisSpeeds);
         } else {

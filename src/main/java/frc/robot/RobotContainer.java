@@ -68,6 +68,7 @@ public class RobotContainer {
     private SourceIntake sourceIntake;
     private Climbing climbing;
     private StormCommand gotoAmpShootPosition;
+    private ClimberToAmpPosition climberToAmpPosition;
     private StormCommand gotoStowPosition;
     private SimpleGotoDegrees gotoReverseDeltaPosition;
     private StormCommand gotoClimbStartPosition;
@@ -180,6 +181,8 @@ public class RobotContainer {
             climbing = new Climbing(climber);
             home = new Home(climber);
             emergencyStop = new EmergencyStop(climber);
+            climberToAmpPosition = new ClimberToAmpPosition(climber);
+            climber.setDefaultCommand(climberToAmpPosition);
             // TODO - these commands assume a direction to reach the target. We should add safeties to confirm
             // we don't end up going the wrong direction and destroy a note in the process.
             // ideally the climber has knowledge of all of the positions, perhaps through a set of enumerated

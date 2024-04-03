@@ -160,11 +160,7 @@ public class RobotState extends SubsystemBase {
     }
 
     public boolean isVisionPoseValid() {
-
-        count = (isPoseValid) ? ++count : 0;
-//        System.out.println(count);
-        return count >= 5;
-
+        return LimelightHelpers.getTV("limelight");
     }
 
 /*    public void setVisionPose(Pose2d pose,boolean valid) {
@@ -179,6 +175,8 @@ public class RobotState extends SubsystemBase {
 //        return toPose2D(visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null));
         return LimelightHelpers.getBotPose2d_wpiBlue(Constants.Vision.tagLimelight);
     }
+
+
 
     public void setIsNoteDetected(boolean detected) {
         isNoteDetected = detected;
