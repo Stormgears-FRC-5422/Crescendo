@@ -11,7 +11,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
+import frc.utils.LoggerWrapper;
 import frc.utils.vision.NoteVisualizer;
+
+import java.util.logging.Logger;
 
 import static frc.robot.subsystems.Shooter.Direction.FORWARD;
 import static frc.robot.subsystems.Shooter.Direction.REVERSE;
@@ -87,6 +90,9 @@ public class Shooter extends SubsystemBase {
 //        shooterLeadMotor.set(shooterSlewRateLimiter.calculate(m_shooterMotorSpeed));
         shooterLeadMotor.set(m_shooterMotorSpeed);
         intakeMotor.set(m_intakeMotorSpeed);
+        LoggerWrapper.recordOutput("Lead Shooter RPM", shooterLeadMotor.getEncoder().getVelocity());
+        LoggerWrapper.recordOutput("Follower Shooter RPM", shooterFollowerMotor.getEncoder().getVelocity());
+        LoggerWrapper.recordOutput("Intake RPM", intakeMotor.getEncoder().getVelocity());
         m_robotState.setUpperSensorTriggered(isUpperSensorTriggered());
     }
 

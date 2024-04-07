@@ -47,7 +47,7 @@ public class PidMoveToDegrees extends StormCommand {
     @Override
     public void end(boolean interrupted) {
         if (interrupted || earlyFinish) {
-            climber.setClimberState(Climber.ClimberState.IDLE_COAST);
+            climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
         } else {
             climber.setClimberState(Climber.ClimberState.IDLE_BRAKE);
             // really out to have a background command for holding, not just a state

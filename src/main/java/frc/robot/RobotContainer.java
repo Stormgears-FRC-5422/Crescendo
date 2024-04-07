@@ -100,8 +100,8 @@ public class RobotContainer {
         robotState.setPose(initialPose);
 
         if (Toggles.useVision) {
-            visionSubsystem = new VisionSubsystem("limelight");
-            visionSubsystemNote = new VisionSubsystem("limelight-note");
+            visionSubsystem = new VisionSubsystem(Constants.Vision.tagLimelight);
+            visionSubsystemNote = new VisionSubsystem(Constants.Vision.noteLimelight);
         }
 
         if (Toggles.useDrive) {
@@ -182,7 +182,7 @@ public class RobotContainer {
             home = new Home(climber);
             emergencyStop = new EmergencyStop(climber);
             climberToAmpPosition = new ClimberToAmpPosition(climber);
-            climber.setDefaultCommand(climberToAmpPosition);
+//            climber.setDefaultCommand(climberToAmpPosition);
             // TODO - these commands assume a direction to reach the target. We should add safeties to confirm
             // we don't end up going the wrong direction and destroy a note in the process.
             // ideally the climber has knowledge of all of the positions, perhaps through a set of enumerated
@@ -246,10 +246,11 @@ public class RobotContainer {
         System.out.println("[Init] configureBindings");
 
         if (Toggles.useDrive && Toggles.useVision) {
-            new Trigger(() -> joystick.driveNote()).whileTrue(Commands.deadline(
+            new Trigger(() -> joystick.driveNote()).whileTrue(new ParallelCommandGroup(new PidMoveToDegrees(climber, Constants.Climber.stowDegrees)
+                ,Commands.deadline(
                 new GroundPickup(shooter),
                 new DriveToNote(drivetrain, visionSubsystemNote)).andThen(new RumbleCommand(joystick, 1.0)
-                .unless(() -> !robotState.isUpperSensorTriggered())));
+                .unless(() -> !robotState.isUpperSensorTriggered()))));
 
             new Trigger(() -> joystick.alignApriltag()).whileTrue(Commands.deadline(
                 new alignToApriltag(drivetrain, visionSubsystem)));
@@ -260,10 +261,11 @@ public class RobotContainer {
             if (Toggles.useIntake && Toggles.useShooter && Toggles.useClimber) {
                 new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
                 new Trigger(() -> joystick.shooter()).onTrue(shoot);
-                new Trigger(() -> joystick.intake()).onTrue(
-                    groundPickup
+                new Trigger(() -> joystick.intake()).onTrue((new ParallelCommandGroup(
+                    new PidMoveToDegrees(climber, Constants.Climber.stowDegrees),
+                groundPickup).asProxy().onlyIf(robotState::climberHasBeenHomed)
                     .andThen(new RumbleCommand(joystick, 1.0)
-                        .unless(() -> !robotState.isUpperSensorTriggered())));
+                        .unless(() -> !robotState.isUpperSensorTriggered()))));
                 new Trigger(() -> joystick.shooterAmp()).onTrue(
                     new SequentialCommandGroup(
                         gotoAmpShootPosition,

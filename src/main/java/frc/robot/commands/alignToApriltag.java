@@ -18,17 +18,13 @@ import frc.utils.vision.LimelightHelpers;
 
 public class alignToApriltag extends Command{
 
+
     double[] robotPose; //= LimelightHelpers.getBotPose_TargetSpace("");
     //horiz offset
-    double tx;
-    //vertical offset
-    double ty;
-    //distance to apriltag
-    double tz;
-    //rotation
-    double ry;
+    double movement = 0;
+    double rotation = 0;
 
-    private final PIDController translationController = new PIDController(1, 0, 0);
+    private final PIDController translationController = new PIDController(0.5, 0, 0);
 
     private final PIDController rotationController = new PIDController(0.08, 0, 0.001);
     DrivetrainBase drivetrain;
@@ -36,8 +32,7 @@ public class alignToApriltag extends Command{
 
     NetworkTable table;
     VisionSubsystem visionSubsystem;
-    double movement = 0;
-    double rotation = 0;
+
 
     public alignToApriltag(DrivetrainBase drivetrain, VisionSubsystem visionSubsystem) {
         translationController.setSetpoint(0.0);
@@ -57,20 +52,21 @@ public class alignToApriltag extends Command{
     public void execute() {
         if (LimelightHelpers.getTV("")) {
             robotPose = LimelightHelpers.getBotPose_TargetSpace("");
-            tx = robotPose[0];
-
-            ry = robotPose[4];
-
-            movement = translationController.calculate(tx);
-            rotation = rotationController.calculate(ry);
+            movement = robotPose[0];
+            rotation = LimelightHelpers.getTX("");
+            movement = translationController.calculate(movement);
+            rotation = rotationController.calculate(rotation);
 //            System.out.println("Note detected");
+        }else{
+            movement = 0;
+            rotation = 0;
         }
         System.out.println("Movement: " + movement);
         System.out.println("ROT: " + rotation);
         ChassisSpeeds speeds = new ChassisSpeeds(0, movement + 0.25, rotation);
         drivetrain.drive(speeds, false, 1);
-        Logger.recordOutput("Tx" + tx);
-        Logger.recordOutput("ry" + ry);
+        Logger.recordOutput("movement" + movement);
+        Logger.recordOutput("rotation" + rotation);
     }
     @Override
     public boolean isFinished() {
@@ -81,8 +77,8 @@ public class alignToApriltag extends Command{
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Tx: " + tx);
-        System.out.println("Ty: " + ty);
+        System.out.println("movement: " + movement);
+        System.out.println("rotation: " + rotation);
         ChassisSpeeds speeds;
         speeds = new ChassisSpeeds(0, 0, 0);
         drivetrain.percentOutputDrive(speeds, false);

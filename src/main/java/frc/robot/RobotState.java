@@ -160,7 +160,7 @@ public class RobotState extends SubsystemBase {
     }
 
     public boolean isVisionPoseValid() {
-        return LimelightHelpers.getTV("limelight");
+        return LimelightHelpers.getTV(Constants.Vision.tagLimelight);
     }
 
 /*    public void setVisionPose(Pose2d pose,boolean valid) {

@@ -109,6 +109,8 @@ public class Climber extends SubsystemBase {
 
         // We want to indicate whether the arm is in the correct position before autonomous runs
         if (robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
+            leadMotor.setIdleMode(CANSparkBase.IdleMode.kCoast);
+            followerMotor.setIdleMode(CANSparkBase.IdleMode.kCoast);
             if (!hasBeenHomed && home) {
                 hasSeenHome = true;
                 homePosition = m_currentPosition;

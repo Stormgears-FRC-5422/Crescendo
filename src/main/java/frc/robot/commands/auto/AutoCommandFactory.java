@@ -49,7 +49,8 @@ public class AutoCommandFactory {
     final ArrayList<ChoreoTrajectory> source_side_source = Choreo.getTrajectoryGroup("source_side_source");
     final ArrayList<ChoreoTrajectory> source_side_middle = Choreo.getTrajectoryGroup("source_side_middle");
     final ArrayList<ChoreoTrajectory> source_side_amp = Choreo.getTrajectoryGroup("source_side_amp");
-    final ArrayList<ChoreoTrajectory> far_source_right = Choreo.getTrajectoryGroup("far_source_right");
+    final ArrayList<ChoreoTrajectory>
+        far_source_right = Choreo.getTrajectoryGroup("far_source_right");
     final ArrayList<ChoreoTrajectory> far_source_middle_right = Choreo.getTrajectoryGroup("far_source_middle_right");
     final ArrayList<ChoreoTrajectory> source_far_middle = Choreo.getTrajectoryGroup("source_far_middle");
 

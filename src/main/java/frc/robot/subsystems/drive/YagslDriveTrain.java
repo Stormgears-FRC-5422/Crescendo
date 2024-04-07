@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -307,9 +308,9 @@ public class YagslDriveTrain extends DrivetrainBase {
         // This is unnecessary - the above call to getPose has the side effect of setting the state if needed
         //m_state.setPose(getPose());
 
-        if (m_state.isVisionPoseValid()) {
-            addVisionMeasurement(RobotState.getInstance().getVisionPose());
-        }
+//        if (m_state.isVisionPoseValid()) {
+//            addVisionMeasurement(RobotState.getInstance().getVisionPose());
+//        }
         if (m_localFieldRelative) {
             swerveDrive.driveFieldOriented(m_chassisSpeeds);
         } else {
