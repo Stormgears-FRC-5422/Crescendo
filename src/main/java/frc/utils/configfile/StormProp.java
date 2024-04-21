@@ -1,6 +1,7 @@
 package frc.utils.configfile;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.io.File;
@@ -12,8 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 
 public class StormProp {
-  // Maybe rename this file to something better
-  private static final String path =
+    // Maybe rename this file to something better
+    private static final String path =
       Filesystem.getDeployDirectory().getPath(); // "/home/lvuser/deploy";
     private static final String name = "config.properties";
     private static final String backUP = "config_backup.properties";
@@ -30,9 +31,13 @@ public class StormProp {
     private static final HashMap<String, String> m_string_map = new HashMap<>();
     private static Properties properties;
     private static Properties overrideProperties;
+    private static Properties simProperties;
     private static boolean initialized = false;
-    private static boolean overrideInit = false;
+    private static boolean overrideInitialized = false;
+    private static boolean simInitialized = false;
     private static boolean debug = false;
+
+
 
     public static void init() {
         System.out.println("Running in directory " + System.getProperty("user.dir"));
@@ -63,7 +68,7 @@ public class StormProp {
             }
         }
         initialized = true;
-        if (!overrideInit) {
+        if (!overrideInitialized) {
             overrideInit();
         }
 
@@ -71,7 +76,11 @@ public class StormProp {
     }
 
     public static void overrideInit() {
-        String overrideName = properties.getProperty("override");
+        String overrideName = RobotBase.isSimulation()
+            ? properties.getProperty("simOverride")
+            : properties.getProperty("override");
+
+        overrideName = removeCast(overrideName);
 
         if ( overrideName.equalsIgnoreCase("auto")) {
             System.out.println("Using AUTOMATIC configuration");
@@ -115,23 +124,55 @@ public class StormProp {
             }
         }
 
-        overrideInit = true;
+        overrideInitialized = true;
     }
 
+    public static void simInit() {
+        simProperties = new Properties();
+
+        // Ignore the sim overrides file unless we are in simulation!
+        if (!RobotBase.isSimulation()) {
+            simInitialized = true;
+            return;
+        }
+
+        String simName = properties.getProperty("simOverrideOverride");
+        simName = removeCast(simName);
+
+        System.out.println("Using simulation override file " + simName);
+        File simConfigFile = new File(path, simName);
+
+        FileInputStream SimOverrideInputStream = null;
+        try {
+            SimOverrideInputStream = new FileInputStream(simConfigFile);
+            simProperties.load(SimOverrideInputStream);
+        } catch (IOException e) {
+            System.out.println("!!! No simulation override file detected !!!");
+        }
+        if (SimOverrideInputStream != null) {
+            try {
+                SimOverrideInputStream.close();
+            } catch (IOException e) {
+                System.out.println("Error coming from simulation override config. This should not run");
+            }
+        }
+
+        simInitialized = true;
+    }
+
+    private static String removeCast(String value) {
+        return value.substring(value.indexOf(")") + 1).trim();
+    }
     private static String getPropString(String key) {
-        if (!initialized) {
-            init();
-        }
-        if (!overrideInit) {
-            overrideInit();
-        }
-        if (!overrideProperties.containsKey(key) && !properties.containsKey(key)) {
-            return null;
-        } else if (overrideProperties.containsKey(key)) {
-            return overrideProperties.getProperty(key);
-        } else {
-            return properties.getProperty(key);
-        }
+        if (!initialized) init();
+        if (!overrideInitialized) overrideInit();
+        if (!simInitialized) simInit();
+
+        if (simProperties.containsKey(key)) return(removeCast(simProperties.getProperty(key)));
+        if (overrideProperties.containsKey(key)) return(removeCast(overrideProperties.getProperty(key)));
+        if (properties.containsKey(key)) return(removeCast(properties.getProperty(key)));
+
+        return "";
     }
 
     public static String getString(String key, String defaultVal) {
@@ -142,7 +183,8 @@ public class StormProp {
     }
 
     public static String getString(String prefix, String key, String defaultVal) {
-        String result = getStringInternal(prefix + "." + key,defaultVal);
+        String result = (prefix.equals("general")) ? getStringInternal(key,defaultVal) : getStringInternal(prefix + "." + key,defaultVal);
+
         if(debug) System.out.println("debug property " + prefix + "." + key + " = " + result);
 
         return result;
@@ -172,7 +214,7 @@ public class StormProp {
     }
 
     public static double getNumber(String prefix, String key, Double defaultVal) {
-        double result = getNumberInternal(prefix + "." + key, defaultVal);
+        double result = (prefix.equals("general")) ? getNumberInternal(key,defaultVal) : getNumberInternal(prefix + "." + key,defaultVal);
         if(debug) System.out.println("debug property " + prefix + "." + key + " = " + result);
 
         return result;
@@ -200,7 +242,7 @@ public class StormProp {
         return result;
     }
     public static int getInt(String prefix, String key, int defaultVal) {
-        int result = getIntInternal(prefix + "." + key, defaultVal);
+        int result = (prefix.equals("general")) ? getIntInternal(key,defaultVal) : getIntInternal(prefix + "." + key,defaultVal);
         if(debug) System.out.println("debug property " + prefix + "." + key + " = " + result);
 
         return result;
@@ -230,6 +272,13 @@ public class StormProp {
         return result;
     }
 
+    public static boolean getBoolean(String prefix, String key, Boolean defaultVal) {
+        boolean result = (prefix.equals("general")) ? getBooleanInternal(key,defaultVal) : getBooleanInternal(prefix + "." + key,defaultVal);
+        if(debug) System.out.println("debug property " + key + " = " + result);
+
+        return result;
+    }
+
     private static boolean getBooleanInternal(String key, Boolean defaultVal) {
         try {
             if (m_bool_map.containsKey(key)) return (m_bool_map.get(key));
@@ -250,7 +299,7 @@ public class StormProp {
         if (!initialized) {
             init();
         }
-        if (!overrideInit) {
+        if (!overrideInitialized) {
             overrideInit();
         }
         String[] Blacklist = {"robotName", "hasNavX", "rearRightTalonId", "rearLeftTalonId", "frontRightTalonId", "frontLeftTalonId", "wheelRadius", "navXconnection"};
