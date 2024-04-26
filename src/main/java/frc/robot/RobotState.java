@@ -148,7 +148,11 @@ public class RobotState extends SubsystemBase {
     }
 
     public boolean climberHasBeenHomed() {
-        return climberHasBeenHomed;
+        if (Constants.Toggles.outReach) {
+            return true;
+        } else {
+            return climberHasBeenHomed;
+        }
     }
 
     public void setClimberIsAtInit(boolean atInit) {
@@ -177,7 +181,6 @@ public class RobotState extends SubsystemBase {
     }
 
 
-
     public void setIsNoteDetected(boolean detected) {
         isNoteDetected = detected;
     }
@@ -187,13 +190,13 @@ public class RobotState extends SubsystemBase {
     }
 
     private static Pose2d toPose2D(double[] inData) {
-             if (inData == null || inData.length < 6) {
-                //System.err.println("Bad LL 2D Pose Data!");
-                return null;
-            }
-            Translation2d tran2d = new Translation2d(inData[0], inData[1]);
-            Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
-            return new Pose2d(tran2d, r2d);
+        if (inData == null || inData.length < 6) {
+            //System.err.println("Bad LL 2D Pose Data!");
+            return null;
         }
+        Translation2d tran2d = new Translation2d(inData[0], inData[1]);
+        Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
+        return new Pose2d(tran2d, r2d);
+    }
 
 }

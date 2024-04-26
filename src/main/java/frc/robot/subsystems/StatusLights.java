@@ -75,6 +75,9 @@ public class StatusLights extends SubsystemBase {
 
     List<Pose2d> targetList;
     VisionSubsystem visionSubsystem;
+    int count = 0;
+
+
     public StatusLights(VisionSubsystem visionSubsystem) {
         m_iteration = 0;
         m_robotState = RobotState.getInstance();
@@ -123,23 +126,33 @@ public class StatusLights extends SubsystemBase {
         }
 
         if (m_robotState.getPeriod() == RobotState.StatePeriod.DISABLED) {
-            // Set light patterns for pre-match configuration
+            if (Constants.Toggles.outReach) {
+                topColor = BLUE_COLOR;
+                sideColor = BLUE_COLOR;
+            } else {
+                // Set light patterns for pre-match configuration
 //            if (m_robotState.isClimberAtInit()) {
 //                topColor = GREEN_COLOR;
 //            } else {
 //                topColor = WHITE_COLOR;
 //            }
 
-            if (m_robotState.isVisionPoseValid()) {
-                topColor = YELLOW_COLOR;
-            } else {
-                topColor = WHITE_COLOR;
+                if (m_robotState.isVisionPoseValid()) {
+                    topColor = YELLOW_COLOR;
+                } else {
+                    topColor = WHITE_COLOR;
+                }
             }
             setRingColor(LEFT_SIDE_TOP, topColor);
             setRingColor(RIGHT_SIDE_TOP, topColor);
+            setRingColor(LEFT_SIDE_MAIN, sideColor);
+            setRingColor(RIGHT_SIDE_MAIN, sideColor);
             // Main lights handled here
-            setAlignmentLights();
+            if (!Constants.Toggles.outReach) {
+                setAlignmentLights();
+            }
         } else {
+
             // TOP lights
             // TODO - I don't like that this needs to both use robot state and have its own copy of the vision subsystem.
             if (m_robotState.isVisionPoseValid()) {
@@ -147,19 +160,39 @@ public class StatusLights extends SubsystemBase {
             } else {
                 topColor = WHITE_COLOR;
             }
+
             // Main lights
-            if(m_robotState.isUpperSensorTriggered()){
+            if (m_robotState.isUpperSensorTriggered()) {
                 sideColor = GREEN_COLOR;
-            } else if(m_robotState.getIsNoteDetected()){
+            } else if (m_robotState.getIsNoteDetected()) {
                 sideColor = ORANGE_COLOR;
             } else {
                 sideColor = allianceColor;
             }
 
-            setRingColor(LEFT_SIDE_TOP, topColor);
-            setRingColor(RIGHT_SIDE_TOP, topColor);
-            setRingColor(LEFT_SIDE_MAIN, sideColor);
-            setRingColor(RIGHT_SIDE_MAIN, sideColor);
+
+            if (count == 50) {
+                count = 0;
+            } else if (count < 25) {
+                if (Constants.Toggles.outReach) {
+                    setRingColor(LEFT_SIDE_TOP, sideColor);
+                    setRingColor(RIGHT_SIDE_TOP, sideColor);
+                    setRingColor(LEFT_SIDE_MAIN, sideColor);
+                    setRingColor(RIGHT_SIDE_MAIN, sideColor);
+                } else {
+                    setRingColor(LEFT_SIDE_TOP, topColor);
+                    setRingColor(RIGHT_SIDE_TOP, topColor);
+                    setRingColor(LEFT_SIDE_MAIN, sideColor);
+                    setRingColor(RIGHT_SIDE_MAIN, sideColor);
+                }
+            } else {
+                setRingColor(LEFT_SIDE_TOP, NO_COLOR);
+                setRingColor(RIGHT_SIDE_TOP, NO_COLOR);
+                setRingColor(LEFT_SIDE_MAIN, NO_COLOR);
+                setRingColor(RIGHT_SIDE_MAIN, NO_COLOR);
+            }
+            count++;
+
         }
 
         if (m_ledColorRequested) {
@@ -227,7 +260,7 @@ public class StatusLights extends SubsystemBase {
             return;
         }
 
-        Pose2d target= current.nearest(targetList);
+        Pose2d target = current.nearest(targetList);
         Transform2d poseError = new Transform2d(current, target);
         //        System.out.println(poseError);
         //        System.out.println("Translation: " + poseError);
@@ -248,7 +281,8 @@ public class StatusLights extends SubsystemBase {
 
         // convert the offset to an angle
         double leftOffset = MathUtil.clamp(xOffset - rotationOffset, 0, ringLength);
-        double rightOffset = MathUtil.clamp(xOffset + rotationOffset, 0, ringLength);;
+        double rightOffset = MathUtil.clamp(xOffset + rotationOffset, 0, ringLength);
+        ;
 
         // The function here pretends that the light string is a ring. So we need to convert the
         // offset to radians using this weird scale. Note that the end of the string isn't quite at 180
@@ -457,7 +491,8 @@ public class StatusLights extends SubsystemBase {
                 allianceColor = WHITE_COLOR;
                 otherAllianceColor = WHITE_COLOR;
             }
-        };
+        }
+        ;
     }
 
     private void makeCompassArray() {

@@ -245,9 +245,9 @@ public class RobotContainer {
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
 
-        if (Toggles.useDrive && Toggles.useVision) {
+        if (Toggles.useDrive && Toggles.useVision && !Toggles.outReach) {
             new Trigger(() -> joystick.driveNote()).whileTrue(new ParallelCommandGroup(new PidMoveToDegrees(climber, Constants.Climber.stowDegrees)
-                ,Commands.deadline(
+                , Commands.deadline(
                 new GroundPickup(shooter),
                 new DriveToNote(drivetrain, visionSubsystemNote)).andThen(new RumbleCommand(joystick, 1.0)
                 .unless(() -> !robotState.isUpperSensorTriggered()))));
@@ -263,7 +263,7 @@ public class RobotContainer {
                 new Trigger(() -> joystick.shooter()).onTrue(shoot);
                 new Trigger(() -> joystick.intake()).onTrue((new ParallelCommandGroup(
                     new PidMoveToDegrees(climber, Constants.Climber.stowDegrees),
-                groundPickup).asProxy().onlyIf(robotState::climberHasBeenHomed)
+                    groundPickup).asProxy().onlyIf(robotState::climberHasBeenHomed)
                     .andThen(new RumbleCommand(joystick, 1.0)
                         .unless(() -> !robotState.isUpperSensorTriggered()))));
                 new Trigger(() -> joystick.shooterAmp()).onTrue(
@@ -273,12 +273,16 @@ public class RobotContainer {
                         gotoStowPosition
                     ).unless(() -> !robotState.climberHasBeenHomed()));
                 new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
-                new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(()->drivetrain.zeroWheels()));
+                new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
 //                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
                 new Trigger(() -> joystick.outtake()).whileTrue(outtake);
                 new Trigger(() -> joystick.eject()).whileTrue(eject);
 //                new Trigger(() ->joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
 //                    Climber.Direction.FORWARD));
+            }
+            if (Toggles.outReach) {
+                new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+                new Trigger(() -> joystick.shooter()).onTrue(shoot);
             }
 
             if (Toggles.useClimber) {
@@ -301,18 +305,22 @@ public class RobotContainer {
             }
         } else {
             System.out.println("Creating SysID commands");
-                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
-                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
-                new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
-                new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
-                new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
-                new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
+            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
+            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
+            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
+            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
         }
 
         System.out.println("[DONE] configureBindings");
     }
+
     public Command getAutonomousCommand() {
-        if (Toggles.useAutoSelector) {
+        if (Toggles.outReach) {
+            return new Command() {
+            };
+        } else if (Toggles.useAutoSelector) {
             return autoSelector.buildAuto();
         } else if (Toggles.useAutoChooser && Toggles.useAdvantageKit) {
             System.out.println("AutoChooser command: " + autoChooser.get());
