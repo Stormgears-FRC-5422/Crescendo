@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.RobotState;
@@ -41,7 +42,7 @@ public class JoyStickDrive extends StormCommand {
         turboSupplier = joystick::getTurbo;
 
         ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction",
-            robotRelativeSupplier.getAsBoolean() ? "Robot Orientation": "Field Orientation");
+            robotRelativeSupplier.getAsBoolean() ? "Robot Orientation" : "Field Orientation");
     }
 
     @Override
@@ -54,7 +55,7 @@ public class JoyStickDrive extends StormCommand {
         }
 
         m_flipJoystick = ButtonBoard.flipJoystickForRed && m_state.isAllianceRed();
-        this.log("Joystick is " + (m_flipJoystick ? "" : "NOT")+ " flipped for alliance");
+        this.log("Joystick is " + (m_flipJoystick ? "" : "NOT") + " flipped for alliance");
 
         m_finish = false;
     }
@@ -72,14 +73,22 @@ public class JoyStickDrive extends StormCommand {
     @Override
     public void execute() {
         // TODO - do we really want to check this every iteration?
-        if (turboSupplier.getAsDouble()<=0.2) {
-            drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
+        if (Constants.Toggles.outReach) {
+            drivetrain.setDriveSpeedScale(Drive.outReachSpeedScale);
         } else {
-            drivetrain.setDriveSpeedScale(turboSupplier.getAsDouble());
+            if (turboSupplier.getAsDouble() <= 0.2) {
+                drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
+            } else {
+                drivetrain.setDriveSpeedScale(turboSupplier.getAsDouble());
+            }
         }
-
         ChassisSpeeds speeds;
-        boolean fieldRelative = !robotRelativeSupplier.getAsBoolean();
+        boolean fieldRelative;
+        if (Constants.Toggles.outReach) {
+            fieldRelative = false;
+        } else {
+            fieldRelative = !robotRelativeSupplier.getAsBoolean();
+        }
 
         double x = txSupplier.getAsDouble();
         double y = tySupplier.getAsDouble();

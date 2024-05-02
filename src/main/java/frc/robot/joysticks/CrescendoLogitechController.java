@@ -27,7 +27,9 @@ public class CrescendoLogitechController extends CrescendoJoystick {
     }
 
     public boolean getRobotRelative() {
-        return controller.getRawButton(11);
+//        return controller.getRawButton(11);
+        return false;
+
     }
 
     public double getTurbo() {
@@ -46,26 +48,33 @@ public class CrescendoLogitechController extends CrescendoJoystick {
 
     @Override
     public boolean shooterIntake() {
-        return controller.getRawButton(3);
+//        return controller.getRawButton(3);
+        return false;
+
     }
 
     @Override
     public boolean shooterAmp() {
-        return controller.getRawButton(4);
+//        return controller.getRawButton(4);
+        return false;
     }
 
     @Override
     public boolean intake() {
         return controller.getRawButton(2);
+//        return false;
     }
 
     public boolean zeroGyro() {
-        return controller.getRawButton(5);
+        return false;
+//        return controller.getRawButton(5);
     }
 
     @Override
     public boolean diagnosticShooterIntake() {
-        return controller.getRawButton(6);
+//        return controller.getRawButton(6);
+        return false;
+
     }
 
     @Override
@@ -75,12 +84,15 @@ public class CrescendoLogitechController extends CrescendoJoystick {
 
     @Override
     public boolean climb() {
-        return controller.getRawButton(9);
+//        return controller.getRawButton(9);
+        return false;
     }
 
     @Override
     public boolean home() {
-        return controller.getRawButton(10);
+//        return controller.getRawButton(10);
+        return false;
+
     }
 
     public boolean lower() {
@@ -93,7 +105,9 @@ public class CrescendoLogitechController extends CrescendoJoystick {
     @Override
     public boolean climberEmergencyStop() {
 
-        return controller.getRawButton(7);
+//        return controller.getRawButton(7);
+        return false;
+
     }
 
     @Override

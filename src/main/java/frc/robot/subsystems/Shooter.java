@@ -61,7 +61,6 @@ public class Shooter extends SubsystemBase {
     ShooterState shooterState;
 
 
-
     public Shooter() {
         shooterLeadMotor = new CANSparkMax(Constants.Shooter.leaderID, CANSparkLowLevel.MotorType.kBrushless);
         shooterFollowerMotor = new CANSparkMax(Constants.Shooter.followerID, CANSparkLowLevel.MotorType.kBrushless);
@@ -82,7 +81,7 @@ public class Shooter extends SubsystemBase {
         m_robotState = RobotState.getInstance();
         setShooterState(ShooterState.IDLE);
 
-        ShuffleboardConstants.getInstance().drivetrainTab.addBoolean("Note Stages", ()-> shooterStaged);
+        ShuffleboardConstants.getInstance().drivetrainTab.addBoolean("Note Stages", () -> shooterStaged);
     }
 
     @Override
@@ -132,8 +131,13 @@ public class Shooter extends SubsystemBase {
             case SPEAKER_SHOOTING -> {
                 shooterStaged = false;
                 setLimitSwitch(FORWARD, false);
-                setIntakeSpeed(FORWARD, Constants.Shooter.intakeMotorSpeed);
-                setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
+                if (Constants.Toggles.outReach) {
+                    setIntakeSpeed(FORWARD, Constants.Shooter.outReachMotorSpeed);
+                    setShooterSpeed(FORWARD, Constants.Shooter.outReachMotorSpeed);
+                } else {
+                    setIntakeSpeed(FORWARD, Constants.Shooter.intakeMotorSpeed);
+                    setShooterSpeed(FORWARD, Constants.Shooter.shootMotorSpeed);
+                }
                 NoteVisualizer.shoot();
             }
             case AMP_SHOOTING -> {
@@ -171,7 +175,6 @@ public class Shooter extends SubsystemBase {
             }
             default -> System.out.println("invalid state");
         }
-
 
 
     }
