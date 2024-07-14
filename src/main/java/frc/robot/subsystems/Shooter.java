@@ -116,7 +116,7 @@ public class Shooter extends SubsystemBase {
             case SOURCE_PICKUP_2 -> {
                 shooterStaged = false;
                 setLimitSwitch(REVERSE, true);
-                setShooterSpeed(REVERSE, Constants.Shooter.intakeUpperMotorSpeed);
+                setShooterSpeed(REVERSE, Constants.Shooter.sourceIntakeMotorSpeed);
                 setIdleModeAll(IdleMode.kBrake);
             }
             case GROUND_PICKUP -> {
@@ -143,8 +143,13 @@ public class Shooter extends SubsystemBase {
             case AMP_SHOOTING -> {
                 shooterStaged = false;
                 setLimitSwitch(FORWARD, false);
-                setShooterSpeed(FORWARD, Constants.Shooter.ampShootMotorSpeed);
-                setIntakeSpeed(FORWARD, Constants.Shooter.ampIntakeMotorSpeed);
+                if (Constants.Toggles.outReach) {
+                    setIntakeSpeed(FORWARD, Constants.Shooter.ampOutReachSpeed);
+                    setShooterSpeed(FORWARD, Constants.Shooter.ampOutReachSpeed);
+                } else {
+                    setShooterSpeed(FORWARD, Constants.Shooter.ampShootMotorSpeed);
+                    setIntakeSpeed(FORWARD, Constants.Shooter.ampIntakeMotorSpeed);
+                }
                 NoteVisualizer.shoot();
             }
             case OUTTAKE -> {

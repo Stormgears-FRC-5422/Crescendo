@@ -66,6 +66,7 @@ public class RobotContainer {
     private Outtake outtake;
     private Outtake eject;
     private SourceIntake sourceIntake;
+    private ShooterIntake shooterIntake;
     private Climbing climbing;
     private StormCommand gotoAmpShootPosition;
     private ClimberToAmpPosition climberToAmpPosition;
@@ -129,6 +130,7 @@ public class RobotContainer {
             outtake = new Outtake(shooter, false);
             eject = new Outtake(shooter, true);
             sourceIntake = new SourceIntake(shooter);
+            shooterIntake = new ShooterIntake(shooter);
         }
 
         if (Toggles.useNavX && !Drive.driveType.equals("YagslDrive")) {
@@ -282,7 +284,9 @@ public class RobotContainer {
             }
             if (Toggles.outReach) {
                 new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+                new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
                 new Trigger(() -> joystick.shooter()).onTrue(shoot);
+                new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
             }
 
             if (Toggles.useClimber) {
