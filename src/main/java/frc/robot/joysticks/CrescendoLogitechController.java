@@ -48,15 +48,15 @@ public class CrescendoLogitechController extends CrescendoJoystick {
 
     @Override
     public boolean shooterIntake() {
-//        return controller.getRawButton(3);
-        return false;
+        return controller.getRawButton(3);
+//        return false;
 
     }
 
     @Override
     public boolean shooterAmp() {
-//        return controller.getRawButton(4);
-        return false;
+        return controller.getRawButton(4);
+//        return false;
     }
 
     @Override

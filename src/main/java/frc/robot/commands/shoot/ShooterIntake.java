@@ -15,8 +15,9 @@ public class ShooterIntake extends StormCommand {
 
     @Override
     public void initialize() {
+        System.out.println("Initializing shooter intake");
         super.initialize();
-        s.setShooterState(Shooter.ShooterState.SOURCE_PICKUP_1);
+        s.setShooterState(Shooter.ShooterState.SOURCE_PICKUP_2);
         counter = 0;
     }
 
@@ -27,7 +28,12 @@ public class ShooterIntake extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return counter > 30;
+        if (s.isUpperSensorTriggered()) {
+            this.log("upper sensor triggered. isFinished = true");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
