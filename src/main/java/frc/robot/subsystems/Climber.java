@@ -65,6 +65,12 @@ public class Climber extends SubsystemBase {
     private final double armInitLowPosition;
     private final double armInitHighPosition;
 
+    /**
+     * constructs a new climber system & initializes motors
+     *
+     *
+     */
+
     public Climber() {
         leadMotor = new CANSparkMax(Constants.Climber.leaderID, CANSparkLowLevel.MotorType.kBrushless);
         leadMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
@@ -100,6 +106,9 @@ public class Climber extends SubsystemBase {
         robotState = RobotState.getInstance();
         setClimberState(ClimberState.IDLE_COAST);
     }
+    /**
+     * This method is called periodically by the scheduler.
+     */
 
     @Override
     public void periodic() {
@@ -157,6 +166,10 @@ public class Climber extends SubsystemBase {
             }
         }
     }
+
+    /**
+     * This method is called periodically by the scheduler.
+     */
 
     public void setClimberState(Climber.ClimberState state) {
         myState = state;
