@@ -37,6 +37,7 @@ public class CTRDrivetrain extends DrivetrainBase {
 
         setMaxVelocities(MaxSpeed, MaxAngularRate);
         drivetrain.registerTelemetry(logger::telemeterize);
+
     }
 
     @Override

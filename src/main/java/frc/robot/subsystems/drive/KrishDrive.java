@@ -1,5 +1,8 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstantsFactory;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -43,6 +46,8 @@ public class KrishDrive extends DrivetrainBase {
 
 
     public KrishDrive() {
+
+
         m_frontLeftModule = new SwerveModule(1, new SwerveModule.SwerveModuleConstants(11, 10, Constants.Drive.frontLeftOffsetDegrees),
                 SwerveConstants.mFrontLeftCancoder);
         m_frontRightModule = new SwerveModule(2, new SwerveModule.SwerveModuleConstants(21, 20, Constants.Drive.frontRightOffsetDegrees),
@@ -51,9 +56,20 @@ public class KrishDrive extends DrivetrainBase {
                 SwerveConstants.mBackRightCancoder);
         m_backLeftModule = new SwerveModule(4, new SwerveModule.SwerveModuleConstants(41, 40, Constants.Drive.backLeftOffsetDegrees),
                 SwerveConstants.mBackLeftCancoder);
+//        m_frontLeftModule = new SwerveModule(1, new SwerveModule.SwerveModuleConstants(11, 10, 0),
+//            SwerveConstants.mFrontLeftCancoder);
+//        m_frontRightModule = new SwerveModule(2, new SwerveModule.SwerveModuleConstants(21, 20, 0),
+//            SwerveConstants.mFrontRightCancoder);
+//        m_backRightModule = new SwerveModule(3, new SwerveModule.SwerveModuleConstants(31, 30, 0),
+//            SwerveConstants.mBackRightCancoder);
+//        m_backLeftModule = new SwerveModule(4, new SwerveModule.SwerveModuleConstants(41, 40, 0),
+//            SwerveConstants.mBackLeftCancoder);
 
         setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
 
+//
+//        SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
+//            new Rotation2d(), realStates, RobotState.getInstance().getPose());
     }
 
 

@@ -13,6 +13,7 @@ import frc.utils.Alert.AlertType;
 import frc.utils.LoggerWrapper;
 import frc.robot.RobotState.StatePeriod;
 
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -57,8 +58,9 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-        // Record metadata
         System.out.println("[Init] Robot");
+
+        m_state = RobotState.getInstance();
 
         if (useAdvantageKit) {
             System.out.println("[Init] Starting AdvantageKit");
@@ -74,10 +76,12 @@ public class Robot extends LoggedRobot {
                 case 1 -> LoggerWrapper.recordMetadata("GitDirty", "Uncomitted changes");
                 default -> LoggerWrapper.recordMetadata("GitDirty", "Unknown");
             }
+            AutoLogOutputManager.addPackage("frc.robot");
+            AutoLogOutputManager.addPackage("frc.utils");
 
             if (isReal()) {
 
-                if(LogfileChecker(Constants.logFolder0)) {
+                if (LogfileChecker(Constants.logFolder0)) {
                     LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder0)); // Log to a USB stick ("/U/logs")
                 } else if (LogfileChecker((Constants.logFolder1))) {
                     LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder1)); // Log to a USB stick ("/U/logs")
@@ -97,10 +101,7 @@ public class Robot extends LoggedRobot {
                     LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder8)); // Log to a USB stick ("/U/logs")
                 } else if (LogfileChecker((Constants.logFolder9))) {
                     LoggerWrapper.addDataReceiver(new WPILOGWriter(Constants.logFolder9)); // Log to a USB stick ("/U/logs")
-                }
-
-
-                else {
+                } else {
                     System.out.println("No Log file Chosen!");
                 }
 
@@ -114,22 +115,15 @@ public class Robot extends LoggedRobot {
             }
             logActiveCommand();
             LoggerWrapper.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-            // Start timers
-            canErrorTimer.reset();
-            canErrorTimer.start();
-            canErrorTimerInitial.reset();
-            canErrorTimerInitial.start();
         }
 
-        // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-        // autonomous chooser on the dashboard.
         try {
             m_robotContainer = new RobotContainer();
-            m_state = RobotState.getInstance();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         System.out.println("[DONE] Robot");
+
     }
 
     private boolean LogfileChecker(String file) {

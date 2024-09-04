@@ -109,6 +109,8 @@ public class JoyStickDrive extends StormCommand {
 //                speedScaleLimiter.calculate(omega));
         }
 
+        speeds = new ChassisSpeeds(x, y, omega);
+        fieldRelative = false;
         drivetrain.percentOutputDrive(speeds, fieldRelative);
     }
 }

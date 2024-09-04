@@ -34,7 +34,7 @@ public class SwerveDiagnosticDriveTrain extends DrivetrainBase {
             (state) -> Logger.recordOutput("SysIdTestState", state.toString())
         ),
         new SysIdRoutine.Mechanism(
-            (voltage) -> setSysIdVoltage(voltage`.in(Volts)),
+            (voltage) -> setSysIdVoltage(voltage.in(Volts)),
             null, // No log consumer, since data is recorded by AdvantageKit
             this
         )

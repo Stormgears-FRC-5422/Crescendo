@@ -2,6 +2,7 @@ package frc.utils.swerve;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -63,10 +64,14 @@ public class SwerveModule extends SubsystemBase {
 //        angleMotor.applyConfig();
 //        driveMotor.applyConfig();
 
-        angleMotor.setInverted(true);
+        angleMotor.setInverted(false);
 
 
         driveMotor.setPosition(0);
+
+        MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
+        magnetSensorConfigs.MagnetOffset = 0;
+        angleEncoder.getConfigurator().apply(magnetSensorConfigs);
 
         resetToAbsolute();
 
@@ -81,7 +86,9 @@ public class SwerveModule extends SubsystemBase {
         Logger.recordOutput("reset abs " + moduleNumber, absPosition);
         StatusCode statusCode = angleMotor.setPosition(absPosition);
         Logger.recordOutput("Sts code" + moduleNumber, statusCode);
+        Logger.recordOutput("reset " + moduleNumber, getAbsolutePosition()-angleOffset);
 //
+
 //        angleMotor.setPosition(Conversions.degreesToRotation(getCurrentDegrees(), Constants.Drive.angleGearRatio));
     }
 
@@ -137,7 +144,8 @@ public class SwerveModule extends SubsystemBase {
     public void setVelocity(SwerveModuleState desiredState) {
         Logger.recordOutput("desiredAngle" + moduleNumber, desiredState.angle.getDegrees());
         double flip = setSteeringAngleOptimized(desiredState.angle) ? -1 : 1;
-//        double flip = 1;
+        Logger.recordOutput("flip" + moduleNumber, flip);
+        flip = 1;
 //        setSteeringAngleRaw(desiredState.angle.getDegrees());
         targetVelocity = desiredState.speedMetersPerSecond * flip;
         double rotorSpeed = MPSToRPS(

@@ -1,5 +1,6 @@
 package frc.utils.swerve;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -27,6 +28,7 @@ public final class SwerveConstants {
 
     public static TalonFXConfiguration DriveFXConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
+
         config.Slot0.kP = 0.030 * 12.0;
         config.Slot0.kI = 0.0;
         config.Slot0.kD = 0.000001 * 12.0;
@@ -47,12 +49,18 @@ public final class SwerveConstants {
 
         config.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.25;
         config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.25;
+
         return config;
     }
 
     public static TalonFXConfiguration
     AngleFXConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
+
+        FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
+        feedbackConfigs.FeedbackRotorOffset = 0;
+        config.withFeedback(new FeedbackConfigs());
+
 
         config.Slot0.kP = 0.25;
         config.Slot0.kI = 0.0;
