@@ -45,7 +45,7 @@ public class CTRDrivetrain extends DrivetrainBase {
         // Use the calculation from Drive base class, but don't let it do relative calculations
         // TODO - this is a bit hokey. We should have an explicit way to defer this to the drive subclass
         // without lying to the base class. That could cause other problems.
-        super.drive(speeds, false, speedScale);
+        super.drive(speeds, fieldRelative, speedScale);
         LoggerWrapper.recordOutput("Drive/DesiredSpeeds", speeds);
 //        m_localFieldRelative = fieldRelative;
         m_localFieldRelative = false;
