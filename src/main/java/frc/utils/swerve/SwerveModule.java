@@ -26,7 +26,7 @@ public class SwerveModule extends SubsystemBase {
 
     private TalonFX angleMotor;
     private TalonFX driveMotor;
-//    private MotorController angleMotor;
+    //    private MotorController angleMotor;
 //    private MotorController driveMotor;
     private CANcoder angleEncoder;
     @AutoLogOutput(key = "SwerveModule/Module {moduleNumber}/target angle")
@@ -68,25 +68,36 @@ public class SwerveModule extends SubsystemBase {
 
 
         driveMotor.setPosition(0);
+        angleMotor.setPosition(0);
 
-        MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
-        magnetSensorConfigs.MagnetOffset = 0;
-        angleEncoder.getConfigurator().apply(magnetSensorConfigs);
+//        magnetSensorConfigs.MagnetOffset = 0;
+//        angleEncoder.getConfigurator().apply(magnetSensorConfigs);
 
-        resetToAbsolute();
+//        resetToAbsolute();
 
     }
 
+
+//    public void resetToAbsolute() {
+////        double angle = placeInAppropriate0To360Scope(getCurrentDegrees(), getAbsolutePosition() - angleOffset);
+////        double absPosition = Conversions.degreesToRotation(angle, Constants.Drive.angleGearRatio);
+//        angleEncoder.getAbsolutePosition().waitForUpdate(1);
+//        double absPosition = Conversions.degreesToRotation(getAbsolutePosition() - angleOffset, Constants.Drive.angleGearRatio);
+//        Logger.recordOutput("reset abs " + moduleNumber, absPosition);
+//        StatusCode statusCode = angleMotor.setPosition(absPosition);
+//        Logger.recordOutput("Sts code" + moduleNumber, statusCode);
+//        Logger.recordOutput("reset " + moduleNumber, getAbsolutePosition()-angleOffset);
+////
+//
+////        angleMotor.setPosition(Conversions.degreesToRotation(getCurrentDegrees(), Constants.Drive.angleGearRatio));
+//    }
 
     public void resetToAbsolute() {
 //        double angle = placeInAppropriate0To360Scope(getCurrentDegrees(), getAbsolutePosition() - angleOffset);
 //        double absPosition = Conversions.degreesToRotation(angle, Constants.Drive.angleGearRatio);
         angleEncoder.getAbsolutePosition().waitForUpdate(1);
-        double absPosition = Conversions.degreesToRotation(getAbsolutePosition() - angleOffset, Constants.Drive.angleGearRatio);
-        Logger.recordOutput("reset abs " + moduleNumber, absPosition);
-        StatusCode statusCode = angleMotor.setPosition(absPosition);
-        Logger.recordOutput("Sts code" + moduleNumber, statusCode);
-        Logger.recordOutput("reset " + moduleNumber, getAbsolutePosition()-angleOffset);
+        double absPosition = Conversions.degreesToRotation(getAbsolutePosition(), Constants.Drive.angleGearRatio);
+        angleMotor.setPosition(absPosition);
 //
 
 //        angleMotor.setPosition(Conversions.degreesToRotation(getCurrentDegrees(), Constants.Drive.angleGearRatio));
@@ -122,6 +133,7 @@ public class SwerveModule extends SubsystemBase {
         }
         return newAngle;
     }
+
     @AutoLogOutput(key = "SwerveModule/Module {moduleNumber}/angle")
     public double getCurrentDegrees() {
         angleMotor.getRotorPosition().refresh();
@@ -149,9 +161,9 @@ public class SwerveModule extends SubsystemBase {
 //        setSteeringAngleRaw(desiredState.angle.getDegrees());
         targetVelocity = desiredState.speedMetersPerSecond * flip;
         double rotorSpeed = MPSToRPS(
-                targetVelocity,
-                Constants.Drive.wheelDiameter * Math.PI,
-                Constants.Drive.driveGearRatio);
+            targetVelocity,
+            Constants.Drive.wheelDiameter * Math.PI,
+            Constants.Drive.driveGearRatio);
 
         if (Math.abs(rotorSpeed) < 0.002) {
             driveDemand = new NeutralOut();
@@ -161,30 +173,14 @@ public class SwerveModule extends SubsystemBase {
     }
 
     private boolean setSteeringAngleOptimized(Rotation2d steerAngle) {
-//        boolean flip = false;
-//        final double angleUnclamped = getCurrentDegrees();
-//        final double target = steerAngle.getDegrees();
-//        double relativeDegrees = target - angleUnclamped;
-////        double relativeDegrees = relativeAngle.getDegrees();
-//        if (relativeDegrees > 90.0) {
-//            relativeDegrees -= 180.0;
-//            flip = true;
-//
-//        } else if (relativeDegrees < -90.0) {
-//            relativeDegrees += 180.0;
-//            flip = true;
-//        }
-//        setSteeringAngleRaw(angleUnclamped + relativeDegrees);
-//        targetAngle = angleUnclamped + relativeDegrees;
-//        return flip;
         boolean flip = false;
 
         final double targetClamped = steerAngle.getDegrees();
-        Logger.recordOutput("target clamped" + moduleNumber, targetClamped);
         final double angleUnclamped = getCurrentDegrees();
         final Rotation2d angleClamped = Rotation2d.fromDegrees(angleUnclamped);
         final Rotation2d relativeAngle = Rotation2d.fromDegrees(targetClamped).rotateBy(Conversions.inverse(angleClamped));
-        double relativeDegrees = relativeAngle.getDegrees();
+        double relativeDegrees = Math.round(relativeAngle.getDegrees());
+        Logger.recordOutput("relativeDegrees" + moduleNumber, relativeDegrees);
         if (relativeDegrees > 90.0) {
             relativeDegrees -= 180.0;
             flip = true;
@@ -214,12 +210,13 @@ public class SwerveModule extends SubsystemBase {
 //        rotationDemand = new VoltageOut(rotorPosition* kV);
 //        rotationDemand = positionVoltage;
     }
+
     @AutoLogOutput(key = "SwerveModule/Module {moduleNumber}/velocity")
     private double getCurrentVelocity() {
         return Conversions.RPSToMPS(
-                driveVelocity,
-                Constants.Drive.wheelDiameter * Math.PI,
-                Constants.Drive.driveGearRatio);
+            driveVelocity,
+            Constants.Drive.wheelDiameter * Math.PI,
+            Constants.Drive.driveGearRatio);
     }
 
 
@@ -242,20 +239,20 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("Module" + moduleNumber + "/Wheel Target Velocity", Math.abs(targetVelocity));
         SmartDashboard.putNumber("Module" + moduleNumber + "/Drivetrain Position", Math.abs(drivePosition));
         SmartDashboard.putNumber("Module" + moduleNumber + "/Duty Cycle",
-                driveMotor.getDutyCycle().getValueAsDouble());
+            driveMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("Module" + moduleNumber + "/Azi Current",
-                angleMotor.getSupplyCurrent().getValueAsDouble());
+            angleMotor.getSupplyCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Module" + moduleNumber + "/Drivetrain Current",
-                driveMotor.getSupplyCurrent().getValueAsDouble());
+            driveMotor.getSupplyCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Module" + moduleNumber + "/Wheel Velocity Error",
-                Math.abs(getCurrentVelocity()) - Math.abs(targetVelocity));
+            Math.abs(getCurrentVelocity()) - Math.abs(targetVelocity));
     }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(getCurrentVelocity(), Rotation2d.fromDegrees(getCurrentDegrees()));
     }
 
-    @AutoLogOutput ( key = "SwerveModule/Module {moduleNumber}/module angle" )
+    @AutoLogOutput(key = "SwerveModule/Module {moduleNumber}/module angle")
     public double getModuleAngle() {
         return Rotation2d.fromDegrees(getCurrentDegrees()).getDegrees();
     }

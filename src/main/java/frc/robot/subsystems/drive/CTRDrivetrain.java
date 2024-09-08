@@ -17,6 +17,7 @@ public class CTRDrivetrain extends DrivetrainBase {
     RobotState robotState;
     final CommandSwerveDrivetrain drivetrain;
     final SwerveRequest.ApplyChassisSpeeds drive;
+    final SwerveRequest.FieldCentric driveFieldOriented;
     private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
     private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
     Telemetry logger = new Telemetry(MaxSpeed);
@@ -28,8 +29,10 @@ public class CTRDrivetrain extends DrivetrainBase {
         robotState = RobotState.getInstance();
 
         drivetrain = TunerConstants.DriveTrain;
+
         drive = new SwerveRequest.ApplyChassisSpeeds()
-                .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
+            .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
+        driveFieldOriented = new SwerveRequest.FieldCentric().withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
@@ -41,14 +44,19 @@ public class CTRDrivetrain extends DrivetrainBase {
     }
 
     @Override
+    public void resetOrientation() {
+        drivetrain.getPigeon2().reset();
+    }
+
+    @Override
     public void drive(ChassisSpeeds speeds, boolean fieldRelative, double speedScale) {
         // Use the calculation from Drive base class, but don't let it do relative calculations
         // TODO - this is a bit hokey. We should have an explicit way to defer this to the drive subclass
         // without lying to the base class. That could cause other problems.
         super.drive(speeds, fieldRelative, speedScale);
         LoggerWrapper.recordOutput("Drive/DesiredSpeeds", speeds);
-//        m_localFieldRelative = fieldRelative;
-        m_localFieldRelative = false;
+        m_localFieldRelative = fieldRelative;
+//        m_localFieldRelative = false;
     }
 
     @Override
@@ -61,6 +69,12 @@ public class CTRDrivetrain extends DrivetrainBase {
 
         // ignoring field relative this should just be false.
 //        System.out.println(m_chassisSpeeds.vxMetersPerSecond + " " + m_chassisSpeeds.vyMetersPerSecond + " " + m_chassisSpeeds.omegaRadiansPerSecond);
-        drivetrain.setControl(drive.withSpeeds(m_chassisSpeeds));
+        if (m_localFieldRelative) {
+            drivetrain.setControl(driveFieldOriented.withVelocityX(m_chassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(m_chassisSpeeds.vyMetersPerSecond)
+                .withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
+        } else {
+            drivetrain.setControl(drive.withSpeeds(m_chassisSpeeds));
+        }
     }
 }
