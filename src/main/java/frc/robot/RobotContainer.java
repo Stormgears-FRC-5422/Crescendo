@@ -93,6 +93,7 @@ public class RobotContainer {
 
         // start somewhere
         Pose2d initialPose = new Pose2d(ButtonBoard.initPoseX, ButtonBoard.initPoseY,
+
             Rotation2d.fromDegrees(ButtonBoard.initPoseDegrees));
         robotState.setPose(initialPose);
 
@@ -301,22 +302,24 @@ public class RobotContainer {
             }
 
             if (Toggles.useClimber) {
-                System.out.println("Creating climber motion triggers");
-                new Trigger(() -> joystick.home()).onTrue(home.unless(robotState::climberHasBeenHomed));
-                new Trigger(() -> joystick.lower()).onTrue(
-                    new SequentialCommandGroup(
-                        new InstantCommand(() -> System.out.println("Current position = " + climber.getDegrees())),
-                        new InstantCommand(() -> System.out.println("Change in position = " + Constants.Climber.forwardDeltaDegrees)),
-                        new InstantCommand(() -> gotoReverseDeltaPosition
-                            .setTarget(climber.getDegrees() - Constants.Climber.forwardDeltaDegrees)),
-                        new InstantCommand(() -> gotoReverseDeltaPosition
-                            .forceWhenNotHomed(true)),
-                        gotoReverseDeltaPosition
-                    ).unless(robotState::climberHasBeenHomed));
-                new Trigger(() -> joystick.armPreClimb()).onTrue(
-                    gotoClimbStartPosition.unless(() -> !robotState.climberHasBeenHomed()));
-                new Trigger(() -> joystick.climb()).onTrue(climbing);
+                if (Toggles.drivePractice) {
+                    System.out.println("Creating climber motion triggers");
+                    new Trigger(() -> joystick.home()).onTrue(home.unless(robotState::climberHasBeenHomed));
+                    new Trigger(() -> joystick.lower()).onTrue(
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> System.out.println("Current position = " + climber.getDegrees())),
+                            new InstantCommand(() -> System.out.println("Change in position = " + Constants.Climber.forwardDeltaDegrees)),
+                            new InstantCommand(() -> gotoReverseDeltaPosition
+                                .setTarget(climber.getDegrees() - Constants.Climber.forwardDeltaDegrees)),
+                            new InstantCommand(() -> gotoReverseDeltaPosition
+                                .forceWhenNotHomed(true)),
+                            gotoReverseDeltaPosition
+                        ).unless(robotState::climberHasBeenHomed));
+                    new Trigger(() -> joystick.armPreClimb()).onTrue(
+                        gotoClimbStartPosition.unless(() -> !robotState.climberHasBeenHomed()));
+                    new Trigger(() -> joystick.climb()).onTrue(climbing);
 //                new Trigger(() -> joystick.climberEmergencyStop()).onTrue(emergencyStop);
+                }
             }
         } else {
             System.out.println("Creating SysID commands");
