@@ -1,12 +1,17 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import edu.wpi.first.math.estimator.PoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.ctrGenerated.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.ctrGenerated.Telemetry;
@@ -21,6 +26,7 @@ public class CTRDrivetrain extends DrivetrainBase {
     private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
     private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
     Telemetry logger = new Telemetry(MaxSpeed);
+    SwerveDrivePoseEstimator swerveDrivePoseEstimator;
 
     protected boolean m_localFieldRelative;
 
@@ -41,11 +47,34 @@ public class CTRDrivetrain extends DrivetrainBase {
         setMaxVelocities(MaxSpeed, MaxAngularRate);
         drivetrain.registerTelemetry(logger::telemeterize);
 
+
+
+        swerveDrivePoseEstimator = drivetrain.getPoseEstimator();
+        swerveDrivePoseEstimator.update(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions());
+
     }
 
     @Override
     public void resetOrientation() {
         drivetrain.getPigeon2().reset();
+    }
+
+    public Pose2d getPose() {
+        return swerveDrivePoseEstimator.getEstimatedPosition();
+    }
+
+    public void declarePoseIsNow(Pose2d newPose) {
+        // These *MUST* be done in this order or odometry will be wrong.
+
+        drivetrain.getPigeon2().setYaw(newPose.getRotation().getDegrees());
+        resetPose(newPose);
+        m_state.setPose(newPose);
+    }
+
+    public void resetPose(Pose2d pose) {
+        swerveDrivePoseEstimator.resetPosition(
+            drivetrain.getPigeon2().getRotation2d(),
+            drivetrain.getModulePositions(), pose);
     }
 
     @Override
@@ -61,6 +90,11 @@ public class CTRDrivetrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
+
+        swerveDrivePoseEstimator.update(drivetrain.getPigeon2().getRotation2d(),
+            drivetrain.getModulePositions());
+
+
 //        if (m_localFieldRelative) {
 //            swerveDrive.driveFieldOriented(m_chassisSpeeds);
 //        } else {
