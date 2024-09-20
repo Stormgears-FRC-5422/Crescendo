@@ -302,7 +302,6 @@ public class RobotContainer {
             }
 
             if (Toggles.useClimber) {
-                if (Toggles.drivePractice) {
                     System.out.println("Creating climber motion triggers");
                     new Trigger(() -> joystick.home()).onTrue(home.unless(robotState::climberHasBeenHomed));
                     new Trigger(() -> joystick.lower()).onTrue(
@@ -315,6 +314,7 @@ public class RobotContainer {
                                 .forceWhenNotHomed(true)),
                             gotoReverseDeltaPosition
                         ).unless(robotState::climberHasBeenHomed));
+                if (Toggles.drivePractice) {
                     new Trigger(() -> joystick.armPreClimb()).onTrue(
                         gotoClimbStartPosition.unless(() -> !robotState.climberHasBeenHomed()));
                     new Trigger(() -> joystick.climb()).onTrue(climbing);
