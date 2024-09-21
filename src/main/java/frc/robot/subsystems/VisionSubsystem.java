@@ -65,7 +65,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (results == null) {
             return Optional.empty();
         }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
 
         if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
             return Optional.of(targetResult.targets_Detector[0]);
@@ -78,7 +78,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (results == null) {
             return false;
         }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
 
         if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
             boolean isPresent = Optional.of(targetResult.targets_Detector[0]).isPresent();
@@ -94,7 +94,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (results == null) {
             return Optional.empty();
         }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
         if (targetResult != null && targetResult.valid && targetResult.targets_Retro.length > 0) {
             return Optional.of(targetResult.targets_Retro[0]);
         }
@@ -106,7 +106,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (results == null) {
             return Optional.empty();
         }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
         if (targetResult != null && targetResult.valid && targetResult.targets_Fiducials.length > 0) {
             return Optional.of(targetResult.targets_Fiducials[0]);
         }
