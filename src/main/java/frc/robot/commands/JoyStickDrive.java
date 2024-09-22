@@ -10,6 +10,8 @@ import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -82,6 +84,7 @@ public class JoyStickDrive extends StormCommand {
                 drivetrain.setDriveSpeedScale(turboSupplier.getAsDouble());
             }
         }
+
         ChassisSpeeds speeds;
         boolean fieldRelative;
         if (Constants.Toggles.outReach) {
@@ -108,6 +111,7 @@ public class JoyStickDrive extends StormCommand {
 //            speeds = new ChassisSpeeds(speedScaleLimiter.calculate(x), speedScaleLimiter.calculate(y),
 //                speedScaleLimiter.calculate(omega));
         }
+        Logger.recordOutput("Joystick speeds ", speeds);
         drivetrain.percentOutputDrive(speeds, fieldRelative);
     }
 }

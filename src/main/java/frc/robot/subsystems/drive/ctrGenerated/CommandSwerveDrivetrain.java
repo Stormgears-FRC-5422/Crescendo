@@ -8,12 +8,14 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 import java.util.function.Supplier;
 
@@ -40,10 +42,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
+    @AutoLogOutput
+    public SwerveModuleState[] getSwerveModuleStates(){
+        return getState().ModuleStates;
+    }
+
     public SwerveDrivePoseEstimator getPoseEstimator() {
         return m_odometry;
     }
 
+    @AutoLogOutput
     public SwerveModulePosition[] getModulePositions() {
         return m_modulePositions;
     }

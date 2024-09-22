@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public abstract class DrivetrainBase extends SubsystemBase {
 
@@ -26,8 +27,10 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     protected final RobotState m_state;
     protected boolean m_fieldRelative = false;
+    @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
+    //    protected final ShuffleboardTab tab;
     //    protected final ShuffleboardTab tab;
     DrivetrainBase() {
         setDriveSpeedScale(Drive.driveSpeedScale);
