@@ -1240,9 +1240,9 @@ public class LimelightHelpers {
      * Parses Limelight's JSON results dump into a LimelightResults Object
      */
     public static LimelightResults getLatestResults(String limelightName) {
-
         long start = System.nanoTime();
         LimelightHelpers.LimelightResults results = new LimelightHelpers.LimelightResults();
+        System.out.println("ll: " + limelightName + ": " + getJSONDump(limelightName));
         if (mapper == null) {
             mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         }
