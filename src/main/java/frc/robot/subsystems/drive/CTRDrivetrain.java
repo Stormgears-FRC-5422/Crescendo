@@ -35,7 +35,7 @@ public class CTRDrivetrain extends DrivetrainBase {
     protected boolean m_localFieldRelative;
     DoubleArraySubscriber poseSub;
 
-
+    int count = 0;
 
     public CTRDrivetrain() {
         NetworkTable table = NetworkTableInstance.getDefault().getTable("Pose");
@@ -47,32 +47,18 @@ public class CTRDrivetrain extends DrivetrainBase {
             .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
         driveFieldOriented = new SwerveRequest.FieldCentric().withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
 
-
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
 
         setMaxVelocities(MaxSpeed, MaxAngularRate);
         drivetrain.registerTelemetry(logger::telemeterize);
-
-
-
-//        swerveDrivePoseEstimator = drivetrain.getPoseEstimator();
-//        swerveDrivePoseEstimator.update(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions());
-
     }
 
     @Override
     public void resetOrientation() {
+        System.out.println("Resetting orientation");
         drivetrain.getPigeon2().reset();
-    }
-
-    @AutoLogOutput
-    public Pose2d getPose() {
-        return new Pose2d(poseSub.get()[0],
-            poseSub.get()[1],
-            new Rotation2d(poseSub.get()[2]));
-//        return drivetrain.getPoseEstimator().getEstimatedPosition();
     }
 
     public void declarePoseIsNow(Pose2d newPose) {
@@ -83,12 +69,18 @@ public class CTRDrivetrain extends DrivetrainBase {
         m_state.setPose(newPose);
     }
 
-
-
     public void resetPose(Pose2d pose) {
         drivetrain.getPoseEstimator().resetPosition(
             drivetrain.getPigeon2().getRotation2d(),
             drivetrain.getModulePositions(), pose);
+    }
+
+    @AutoLogOutput
+    public Pose2d getPose() {
+        return new Pose2d(poseSub.get()[0],
+            poseSub.get()[1],
+            new Rotation2d(Math.toRadians(poseSub.get()[2])));
+//        return drivetrain.getPoseEstimator().getEstimatedPosition();
     }
 
     @Override
@@ -122,6 +114,11 @@ public class CTRDrivetrain extends DrivetrainBase {
                 .withVelocityY(m_chassisSpeeds.vyMetersPerSecond)
                 .withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
         } else {
+            if (count++ % 5 == 0
+                && m_state.getPeriod() == RobotState.StatePeriod.AUTONOMOUS) {
+                System.out.println("in CTRDrive chassisSpeeds: " + m_chassisSpeeds);
+            }
+
             drivetrain.setControl(drive.withSpeeds(m_chassisSpeeds));
         }
     }

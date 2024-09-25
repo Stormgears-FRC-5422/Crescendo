@@ -27,6 +27,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     protected final RobotState m_state;
     protected boolean m_fieldRelative = false;
+
     @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -75,7 +76,6 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
         // TODO - work in the slew rate limiter. Apply before scale to preserve motion details
         m_chassisSpeeds = scaleChassisSpeeds(m_chassisSpeeds, speedScale);
-
     }
 
     /**

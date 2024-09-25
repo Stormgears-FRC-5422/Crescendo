@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
+import frc.robot.RobotState;
 import org.littletonrobotics.junction.Logger;
 
 import java.io.BufferedReader;
@@ -243,13 +244,21 @@ public class StormChoreo {
             Logger.recordOutput("ROT FF", rotationFF);
 
 
-            System.out.println("xE: " + xController.getPositionError() + ", yE: " + yController.getPositionError() +
-                ", rE: " + rotationController.getPositionError() );
-            System.out.println("xFeedback: " + xFeedback + ", yFeedback: " + yFeedback + ", rotationFeedback: " + rotationFeedback );
-            System.out.println("xFF: " + xFF + ", yFF: " + yFF + ", rotationFF: " + rotationFF );
+//            System.out.println("xE: " + xController.getPositionError() + ", yE: " + yController.getPositionError() +
+//                ", rE: " + rotationController.getPositionError() );
+//            System.out.println("xFF: " + xFF + ", yFF: " + yFF + ", rotationFF: " + rotationFF );
 
-            return ChassisSpeeds.fromFieldRelativeSpeeds(
-                xFF + xFeedback, yFF + yFeedback, rotationFF + rotationFeedback, pose.getRotation());
+//            System.out.println("in StormChoreo futureState: x: " + xFF + ", y: " + yFF + ", rot: " + rotationFF);
+//            System.out.println("in StormChoreo futureState: x: " + xFF + ", y: " + yFF + ", rot: " + rotationFF);
+            System.out.println("in StormChoreo xFF: " + xFF + ", yFF: " + yFF + ", rotationFF: " + rotationFF + ", r: " + pose.getRotation() );
+            System.out.println("               xFB: " + xFeedback + ", yFB: " + yFeedback + ", rotationFB: " + rotationFeedback );
+
+            ChassisSpeeds c = ChassisSpeeds.fromFieldRelativeSpeeds(
+                xFF + xFeedback,
+                yFF + yFeedback,
+                rotationFF + rotationFeedback,
+                pose.getRotation());
+            return c;
         };
     }
 }

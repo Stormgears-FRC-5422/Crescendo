@@ -10,8 +10,6 @@ import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
 import frc.robot.joysticks.CrescendoJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -27,7 +25,10 @@ public class JoyStickDrive extends StormCommand {
     private RobotState m_state;
     private boolean m_finish = true;
     private boolean m_flipJoystick = false;
-    private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.5);
+    private final SlewRateLimiter xScaleLimiter = new SlewRateLimiter(Constants.Drive.linearRateLimiter); //make it into a constant
+    private final SlewRateLimiter yScaleLimiter = new SlewRateLimiter(Constants.Drive.linearRateLimiter);
+    private final SlewRateLimiter omegaScaleLimiter = new SlewRateLimiter(Constants.Drive.turnRateLimiter);
+
 
 
     public JoyStickDrive(DrivetrainBase drivetrain,
@@ -84,7 +85,6 @@ public class JoyStickDrive extends StormCommand {
                 drivetrain.setDriveSpeedScale(turboSupplier.getAsDouble());
             }
         }
-
         ChassisSpeeds speeds;
         boolean fieldRelative;
         if (Constants.Toggles.outReach) {
@@ -103,15 +103,26 @@ public class JoyStickDrive extends StormCommand {
         // But only for field relative driving. Robot relative driving is always the same
 
         if (m_flipJoystick && fieldRelative) {
-            speeds = new ChassisSpeeds(-x, -y, omega);
-//            speeds = new ChassisSpeeds(speedScaleLimiter.calculate(-x), speedScaleLimiter.calculate(-y),
-//                speedScaleLimiter.calculate(omega));
+            // speeds = new ChassisSpeeds(-x, -y, omega);
+            if (Constants.ButtonBoard.squarePath) {
+                speeds = new ChassisSpeeds(xScaleLimiter.calculate(-x*Math.abs(-x)), yScaleLimiter.calculate(-y*Math.abs(-y)),
+                    omegaScaleLimiter.calculate(omega*Math.abs(omega)));
+            } else {
+                speeds = new ChassisSpeeds(xScaleLimiter.calculate(-x), yScaleLimiter.calculate(-y),
+                    omegaScaleLimiter.calculate(omega));
+
+            }
         } else {
-            speeds = new ChassisSpeeds(x, y, omega);
-//            speeds = new ChassisSpeeds(speedScaleLimiter.calculate(x), speedScaleLimiter.calculate(y),
-//                speedScaleLimiter.calculate(omega));
+            //  speeds = new ChassisSpeeds(x, y, omega);
+            if (Constants.ButtonBoard.squarePath) {
+                speeds = new ChassisSpeeds(xScaleLimiter.calculate(x*Math.abs(x)), yScaleLimiter.calculate(y*Math.abs(y)),
+                    omegaScaleLimiter.calculate(omega*Math.abs(omega)));
+
+            } else {
+                speeds = new ChassisSpeeds(xScaleLimiter.calculate(x), yScaleLimiter.calculate(y),
+                    omegaScaleLimiter.calculate(omega));
+            }
         }
-        Logger.recordOutput("Joystick speeds ", speeds);
         drivetrain.percentOutputDrive(speeds, fieldRelative);
     }
 }
