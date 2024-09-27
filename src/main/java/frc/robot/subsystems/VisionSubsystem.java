@@ -6,8 +6,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.utils.vision.LimelightExtra;
 import frc.utils.vision.LimelightHelpers;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import frc.robot.RobotState;
@@ -18,6 +20,7 @@ public class VisionSubsystem extends SubsystemBase {
     private RobotState robotState;
     private String limelightId;
     private LimelightHelpers.LimelightResults latestLimelightResults = null;
+    private int count;
 
     Optional<LimelightHelpers.LimelightTarget_Detector> noteDetector = Optional.empty();
 
@@ -26,11 +29,17 @@ public class VisionSubsystem extends SubsystemBase {
         LimelightHelpers.setLEDMode_PipelineControl("");
         LimelightHelpers.setLEDMode_ForceBlink("");
         robotState = RobotState.getInstance();
+        count = 0;
     }
 
     public LimelightHelpers.LimelightResults getLatestResults() {
         if (latestLimelightResults == null) {
             latestLimelightResults = LimelightHelpers.getLatestResults(limelightId);
+            count +=1;
+            if (count%50 ==0 ) {
+                //    System.out.println("info : " + latestLimelightResults.);
+            }
+
         }
         return latestLimelightResults;
     }
@@ -62,10 +71,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Optional<LimelightHelpers.LimelightTarget_Detector> getLatestDetectorTarget() {
         var results = getLatestResults();
-        if (results == null) {
-            return Optional.empty();
-        }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
+//        System.out.println(results.valid);
+//        System.out.println(Arrays.toString(results.targets_Detector));
+//        System.out.println(results.targets_Detector.length);
 
         if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
             return Optional.of(targetResult.targets_Detector[0]);
@@ -75,10 +84,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     public boolean isNoteDetected() {
         var results = getLatestResults();
+
+
         if (results == null) {
             return false;
         }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
 
         if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
             boolean isPresent = Optional.of(targetResult.targets_Detector[0]).isPresent();
@@ -94,7 +105,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (results == null) {
             return Optional.empty();
         }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
         if (targetResult != null && targetResult.valid && targetResult.targets_Retro.length > 0) {
             return Optional.of(targetResult.targets_Retro[0]);
         }
@@ -106,7 +117,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (results == null) {
             return Optional.empty();
         }
-        var targetResult = results.targetingResults;
+        var targetResult = results;
         if (targetResult != null && targetResult.valid && targetResult.targets_Fiducials.length > 0) {
             return Optional.of(targetResult.targets_Fiducials[0]);
         }
@@ -130,6 +141,16 @@ public class VisionSubsystem extends SubsystemBase {
 //        RobotState.getInstance().setVisionPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"),
 //            LimelightHelpers.getTV("limelight"));
         isNoteDetected();
+    }
+
+    public double getTX() {
+        return LimelightExtra.getTX(limelightId);
+    }
+    public double getTY(){
+        return LimelightExtra.getTY(limelightId);
+    }
+    public boolean getValid(){
+        return LimelightExtra.hasValidTarget(limelightId);
     }
 
 }

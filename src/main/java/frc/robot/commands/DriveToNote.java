@@ -19,9 +19,9 @@ public class DriveToNote extends Command {
 
     private static int TARGET =  -Constants.DriveToNote.targetOffset;
     private final PIDController translationController = new PIDController(Constants.DriveToNote.translationKp,
-                                        Constants.DriveToNote.translationKi, Constants.DriveToNote.translationKd);
+        Constants.DriveToNote.translationKi, Constants.DriveToNote.translationKd);
     private final PIDController rotationController = new PIDController(Constants.DriveToNote.rotationKp,
-                                        Constants.DriveToNote.rotationKi, Constants.DriveToNote.rotationKd);
+        Constants.DriveToNote.rotationKi, Constants.DriveToNote.rotationKd);
 
     DrivetrainBase drivetrain;
     StormXboxController controller;
@@ -55,12 +55,12 @@ public class DriveToNote extends Command {
     @Override
     public void execute() {
         rotation = 0;
-        if (visionSubsystem.getLatestDetectorTarget().isPresent()) {
-            tx = visionSubsystem.getLatestDetectorTarget().get().tx;
-            ty = visionSubsystem.getLatestDetectorTarget().get().ty;
+        if (visionSubsystem.getValid()) {
+            tx = visionSubsystem.getTX();
+            ty = visionSubsystem.getTX();
             movement = translationController.calculate(TARGET - ty);
             rotation = rotationController.calculate(tx);
-//            System.out.println("Note detected");
+            System.out.println("Note detected");
             count = 0;
         } else {
             count++;
