@@ -69,6 +69,7 @@ public class AutoCommandFactory {
 
 
     }
+
     public Command setPoseToTrajectoryStart(ChoreoTrajectory trajectory) {
         return Commands.runOnce(() -> {
             if (count == 0 && !RobotState.getInstance().isVisionPoseValid()) {
@@ -86,7 +87,6 @@ public class AutoCommandFactory {
     }
 
     public Command buildChoreoCommand(ChoreoTrajectory trajectory) {
-
 //        Logger.recordOutput("X setpoint", xController.getSetpoint());
 //        Logger.recordOutput("Translation X", drivetrain.getPose().getX());
 //        Logger.recordOutput("Y setpoint", yController.getSetpoint());
@@ -114,7 +114,6 @@ public class AutoCommandFactory {
 
         System.out.println("X P: " + xController.getP());
 
-
         return Commands.sequence(new InstantCommand(drivetrain::zeroWheels),
             StormChoreo.choreoSwerveCommand(
                 trajectory,
@@ -125,11 +124,11 @@ public class AutoCommandFactory {
                 (ChassisSpeeds speeds) -> drivetrain.drive(speeds, false, 1),
                 m_state::isAllianceRed,
                 drivetrain), new InstantCommand(drivetrain::stopDrive)
-
         );
     }
 
     public Command startAutoSequence(String trajectoryName) {
+        System.out.println("In startAutoSequence for trajectory : " + trajectoryName);
         return startAutoSequence(Choreo.getTrajectory(trajectoryName));
     }
 
@@ -148,10 +147,10 @@ public class AutoCommandFactory {
 //            startAutoSequence(Choreo.getTrajectory("simple_2m")),
 //            autoSequence(Choreo.getTrajectory("new2")),
 //        new Shoot(shooter));
-        System.out.println("getting simple_2m");
+        System.out.println("getting straight_2m_2");
 //        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("simple_2m")),
 //            Commands.waitSeconds(1),autoSequence(Choreo.getTrajectory("back_2m")));
-        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("straight_2m")));
+        return Commands.sequence(startAutoSequence(Choreo.getTrajectory("straight_2m_2")));
 //            Commands.waitSeconds(1), autoSequence(Choreo.getTrajectory("back_2m")));
 
     }

@@ -2,58 +2,50 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Pose": "Field2d",
       "/Shuffleboard/Pre Round/Auto Selector/Amp Far?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Amp Middle Far?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Amp?": "String Chooser",
-      "/Shuffleboard/Pre Round/Auto Selector/Far Left?": "String Chooser",
-      "/Shuffleboard/Pre Round/Auto Selector/Far Middle Left?": "String Chooser",
-      "/Shuffleboard/Pre Round/Auto Selector/Far Middle Right?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Far Middle?": "String Chooser",
-      "/Shuffleboard/Pre Round/Auto Selector/Far Right?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Middle?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Source Far?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Source Middle Far?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Source?": "String Chooser",
       "/Shuffleboard/Pre Round/Auto Selector/Starting Position?": "String Chooser",
-      "/SmartDashboard/Auto Choices": "String Chooser",
-      "/SmartDashboard/Field": "Field2d",
-      "/SmartDashboard/navX-Sensor[4]": "Gyro"
+      "/SmartDashboard/Module 0": "Mechanism2d",
+      "/SmartDashboard/Module 1": "Mechanism2d",
+      "/SmartDashboard/Module 2": "Mechanism2d",
+      "/SmartDashboard/Module 3": "Mechanism2d"
     },
     "windows": {
       "/SmartDashboard/Field": {
         "Robot": {
-          "arrowSize": 31,
-          "arrowWeight": 2.0,
-          "weight": 2.0
+          "arrowSize": 0,
+          "arrowWeight": 0.0,
+          "weight": 0.0
         },
         "XModules": {
-          "arrowSize": 56,
-          "arrowWeight": 2.0,
-          "length": 0.25,
-          "weight": 2.0,
-          "width": 0.25
-        },
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
-        "window": {
-          "visible": true
+          "arrowSize": 0,
+          "arrowWeight": 0.0,
+          "length": 0.0,
+          "weight": 0.0,
+          "width": 0.0
         }
       }
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
     "transitory": {
-      "Shuffleboard": {
+      "Drive": {
         "open": true
       },
-      "SmartDashboard": {
+      "FMSInfo": {
+        "open": true
+      },
+      "Pose": {
+        "double[]##v_/Pose/robotPose": {
+          "open": true
+        },
         "open": true
       }
     }

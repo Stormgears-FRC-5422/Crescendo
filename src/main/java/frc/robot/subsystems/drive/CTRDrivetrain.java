@@ -12,11 +12,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.ctrGenerated.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.ctrGenerated.Telemetry;
 import frc.robot.subsystems.drive.ctrGenerated.TunerConstants;
 import frc.utils.LoggerWrapper;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class CTRDrivetrain extends DrivetrainBase {
     RobotState robotState;
@@ -29,10 +33,13 @@ public class CTRDrivetrain extends DrivetrainBase {
     SwerveDrivePoseEstimator swerveDrivePoseEstimator;
 
     protected boolean m_localFieldRelative;
+    DoubleArraySubscriber poseSub;
 
+    int count = 0;
 
     public CTRDrivetrain() {
-        robotState = RobotState.getInstance();
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("Pose");
+        poseSub = table.getDoubleArrayTopic("robotPose").subscribe(new double[] {});
 
         drivetrain = TunerConstants.DriveTrain;
 
@@ -46,21 +53,12 @@ public class CTRDrivetrain extends DrivetrainBase {
 
         setMaxVelocities(MaxSpeed, MaxAngularRate);
         drivetrain.registerTelemetry(logger::telemeterize);
-
-
-
-        swerveDrivePoseEstimator = drivetrain.getPoseEstimator();
-        swerveDrivePoseEstimator.update(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions());
-
     }
 
     @Override
     public void resetOrientation() {
+        System.out.println("Resetting orientation");
         drivetrain.getPigeon2().reset();
-    }
-
-    public Pose2d getPose() {
-        return swerveDrivePoseEstimator.getEstimatedPosition();
     }
 
     public void declarePoseIsNow(Pose2d newPose) {
@@ -72,9 +70,17 @@ public class CTRDrivetrain extends DrivetrainBase {
     }
 
     public void resetPose(Pose2d pose) {
-        swerveDrivePoseEstimator.resetPosition(
+        drivetrain.getPoseEstimator().resetPosition(
             drivetrain.getPigeon2().getRotation2d(),
             drivetrain.getModulePositions(), pose);
+    }
+
+    @AutoLogOutput
+    public Pose2d getPose() {
+        return new Pose2d(poseSub.get()[0],
+            poseSub.get()[1],
+            new Rotation2d(Math.toRadians(poseSub.get()[2])));
+//        return drivetrain.getPoseEstimator().getEstimatedPosition();
     }
 
     @Override
@@ -91,8 +97,8 @@ public class CTRDrivetrain extends DrivetrainBase {
     @Override
     public void periodic() {
 
-        swerveDrivePoseEstimator.update(drivetrain.getPigeon2().getRotation2d(),
-            drivetrain.getModulePositions());
+//        drivetrain.getPoseEstimator().update(drivetrain.getPigeon2().getRotation2d(),
+//            drivetrain.getModulePositions());
 
 
 //        if (m_localFieldRelative) {
@@ -108,6 +114,11 @@ public class CTRDrivetrain extends DrivetrainBase {
                 .withVelocityY(m_chassisSpeeds.vyMetersPerSecond)
                 .withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
         } else {
+            if (count++ % 5 == 0
+                && m_state.getPeriod() == RobotState.StatePeriod.AUTONOMOUS) {
+                System.out.println("in CTRDrive chassisSpeeds: " + m_chassisSpeeds);
+            }
+
             drivetrain.setControl(drive.withSpeeds(m_chassisSpeeds));
         }
     }

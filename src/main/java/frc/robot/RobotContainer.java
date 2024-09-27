@@ -265,7 +265,7 @@ public class RobotContainer {
 
         if (!Toggles.useSysId) {
             System.out.println("Creating non SysID commands");
-            if (Toggles.useIntake && Toggles.useShooter && Toggles.useClimber) {
+            if (Toggles.useIntake && Toggles.useShooter) {
                 new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
                 new Trigger(() -> joystick.shooter()).onTrue(shoot);
                 if (Toggles.useClimber) {
@@ -274,18 +274,19 @@ public class RobotContainer {
                         groundPickup).asProxy().onlyIf(robotState::climberHasBeenHomed)
                         .andThen(new RumbleCommand(joystick, 1.0)
                             .unless(() -> !robotState.isUpperSensorTriggered()))));
+
+                    new Trigger(() -> joystick.shooterAmp()).onTrue(
+                        new SequentialCommandGroup(
+                            gotoAmpShootPosition,
+                            ampShoot,
+                            gotoStowPosition
+                        ).unless(() -> !robotState.climberHasBeenHomed()));
                 } else {
                     new Trigger(() -> joystick.intake()).onTrue(groundPickup.asProxy().onlyIf(robotState::climberHasBeenHomed)
                         .andThen(new RumbleCommand(joystick, 1.0)
                             .unless(() -> !robotState.isUpperSensorTriggered())));
                 }
 
-                new Trigger(() -> joystick.shooterAmp()).onTrue(
-                    new SequentialCommandGroup(
-                        gotoAmpShootPosition,
-                        ampShoot,
-                        gotoStowPosition
-                    ).unless(() -> !robotState.climberHasBeenHomed()));
                 new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
                 new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
 //                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
