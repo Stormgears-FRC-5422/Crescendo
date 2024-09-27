@@ -315,7 +315,7 @@ public class RobotContainer {
                                 .forceWhenNotHomed(true)),
                             gotoReverseDeltaPosition
                         ).unless(robotState::climberHasBeenHomed));
-                if (Toggles.drivePractice) {
+                if (!Toggles.drivePractice) {
                     new Trigger(() -> joystick.armPreClimb()).onTrue(
                         gotoClimbStartPosition.unless(() -> !robotState.climberHasBeenHomed()));
                     new Trigger(() -> joystick.climb()).onTrue(climbing);

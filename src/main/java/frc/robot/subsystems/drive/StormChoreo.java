@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
-import frc.robot.RobotState;
+
 import org.littletonrobotics.junction.Logger;
 
 import java.io.BufferedReader;
@@ -229,6 +229,7 @@ public class StormChoreo {
             double rotationFeedback =
                 rotationController.calculate(pose.getRotation().getRadians(), referenceState.heading);
 
+            Logger.recordOutput("Choreo Pose", pose);
             Logger.recordOutput("X setpoint", referenceState.x);
             Logger.recordOutput("X Pose", pose.getX());
             Logger.recordOutput("X FF", xFF);
