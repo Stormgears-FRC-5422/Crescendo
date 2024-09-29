@@ -21,6 +21,7 @@ import frc.robot.subsystems.drive.ctrGenerated.Telemetry;
 import frc.robot.subsystems.drive.ctrGenerated.TunerConstants;
 import frc.utils.LoggerWrapper;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class CTRDrivetrain extends DrivetrainBase {
     RobotState robotState;
@@ -57,12 +58,25 @@ public class CTRDrivetrain extends DrivetrainBase {
 
     @Override
     public void resetOrientation() {
-        System.out.println("Resetting orientation");
-        drivetrain.getPigeon2().reset();
+//        Pose2d oldPose = getPose();
+//
+//        // Note that this behavior defaults to blue if alliance is missing.
+        Rotation2d newRotation = m_state.isAllianceRed()
+            ? new Rotation2d(-1, 0)
+            : new Rotation2d(1, 0);
+
+        System.out.println("Reset orientation at degrees: " + newRotation.getDegrees());
+
+//
+//        drivetrain.resetPose(newRotation);
+
+        drivetrain.getPigeon2().setYaw(newRotation.getDegrees());
+//        drivetrain.resetPose(newRotation);
     }
 
     public void declarePoseIsNow(Pose2d newPose) {
         // These *MUST* be done in this order or odometry will be wrong.
+
 
         drivetrain.getPigeon2().setYaw(newPose.getRotation().getDegrees());
         resetPose(newPose);
@@ -96,6 +110,7 @@ public class CTRDrivetrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
+        Logger.recordOutput("Pigeon Yaw", drivetrain.getPigeon2().getAngle());
 
 //        drivetrain.getPoseEstimator().update(drivetrain.getPigeon2().getRotation2d(),
 //            drivetrain.getModulePositions());

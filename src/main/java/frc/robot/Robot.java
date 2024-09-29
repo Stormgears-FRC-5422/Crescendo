@@ -16,6 +16,7 @@ import frc.robot.RobotState.StatePeriod;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -241,12 +242,18 @@ public class Robot extends LoggedRobot {
         } else {
             System.out.println("Auto Command NULL");
         }
+
+        System.out.println("Auto Init Pos X: " + RobotState.getInstance().getPose().getX());
+        System.out.println("Auto Init Pos Y: " + RobotState.getInstance().getPose().getY());
+        System.out.println("Auto Init Pos rot: " + RobotState.getInstance().getPose().getRotation().getDegrees());
     }
 
     @Override
     public void autonomousExit() {
         System.out.println("AutoExit");
-    }
+        System.out.println("Auto exti Pos X: " + RobotState.getInstance().getPose().getX());
+        System.out.println("Auto exit Pos Y: " + RobotState.getInstance().getPose().getY());
+        System.out.println("Auto exit Pos rot: " + RobotState.getInstance().getPose().getRotation().getDegrees());    }
 
     /**
      * This function is called periodically during autonomous.
@@ -276,6 +283,10 @@ public class Robot extends LoggedRobot {
         if (Constants.Toggles.useClimber && Constants.Climber.autoHome) {
             m_robotContainer.autoHome();
         }
+
+        System.out.println("tele Init Pos X: " + RobotState.getInstance().getPose().getX());
+        System.out.println("tele Init Pos Y: " + RobotState.getInstance().getPose().getY());
+        System.out.println("tele Init Pos rot: " + RobotState.getInstance().getPose().getRotation().getDegrees());
     }
 
     /**

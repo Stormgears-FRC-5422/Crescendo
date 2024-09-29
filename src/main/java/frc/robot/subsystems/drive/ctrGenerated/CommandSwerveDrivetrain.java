@@ -51,6 +51,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return m_odometry;
     }
 
+    public void resetPose(Rotation2d rot){
+        m_odometry.resetPosition(rot, getModulePositions(), m_odometry.getEstimatedPosition());
+    }
+
     @AutoLogOutput
     public SwerveModulePosition[] getModulePositions() {
         return m_modulePositions;

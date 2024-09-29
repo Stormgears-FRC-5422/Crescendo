@@ -181,9 +181,9 @@ public class AutoCommandFactory {
     public Command commandBuilder(ChoreoTrajectory trajectory, ChoreoTrajectory trajectory2) {
         return Commands.sequence(
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
-            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose())),
+//            new InstantCommand(() -> drivetrain.setVisionPose(RobotState.getInstance().getVisionPose())),
             startAutoSequence(trajectory),
-//            new DriveToNote(drivetrain, visionSubsystemNote),
+            new DriveToNote(drivetrain, visionSubsystemNote),
             new InstantCommand(() -> shooter.setShooterState(Shooter.ShooterState.GROUND_PICKUP)),
             autoSequence(trajectory2),
             new Shoot(shooter));
