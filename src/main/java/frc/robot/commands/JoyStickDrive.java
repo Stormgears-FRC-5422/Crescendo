@@ -14,6 +14,8 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import static frc.robot.subsystems.drive.DrivetrainFactory.driveFlip;
+
 public class JoyStickDrive extends StormCommand {
     private DrivetrainBase drivetrain;
     private final DoubleSupplier txSupplier;
@@ -102,7 +104,7 @@ public class JoyStickDrive extends StormCommand {
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
         // But only for field relative driving. Robot relative driving is always the same
 
-        if (m_flipJoystick && fieldRelative) {
+        if (m_flipJoystick && fieldRelative && driveFlip) {
             // speeds = new ChassisSpeeds(-x, -y, omega);
             if (Constants.ButtonBoard.squarePath) {
                 speeds = new ChassisSpeeds(xScaleLimiter.calculate(-x*Math.abs(-x)), yScaleLimiter.calculate(-y*Math.abs(-y)),

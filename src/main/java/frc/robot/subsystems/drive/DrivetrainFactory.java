@@ -4,9 +4,10 @@ import java.io.IOException;
 
 public class DrivetrainFactory {
     protected static DrivetrainBase instance;
+    public static boolean driveFlip = true;
 
     public static DrivetrainBase getInstance(String driveType) throws IllegalDriveTypeException {
-        if (instance ==  null) {
+        if (instance == null) {
             System.out.println("Initializing " + driveType);
             switch (driveType.toLowerCase()) {
                 case "swervedrive" -> instance = new SwerveDriveTrain();
@@ -19,7 +20,10 @@ public class DrivetrainFactory {
                     }
                 }
                 case "mecanumdrive" -> instance = new MecanumDrivetrain();
-                case "ctrdrive" -> instance = new CTRDrivetrain();
+                case "ctrdrive" -> {
+                    instance = new CTRDrivetrain();
+                    driveFlip = false;
+                }
                 case "krishdrive" -> instance = new KrishDrive();
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType + " ---!");
             }
