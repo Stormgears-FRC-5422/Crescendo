@@ -24,9 +24,12 @@ public abstract class DrivetrainBase extends SubsystemBase {
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.25);
     protected final ShuffleboardTab tab;
+    protected
 
-    protected final RobotState m_state;
+    final RobotState m_state;
     protected boolean m_fieldRelative = false;
+    public static boolean driveFlip = true;
+
 
     @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
@@ -163,6 +166,10 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     public void setSwerveModulesStates(SwerveModuleState[] swerveModulesStates) {
 
+    }
+
+    protected void setDriveFlip(boolean flip) {
+        driveFlip = flip;
     }
 
 }

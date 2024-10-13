@@ -39,6 +39,7 @@ public class CTRDrivetrain extends DrivetrainBase {
     int count = 0;
 
     public CTRDrivetrain() {
+        setDriveFlip(false);
         NetworkTable table = NetworkTableInstance.getDefault().getTable("Pose");
         poseSub = table.getDoubleArrayTopic("robotPose").subscribe(new double[] {});
 

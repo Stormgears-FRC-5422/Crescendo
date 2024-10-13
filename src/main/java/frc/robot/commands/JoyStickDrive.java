@@ -14,7 +14,7 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import static frc.robot.subsystems.drive.DrivetrainFactory.driveFlip;
+import static frc.robot.subsystems.drive.DrivetrainBase.driveFlip;
 
 public class JoyStickDrive extends StormCommand {
     private DrivetrainBase drivetrain;
