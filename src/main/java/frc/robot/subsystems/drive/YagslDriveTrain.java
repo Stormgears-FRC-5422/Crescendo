@@ -60,6 +60,7 @@ public class YagslDriveTrain extends DrivetrainBase {
 
 
     YagslDriveTrain() throws IOException {
+        setFieldRelativeOn(false);
 
         super.setMaxVelocities(maxVelocityMetersPerSecond, maxAngularVelocityRadiansPerSecond);
         File directory = new File(Filesystem.getDeployDirectory(), Swerve.configDirectory);
@@ -199,7 +200,7 @@ public class YagslDriveTrain extends DrivetrainBase {
         // Use the calculation from Drive base class, but don't let it do relative calculations
         // TODO - this is a bit hokey. We should have an explicit way to defer this to the drive subclass
         // without lying to the base class. That could cause other problems.
-        super.drive(speeds, false, speedScale);
+        super.drive(speeds, fieldRelative, speedScale);
         LoggerWrapper.recordOutput("Drive/DesiredSpeeds", speeds);
         m_localFieldRelative = fieldRelative;
     }

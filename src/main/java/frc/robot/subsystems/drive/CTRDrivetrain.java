@@ -40,6 +40,7 @@ public class CTRDrivetrain extends DrivetrainBase {
 
     public CTRDrivetrain() {
         setDriveFlip(false);
+        setFieldRelativeOn(false);
         NetworkTable table = NetworkTableInstance.getDefault().getTable("Pose");
         poseSub = table.getDoubleArrayTopic("robotPose").subscribe(new double[] {});
 

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.drive;
 
-//import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -29,6 +28,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     final RobotState m_state;
     protected boolean m_fieldRelative = false;
     public static boolean driveFlip = true;
+    public static boolean fieldRelativeOn = true;
 
 
     @AutoLogOutput
@@ -70,7 +70,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
     public void drive(ChassisSpeeds speeds, boolean fieldRelative, double speedScale) {
         m_fieldRelative = fieldRelative;
 
-        if (fieldRelative) {
+        if (fieldRelativeOn && fieldRelative) {
             Rotation2d rotation = m_state.getHeading();
             m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
         } else {
@@ -170,6 +170,10 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     protected void setDriveFlip(boolean flip) {
         driveFlip = flip;
+    }
+
+    protected void setFieldRelativeOn(boolean flip){
+        fieldRelativeOn = flip;
     }
 
 }
