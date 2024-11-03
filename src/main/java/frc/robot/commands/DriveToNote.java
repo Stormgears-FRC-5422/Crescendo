@@ -78,8 +78,7 @@ public class DriveToNote extends Command {
 
     @Override
     public boolean isFinished() {
-//        return RobotState.getInstance().getShooterState() == Shooter.ShooterState.STAGED_FOR_SHOOTING;
-        return RobotState.getInstance().isUpperSensorTriggered() || count >10;
+       return RobotState.getInstance().isUpperSensorTriggered() || count >10;
     }
 
     @Override

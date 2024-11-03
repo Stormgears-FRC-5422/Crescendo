@@ -72,6 +72,9 @@ public class LimelightExtra {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
         table.getEntry("pipeline").setNumber(1);
     }
-
+    public double[] getcorners(String limelight) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
+        return table.getEntry("tcornxy").getDoubleArray(new double[0]);
+    }
 
 }

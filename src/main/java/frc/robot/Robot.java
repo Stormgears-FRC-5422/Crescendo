@@ -59,6 +59,9 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
+
+        // Push the trajectory to Field2d.
+
         System.out.println("[Init] Robot");
 
         m_state = RobotState.getInstance();
