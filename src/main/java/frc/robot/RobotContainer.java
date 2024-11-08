@@ -241,6 +241,62 @@ public class RobotContainer {
      * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
      * joysticks}.
      */
+    private void configureOutreachBindings() {
+        System.out.println("[Init] configureOutreachBindings");
+
+
+        new Trigger(() -> joystick.driveNote()).whileTrue(Commands.deadline(
+            new GroundPickup(shooter),
+            new DriveToNote(drivetrain, visionSubsystemNote)).andThen(new RumbleCommand(joystick, 1.0)
+            .unless(() -> !robotState.isUpperSensorTriggered())));
+
+
+
+        new Trigger(() -> joystick.alignApriltag()).whileTrue(Commands.deadline(
+            new alignToApriltag(drivetrain, visionSubsystem)));
+
+        if (!Toggles.useSysId) {
+            System.out.println("Creating non SysID commands");
+            if (Toggles.useIntake && Toggles.useShooter) {
+                new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+                new Trigger(() -> joystick.shooter()).onTrue(shoot);
+                new Trigger(() -> joystick.intake()).onTrue(((new RumbleCommand(joystick, 1.0)
+                    .unless(() -> !robotState.isUpperSensorTriggered()))));
+
+                new Trigger(() -> joystick.shooterAmp()).onTrue(
+                    new SequentialCommandGroup(
+                        gotoAmpShootPosition,
+                        ampShoot,
+                        gotoStowPosition
+                    ).unless(() -> !robotState.climberHasBeenHomed()));
+                new Trigger(() -> joystick.intake()).onTrue(groundPickup.asProxy().onlyIf(robotState::climberHasBeenHomed)
+                    .andThen(new RumbleCommand(joystick, 1.0)
+                        .unless(() -> !robotState.isUpperSensorTriggered())));
+
+                new Trigger(() -> joystick.shooterIntake()).onTrue(sourceIntake);
+                new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
+//                new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(diagnosticShooterIntake);
+                new Trigger(() -> joystick.outtake()).whileTrue(outtake);
+                new Trigger(() -> joystick.eject()).whileTrue(eject);
+//                new Trigger(() ->joystick.ampPosition()).onTrue(new SimpleGotoDegrees(climber, Constants.Climber.ampShootDegrees,
+//                    Climber.Direction.FORWARD));
+            }
+            new Trigger(() -> joystick.intake()).onTrue(groundPickup);
+            new Trigger(() -> joystick.shooterAmp()).onTrue(ampShoot);
+            new Trigger(() -> joystick.shooter()).onTrue(shoot);
+            new Trigger(() -> joystick.shooterIntake()).onTrue(shooterIntake);
+
+
+            System.out.println("Creating SysID commands");
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getSysIdCommand()); //down arrow
+            new Trigger(() -> joystick.diagnosticShooterIntake()).onTrue(drivetrain.getQuasForwardCommand()); //down arrow
+            new Trigger(() -> joystick.shooterAmp()).onTrue(drivetrain.getQuasBackwardCommand()); //x button
+            new Trigger(() -> joystick.outtake()).onTrue(drivetrain.getDynamicForwardCommand()); //up arrow
+            new Trigger(() -> joystick.shooterIntake()).onTrue(drivetrain.getDynamicBackwardCommand()); //y button
+            new Trigger(() -> joystick.zeroWheels()).onTrue(new InstantCommand(() -> drivetrain.zeroWheels()));
+        }
+
+    }
     private void configureBindings() {
         System.out.println("[Init] configureBindings");
 
@@ -303,18 +359,18 @@ public class RobotContainer {
             }
 
             if (Toggles.useClimber) {
-                    System.out.println("Creating climber motion triggers");
-                    new Trigger(() -> joystick.home()).onTrue(home.unless(robotState::climberHasBeenHomed));
-                    new Trigger(() -> joystick.lower()).onTrue(
-                        new SequentialCommandGroup(
-                            new InstantCommand(() -> System.out.println("Current position = " + climber.getDegrees())),
-                            new InstantCommand(() -> System.out.println("Change in position = " + Constants.Climber.forwardDeltaDegrees)),
-                            new InstantCommand(() -> gotoReverseDeltaPosition
-                                .setTarget(climber.getDegrees() - Constants.Climber.forwardDeltaDegrees)),
-                            new InstantCommand(() -> gotoReverseDeltaPosition
-                                .forceWhenNotHomed(true)),
-                            gotoReverseDeltaPosition
-                        ).unless(robotState::climberHasBeenHomed));
+                System.out.println("Creating climber motion triggers");
+                new Trigger(() -> joystick.home()).onTrue(home.unless(robotState::climberHasBeenHomed));
+                new Trigger(() -> joystick.lower()).onTrue(
+                    new SequentialCommandGroup(
+                        new InstantCommand(() -> System.out.println("Current position = " + climber.getDegrees())),
+                        new InstantCommand(() -> System.out.println("Change in position = " + Constants.Climber.forwardDeltaDegrees)),
+                        new InstantCommand(() -> gotoReverseDeltaPosition
+                            .setTarget(climber.getDegrees() - Constants.Climber.forwardDeltaDegrees)),
+                        new InstantCommand(() -> gotoReverseDeltaPosition
+                            .forceWhenNotHomed(true)),
+                        gotoReverseDeltaPosition
+                    ).unless(robotState::climberHasBeenHomed));
                 if (!Toggles.drivePractice) {
                     new Trigger(() -> joystick.armPreClimb()).onTrue(
                         gotoClimbStartPosition.unless(() -> !robotState.climberHasBeenHomed()));
@@ -360,3 +416,12 @@ public class RobotContainer {
         }
     }
 }
+
+
+
+
+
+
+
+
+
