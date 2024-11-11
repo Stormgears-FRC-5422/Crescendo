@@ -16,9 +16,11 @@ import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 
+import static frc.robot.subsystems.drive.DrivetrainFactory.instance;
+
 public abstract class DrivetrainBase extends SubsystemBase {
 
-    public double m_maxVelocityMetersPerSecond = 1 ;
+    public double m_maxVelocityMetersPerSecond = 1;
     public double m_maxAngularVelocityRadiansPerSecond = 1;
     protected double m_driveSpeedScale = 0;
     private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.25);
@@ -40,6 +42,9 @@ public abstract class DrivetrainBase extends SubsystemBase {
         setDriveSpeedScale(Drive.driveSpeedScale);
         tab = ShuffleboardConstants.getInstance().drivetrainTab;
         m_state = RobotState.getInstance();
+        setDriveFlip(false);
+        setFieldRelativeOn(false);
+
     }
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
@@ -52,14 +57,15 @@ public abstract class DrivetrainBase extends SubsystemBase {
     // Be careful scaling ChassisSpeeds. Need to scale X and Y the same or your robot will move in the wrong direction!
     public ChassisSpeeds scaleChassisSpeeds(ChassisSpeeds speeds, double scale) {
         return new ChassisSpeeds(scale * speeds.vxMetersPerSecond,
-                                 scale * speeds.vyMetersPerSecond,
-                                 scale * speeds.omegaRadiansPerSecond);
+            scale * speeds.vyMetersPerSecond,
+            scale * speeds.omegaRadiansPerSecond);
     }
 
     /**
      * Command the robot to drive.
      * This method expects real speeds in meters/second.
      * Speed may be limited by speedScale and / or slew rate limiter
+     *
      * @param speeds        Chassis speedsSwerveDriveConfiguration for the swerve, esp from joystick.
      * @param fieldRelative True for field relative driving
      */
@@ -85,14 +91,15 @@ public abstract class DrivetrainBase extends SubsystemBase {
      * Command the robot to drive, especially from Joystick
      * This method expects units from -1 to 1, and then scales them to the max speeds
      * You should call setMaxVelocities() before calling this method
+     *
      * @param speeds        Chassis speeds, especially from joystick.
      * @param fieldRelative True for field relative driving
      */
     public void percentOutputDrive(ChassisSpeeds speeds, boolean fieldRelative) {
         drive(new ChassisSpeeds(speeds.vxMetersPerSecond * m_maxVelocityMetersPerSecond,
-                        speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
-                        speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond),
-                fieldRelative);
+                speeds.vyMetersPerSecond * m_maxVelocityMetersPerSecond,
+                speeds.omegaRadiansPerSecond * m_maxAngularVelocityRadiansPerSecond),
+            fieldRelative);
     }
 
     public void setDriveSpeedScale(double scale) {
@@ -107,7 +114,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
         return m_chassisSpeeds;
     }
 
-    public Pose2d getPose(){
+    public Pose2d getPose() {
         return new Pose2d();
     }
 
@@ -123,31 +130,32 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     }
 
-    public Command getQuasForwardCommand(){
+    public Command getQuasForwardCommand() {
         return new Command() {
         };
     }
 
-    public Command getQuasBackwardCommand(){
+    public Command getQuasBackwardCommand() {
         return new Command() {
         };
     }
 
-    public Command getDynamicForwardCommand(){
+    public Command getDynamicForwardCommand() {
         return new Command() {
         };
     }
 
-    public Command getDynamicBackwardCommand(){
+    public Command getDynamicBackwardCommand() {
         return new Command() {
         };
     }
 
-    public void zeroWheels(){
+    public void zeroWheels() {
 
     }
 
-    public void setHeadingCorrectionTrue(){}
+    public void setHeadingCorrectionTrue() {
+    }
 
     public Command getSysIdCommand() {
         return new Command() {
@@ -155,7 +163,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
 
     }
 
-    public void setVisionPose (Pose2d pose2d) {
+    public void setVisionPose(Pose2d pose2d) {
 
     }
 
@@ -172,7 +180,7 @@ public abstract class DrivetrainBase extends SubsystemBase {
         driveFlip = flip;
     }
 
-    protected void setFieldRelativeOn(boolean flip){
+    protected void setFieldRelativeOn(boolean flip) {
         fieldRelativeOn = flip;
     }
 

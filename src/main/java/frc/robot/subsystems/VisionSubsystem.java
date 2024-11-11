@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.apriltag.AprilTagPoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -12,6 +13,7 @@ import frc.utils.vision.LimelightHelpers;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+
 import frc.robot.RobotState;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
@@ -35,8 +37,8 @@ public class VisionSubsystem extends SubsystemBase {
     public LimelightHelpers.LimelightResults getLatestResults() {
         if (latestLimelightResults == null) {
             latestLimelightResults = LimelightHelpers.getLatestResults(limelightId);
-            count +=1;
-            if (count%50 ==0 ) {
+            count += 1;
+            if (count % 50 == 0) {
                 //    System.out.println("info : " + latestLimelightResults.);
             }
 
@@ -123,6 +125,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
         return Optional.empty();
     }
+
     private static Pose2d toPose2D(double[] inData) {
         if (inData.length < 6) {
             //System.err.println("Bad LL 2D Pose Data!");
@@ -130,8 +133,10 @@ public class VisionSubsystem extends SubsystemBase {
         }
         Translation2d tran2d = new Translation2d(inData[0], inData[1]);
         Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
+//        AprilTagPoseEstimator estimator = new AprilTagPoseEstimator();
         return new Pose2d(tran2d, r2d);
     }
+
 
 
 
@@ -146,10 +151,12 @@ public class VisionSubsystem extends SubsystemBase {
     public double getTX() {
         return LimelightExtra.getTX(limelightId);
     }
-    public double getTY(){
+
+    public double getTY() {
         return LimelightExtra.getTY(limelightId);
     }
-    public boolean getValid(){
+
+    public boolean getValid() {
         return LimelightExtra.hasValidTarget(limelightId);
     }
 

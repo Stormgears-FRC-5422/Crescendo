@@ -66,6 +66,7 @@ public class CTRDrivetrain extends DrivetrainBase {
         Rotation2d newRotation = m_state.isAllianceRed()
             ? new Rotation2d(-1, 0)
             : new Rotation2d(1, 0);
+//         Rotation2d newRotation = new Rotation2d(1,0);
 
         System.out.println("Reset orientation at degrees: " + newRotation.getDegrees());
 

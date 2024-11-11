@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import frc.robot.subsystems.Pigeon;
+
 import java.io.IOException;
 
 public class DrivetrainFactory {
@@ -25,6 +27,9 @@ public class DrivetrainFactory {
                 case "krishdrive" -> instance = new KrishDrive();
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType + " ---!");
             }
+        }
+        if (!driveType.equalsIgnoreCase("ctrdrive")){
+            Pigeon pigeon = new Pigeon();
         }
         return instance;
     }
