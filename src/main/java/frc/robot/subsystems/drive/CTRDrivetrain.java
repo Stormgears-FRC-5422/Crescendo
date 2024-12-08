@@ -113,6 +113,8 @@ public class CTRDrivetrain extends DrivetrainBase {
 
     @Override
     public void periodic() {
+
+        drivetrain.periodic();
         Logger.recordOutput("Pigeon Yaw", drivetrain.getPigeon2().getAngle());
 
 //        drivetrain.getPoseEstimator().update(drivetrain.getPigeon2().getRotation2d(),
